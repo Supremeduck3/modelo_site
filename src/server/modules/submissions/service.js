@@ -102,9 +102,27 @@ export async function createSubmission(rawInput) {
           },
         });
 
-        // Devolvemos apenas o que o visitante precisa ver.
+        /*
+         * Duas visões, separadas de propósito: `submission` é o que a API
+         * devolve ao visitante e `forNotification` alimenta o e-mail à equipe,
+         * que precisa da descrição e do contato. Devolver um objeto só faria a
+         * rota escolher o que omitir da resposta — e um dia esquecer.
+         */
         const { id: _id, ...publicView } = submission;
-        return publicView;
+
+        return {
+          submission: publicView,
+          forNotification: {
+            protocol: submission.protocol,
+            type: submission.type,
+            title: submission.title,
+            createdAt: submission.createdAt,
+            description: input.description,
+            contactName: input.contactName,
+            contactEmail: input.contactEmail,
+            contactPhone: input.contactPhone,
+          },
+        };
       });
     } catch (error) {
       // P2002 = violação de unicidade: só pode ser o protocolo, então

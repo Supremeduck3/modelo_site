@@ -1,6 +1,7 @@
-import { NextResponse } from 'next/server';
+import { after, NextResponse } from 'next/server';
 import { consumeRateLimit } from '@/server/lib/rate-limit';
 import { getClientIdentifier } from '@/server/lib/request';
+import { notifySubmissionCreated } from '@/server/modules/mail/notifications';
 import {
   createSubmission,
   SubmissionError,
@@ -49,9 +50,15 @@ export async function POST(request) {
   }
 
   try {
-    const submission = await createSubmission(payload);
+    const { submission, forNotification } = await createSubmission(payload);
 
-    // TODO(fase 6): disparar e-mail de confirmação ao visitante e aviso à equipe.
+    /*
+     * `after` roda depois da resposta já ter saído: o visitante recebe o
+     * protocolo na hora, sem esperar o SMTP, e uma caixa de e-mail fora do ar
+     * não transforma um registro bem-sucedido em erro.
+     */
+    after(() => notifySubmissionCreated({ submission: forNotification }));
+
     return NextResponse.json({ submission }, { status: 201 });
   } catch (error) {
     if (error instanceof SubmissionError) {

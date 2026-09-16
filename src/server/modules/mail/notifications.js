@@ -1,0 +1,79 @@
+import { labelOf, SUBMISSION_TYPES } from '@/lib/submissions/constants';
+import { prisma } from '@/server/db/client';
+import { isMailConfigured, sendMail } from '@/server/lib/mailer';
+import { getCurrentCompany } from '@/server/modules/company/service';
+import {
+  submissionReceivedForTeam,
+  submissionReceivedForVisitor,
+} from './messages';
+
+/**
+ * Quem é avisado do quê.
+ *
+ * Camada fina entre o fluxo e o envio: decide destinatários e monta os links,
+ * sem saber montar mensagem (isso é `messages.js`) nem falar SMTP (isso é
+ * `lib/mailer.js`).
+ */
+
+/** Base dos links que vão no e-mail; sem ela o aviso vai sem botão. */
+function panelUrl() {
+  const base = process.env.NEXT_PUBLIC_SITE_URL?.trim().replace(/\/$/, '');
+  return base ? `${base}/painel` : null;
+}
+
+/** E-mails da equipe ativa. Quem foi desativado para de receber aviso. */
+async function teamRecipients(companyId) {
+  const users = await prisma.companyUser.findMany({
+    where: { companyId, isActive: true },
+    select: { email: true },
+  });
+  return users.map((user) => user.email);
+}
+
+/**
+ * Avisa visitante e equipe de uma manifestação recém-registrada.
+ *
+ * Os dois envios são independentes: a equipe é avisada mesmo que o visitante
+ * não tenha deixado e-mail, e o visitante recebe a confirmação mesmo que a
+ * equipe esteja sem ninguém ativo. Nenhuma falha sobe — quem chama já
+ * respondeu ao visitante.
+ */
+export async function notifySubmissionCreated({ submission }) {
+  // Sem SMTP não há o que fazer, e nem faz sentido consultar a equipe no banco.
+  if (!isMailConfigured()) return;
+
+  try {
+    const company = await getCurrentCompany();
+    const url = panelUrl();
+    const typeLabel = labelOf(SUBMISSION_TYPES, submission.type);
+
+    const visitor = submission.contactEmail
+      ? sendMail({
+          to: submission.contactEmail,
+          ...submissionReceivedForVisitor({
+            submission,
+            companyName: company.name,
+            typeLabel,
+          }),
+        })
+      : Promise.resolve({ sent: false });
+
+    const team = teamRecipients(company.id).then((recipients) =>
+      sendMail({
+        to: recipients,
+        ...submissionReceivedForTeam({
+          submission,
+          companyName: company.name,
+          typeLabel,
+          panelUrl: url,
+        }),
+      }),
+    );
+
+    // `allSettled`: um envio quebrado não pode cancelar o outro.
+    await Promise.allSettled([visitor, team]);
+  } catch (error) {
+    // Roda depois da resposta ao visitante: não há a quem devolver erro.
+    console.error('[mail] falha ao avisar sobre manifestação nova', error);
+  }
+}

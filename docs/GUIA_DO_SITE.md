@@ -40,6 +40,10 @@ descobre o protocolo de outra pessoa contando de um em um.
 Exige ao menos um e-mail **ou** um telefone — sem contato a empresa não tem como
 responder e o canal perde a função.
 
+Quem deixou e-mail recebe a confirmação com o protocolo, e a equipe recebe o
+aviso da manifestação nova. Se a implantação estiver sem SMTP configurado, o
+registro funciona igual — só não sai e-mail.
+
 ### `/privacidade` e `/termos`
 
 Textos jurídicos vindos da configuração (`legal`). O molde não inventa texto

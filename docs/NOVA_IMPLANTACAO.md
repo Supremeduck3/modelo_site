@@ -22,8 +22,11 @@ domínio próprios. O código do molde é reaproveitado.
 7. **Funcionalidades** — ligar/desligar blocos em `features`.
 8. **SEO e legais** — preencher `seo` e `legal` (textos jurídicos fornecidos e
    revisados pelo responsável — o molde não inventa texto legal).
-9. **Conferir** — `npm run lint` e `npm run dev`, revisando mobile e desktop.
-10. **Deploy + domínio.**
+9. **E-mail** — preencher `SMTP_*` e `MAIL_FROM`. Use um remetente do domínio da
+   empresa, com SPF e DKIM configurados; remetente de domínio alheio cai em spam.
+   Sem essas variáveis a implantação funciona, apenas sem enviar e-mail.
+10. **Conferir** — `npm run lint` e `npm run dev`, revisando mobile e desktop.
+11. **Deploy + domínio.**
 
 ## Navegação
 
@@ -113,14 +116,43 @@ componente compartilhado — não para dentro da variante.
 A implantação usa PostgreSQL próprio. Nenhuma instância é compartilhada entre
 clientes.
 
+São duas variáveis porque o Prisma usa conexões diferentes para consultar e para
+migrar: `DATABASE_URL` nas consultas e `DIRECT_URL` nas migrations. Em banco
+próprio as duas são iguais.
+
 ```bash
 createdb site_modelo                 # ou o banco provisionado no seu host
 export DATABASE_URL="postgresql://usuario:senha@host:5432/site_modelo"
+export DIRECT_URL="$DATABASE_URL"    # sem pooler, é a mesma conexão
 
 npm run db:migrate   # desenvolvimento: cria/aplica migrations
 npm run db:deploy    # produção: aplica as migrations já versionadas
-npm run db:seed      # empresa da implantação + categorias iniciais
+npm run db:seed      # empresa, categorias e primeiro usuário do painel
 ```
+
+### Hospedando no Supabase
+
+O Supabase **é** PostgreSQL: não é outro banco nem outra forma de acessar, e
+nada no código muda. O que muda são as strings de conexão, em
+_Project Settings → Database_.
+
+```bash
+# Consultas: pooler, porta 6543, em transaction mode
+DATABASE_URL="postgresql://postgres.<ref>:<senha>@<host>:6543/postgres?pgbouncer=true&connection_limit=1"
+
+# Migrations: conexão direta, porta 5432
+DIRECT_URL="postgresql://postgres.<ref>:<senha>@<host>:5432/postgres"
+```
+
+Por que separado: a porta 6543 é um PgBouncer em transaction mode, que não
+mantém prepared statements nem aceita DDL. Apontar a migration para ela falha
+com erro que não explica a causa. O `?pgbouncer=true` avisa o Prisma para não
+usar prepared statements nas consultas, e `connection_limit=1` evita estourar o
+pool do plano gratuito.
+
+Não use o `supabase-js` junto do Prisma. Seriam dois clientes com duas formas de
+expressar as mesmas regras, e o Supabase Auth duplicaria a sessão que o painel já
+tem. O molde trata o Supabase como o Postgres que ele é.
 
 O seed é idempotente: rodar de novo não duplica registros. Ele cria a empresa
 (nome via `SEED_COMPANY_NAME`), quatro categorias iniciais — que a empresa pode

@@ -11,7 +11,7 @@ O produto tem três blocos:
 | 1 — Site institucional | Implementado (fases 0–2) |
 | 2 — Canal de manifestações | Implementado (fase 3): formulário público, API, protocolo e histórico |
 | 3 — Painel da empresa | Em andamento: autenticação e casca prontas (fase 4); atendimento das manifestações na fase 5; equipe e categorias na fase 6 |
-| E-mail transacional | Fase 6 (a API já tem o ponto de disparo marcado) |
+| E-mail transacional | Confirmação ao visitante e aviso à equipe prontos; resposta pública e recuperação de senha acompanham as fases 5 e 6 |
 
 ## Stack
 
@@ -140,6 +140,32 @@ navegador mas não revoga um token que já tenha sido copiado; ele vale até
 expirar. Trocar `AUTH_SECRET` invalida todas de uma vez.
 `src/server/lib/session-token.js` é o ponto de troca por sessão persistida se
 alguma implantação precisar de revogação imediata.
+
+## E-mail transacional
+
+Ao registrar uma manifestação, o visitante recebe a confirmação com o protocolo
+e a equipe ativa recebe o aviso, com a descrição e um link para o painel.
+
+Três decisões que valem no resto do molde:
+
+- **Nada de e-mail derruba o fluxo.** O envio acontece no `after()` do Next, já
+  depois da resposta: o visitante recebe o protocolo sem esperar o SMTP, e uma
+  caixa fora do ar não transforma um registro bem-sucedido em erro. `sendMail`
+  nunca lança; falha vira log.
+- **Sem SMTP configurado o site funciona igual**, só não envia. Em
+  desenvolvimento a mensagem vai para o log, para conferir o conteúdo sem
+  servidor de e-mail.
+- **O conteúdo do visitante é escapado no HTML.** O corpo do e-mail é HTML como
+  qualquer página; sem escape, uma manifestação com `<script>` viraria injeção na
+  caixa de entrada de quem abre o aviso.
+
+O que o visitante recebe não repete o que é interno: a confirmação leva
+protocolo, tipo, assunto e data, e nada de situação, prioridade, responsável ou
+nota.
+
+Camadas, de baixo para cima: `server/lib/mailer.js` fala SMTP,
+`server/modules/mail/messages.js` monta o conteúdo (funções puras, sem import
+nenhum) e `server/modules/mail/notifications.js` decide quem recebe o quê.
 
 ## Configurando uma implantação
 
