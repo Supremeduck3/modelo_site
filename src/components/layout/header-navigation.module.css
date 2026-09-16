@@ -1,0 +1,92 @@
+.header {
+  width: 100%;
+  background: var(--color-background);
+  border-bottom: var(--border-width) solid var(--color-border);
+  z-index: 50;
+}
+
+.fixed {
+  position: sticky;
+  top: 0;
+}
+
+.static {
+  position: relative;
+}
+
+.inner {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: var(--gap);
+  min-height: var(--header-height);
+  transition: min-height 0.2s ease;
+}
+
+.compact .inner {
+  min-height: 56px;
+}
+
+.scrolled {
+  box-shadow: var(--shadow-soft);
+}
+
+.scrolled .inner {
+  min-height: 56px;
+}
+
+.desktopNav {
+  display: flex;
+  flex: 1;
+  justify-content: center;
+}
+
+.actions {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+}
+
+.menuButton {
+  display: none;
+  width: 42px;
+  height: 42px;
+  align-items: center;
+  justify-content: center;
+  background: transparent;
+  border: var(--border-width) solid var(--color-border);
+  border-radius: var(--radius-sm);
+  cursor: pointer;
+}
+
+.menuIcon,
+.menuIcon::before,
+.menuIcon::after {
+  display: block;
+  width: 18px;
+  height: 2px;
+  background: var(--color-text);
+  content: "";
+}
+
+.menuIcon::before {
+  transform: translateY(-6px);
+}
+
+.menuIcon::after {
+  transform: translateY(4px);
+}
+
+@media (max-width: 900px) {
+  .desktopNav {
+    display: none;
+  }
+
+  .menuButton {
+    display: inline-flex;
+  }
+
+  .cta {
+    display: none;
+  }
+}

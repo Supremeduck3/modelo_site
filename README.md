@@ -1,36 +1,75 @@
-This is a [Next.js](https://nextjs.org) project bootstrapped with [`create-next-app`](https://github.com/vercel/next.js/tree/canary/packages/create-next-app).
+# Site Modelo
 
-## Getting Started
+Molde reutilizável para sites de pequenos negócios. O mesmo código-base produz
+sites visualmente diferentes para clientes diferentes: o site é resultado de
+**configuração + conteúdo + componentes reutilizáveis**.
 
-First, run the development server:
+O produto tem três blocos:
+
+| Bloco | Situação |
+| --- | --- |
+| 1 — Site institucional | Implementado (fases 0–2) |
+| 2 — Canal de manifestações | Página de apresentação pronta; formulário, API e protocolo na fase 3 |
+| 3 — Painel da empresa | Fases 4–6 |
+
+## Stack
+
+- Next.js 16 (App Router) + React 19, em JavaScript
+- CSS Modules sobre tokens em variáveis CSS
+- Ant Design disponível para telas de operação (painel)
+- Biome para lint e formatação
+
+## Começando
 
 ```bash
-npm run dev
-# or
-yarn dev
-# or
-pnpm dev
-# or
-bun dev
+npm install
+cp .env.example .env.local
+npm run dev     # http://localhost:3000
+npm run lint    # biome check
+npm run format  # biome format --write
 ```
 
-Open [http://localhost:3000](http://localhost:3000) with your browser to see the result.
+## Regra central de design
 
-You can start editing the page by modifying `app/page.js`. The page auto-updates as you edit the file.
+**O design é escolhido pelo implementador, não pelo cliente final.** A empresa
+fornece logo, textos, fotos, serviços e contatos; a composição visual (navegação,
+seções, variantes, cores, tipografia) é decidida por quem constrói a implantação,
+editando a configuração. Não existe editor drag-and-drop no V1.
 
-This project uses [`next/font`](https://nextjs.org/docs/app/building-your-application/optimizing/fonts) to automatically optimize and load [Geist](https://vercel.com/font), a new font family for Vercel.
+## Arquitetura
 
-## Learn More
+```
+src/
+  app/                  rotas (home, páginas legais, canal)
+  components/
+    layout/             AppShell, navegação (header/compacto/sidebar), rodapé
+    sections/           seções da home, uma pasta por tipo, com variantes
+    ui/                 primitivos: Container, Section, Button, Media, LegalPage
+  config/
+    site/               schema + configuração desta implantação
+    theme/              tokens -> variáveis CSS e tema do Ant Design
+```
 
-To learn more about Next.js, take a look at the following resources:
+Camadas separadas de propósito:
 
-- [Next.js Documentation](https://nextjs.org/docs) - learn about Next.js features and API.
-- [Learn Next.js](https://nextjs.org/learn) - an interactive Next.js tutorial.
+| Camada | Onde fica | Quem define |
+| --- | --- | --- |
+| Estrutura (navegação, ordem das seções) | `config/site/site.config.js` | Implementador |
+| Layout (variante de cada seção) | `config/site/site.config.js` | Implementador |
+| Visual (cores, fonte, raio, espaçamento) | `config/site/site.config.js` → `config/theme` | Implementador |
+| Conteúdo (textos, fotos, serviços) | `config/site/site.config.js` | Empresa + implementador |
+| Funcionalidade (blocos ativos) | `features` na config | Implementador |
 
-You can check out [the Next.js GitHub repository](https://github.com/vercel/next.js) - your feedback and contributions are welcome!
+Regra que não se quebra: **variante visual não duplica regra de negócio.**
+Formulários, chamadas de API e validações ficam compartilhados; a variante só
+muda o arranjo.
 
-## Deploy on Vercel
+## Configurando uma implantação
 
-The easiest way to deploy your Next.js app is to use the [Vercel Platform](https://vercel.com/new?utm_medium=default-template&filter=next.js&utm_source=create-next-app&utm_campaign=create-next-app-readme) from the creators of Next.js.
+Ver [`docs/NOVA_IMPLANTACAO.md`](docs/NOVA_IMPLANTACAO.md).
 
-Check out our [Next.js deployment documentation](https://nextjs.org/docs/app/building-your-application/deploying) for more details.
+O único arquivo a editar para dar cara a um cliente é
+`src/config/site/site.config.js`. Ele é validado em runtime por
+`src/config/site/schema.js`: campos ausentes caem em padrões seguros, variantes
+inválidas viram aviso no console e fallback, e erros estruturais (sem nome, sem
+itens de menu, sem seções) derrubam o boot com mensagem explícita.

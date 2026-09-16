@@ -1,0 +1,80 @@
+.icon {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  width: 48px;
+  height: 48px;
+  border-radius: var(--radius-sm);
+  background: var(--color-surface-alt);
+  font-size: 1.5rem;
+}
+
+.iconFallback {
+  display: inline-block;
+  width: 48px;
+  height: 48px;
+  border-radius: var(--radius-sm);
+  background: var(--color-border);
+}
+
+.iconsGrid {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+  gap: var(--gap);
+  text-align: center;
+}
+
+.iconItem {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+}
+
+.itemTitle {
+  font-size: 1.05rem;
+  margin: 12px 0 6px;
+}
+
+.itemDescription {
+  margin: 0;
+  color: var(--color-text-muted);
+  font-size: 0.9rem;
+}
+
+.cardsGrid {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(220px, 1fr));
+  gap: var(--gap);
+}
+
+.card {
+  padding: 24px;
+  border-radius: var(--radius);
+  background: var(--color-background);
+  box-shadow: var(--shadow-medium);
+  text-align: center;
+}
+
+.sideBlocks {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: var(--gap);
+}
+
+.sideColumn {
+  display: flex;
+  flex-direction: column;
+  gap: 20px;
+}
+
+.sideItem {
+  display: flex;
+  align-items: flex-start;
+  gap: 16px;
+}
+
+@media (max-width: 768px) {
+  .sideBlocks {
+    grid-template-columns: 1fr;
+  }
+}

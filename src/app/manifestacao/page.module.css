@@ -1,0 +1,8 @@
+.notice {
+  margin-bottom: var(--section-y);
+  padding: 20px;
+  background: var(--color-surface);
+  border: var(--border-width) dashed var(--color-border);
+  border-radius: var(--radius);
+  color: var(--color-text-muted);
+}

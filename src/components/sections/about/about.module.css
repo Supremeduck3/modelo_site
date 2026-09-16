@@ -1,0 +1,50 @@
+.text {
+  max-width: 760px;
+  margin-inline: auto;
+  color: var(--color-text-muted);
+  font-size: 1.05rem;
+}
+
+.imageTextGrid {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: var(--gap);
+  align-items: center;
+}
+
+.image {
+  border-radius: var(--radius);
+  box-shadow: var(--shadow-soft);
+}
+
+.statsGrid {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(140px, 1fr));
+  gap: var(--gap);
+  margin: 32px 0 0;
+  text-align: center;
+}
+
+.statItem {
+  padding: 20px;
+  border-radius: var(--radius);
+  background: var(--color-surface);
+}
+
+.statValue {
+  font-size: clamp(1.6rem, 3vw, 2.2rem);
+  font-weight: var(--font-weight-heading);
+  color: var(--color-primary);
+}
+
+.statLabel {
+  margin: 4px 0 0;
+  color: var(--color-text-muted);
+  font-size: 0.9rem;
+}
+
+@media (max-width: 768px) {
+  .imageTextGrid {
+    grid-template-columns: 1fr;
+  }
+}
