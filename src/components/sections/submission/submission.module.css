@@ -1,0 +1,59 @@
+.banner {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: calc(var(--gap) * 1.5);
+  flex-wrap: wrap;
+}
+
+.title {
+  margin-bottom: 8px;
+  font-size: clamp(1.4rem, 3vw, 2rem);
+}
+
+.text {
+  margin: 0;
+  max-width: 620px;
+  color: var(--on-dark-muted);
+}
+
+.steps {
+  list-style: none;
+  margin: 0 0 32px;
+  padding: 0;
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(240px, 1fr));
+  gap: var(--gap);
+}
+
+.step {
+  display: flex;
+  gap: 14px;
+  background: var(--color-background);
+  border: var(--border-width) solid var(--color-border);
+  border-radius: var(--radius);
+  padding: 20px;
+}
+
+.stepNumber {
+  flex: 0 0 34px;
+  height: 34px;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  border-radius: 50%;
+  background: var(--color-primary);
+  color: var(--color-primary-contrast);
+  font-weight: 700;
+}
+
+.stepTitle {
+  font-size: 1rem;
+  margin-bottom: 4px;
+}
+
+.stepText {
+  margin: 0;
+  color: var(--color-text-muted);
+  font-size: 0.925rem;
+}

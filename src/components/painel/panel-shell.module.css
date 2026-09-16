@@ -1,0 +1,42 @@
+.brand {
+  display: flex;
+  align-items: center;
+  height: 64px;
+  padding: 0 24px;
+  color: #fff;
+  font-family: var(--font-family-heading);
+  font-weight: var(--font-weight-heading);
+  overflow: hidden;
+  white-space: nowrap;
+  text-overflow: ellipsis;
+}
+
+/* O fundo vem do token `Layout.headerBg`; aqui só o arranjo e a borda. */
+.header {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 16px;
+  padding: 0 24px;
+  border-bottom: var(--border-width) solid var(--color-border);
+}
+
+.pageTitle {
+  margin: 0;
+  font-size: 1.125rem;
+}
+
+.content {
+  padding: 24px;
+}
+
+@media (max-width: 575px) {
+  .header,
+  .content {
+    padding: 0 16px;
+  }
+
+  .content {
+    padding: 16px;
+  }
+}

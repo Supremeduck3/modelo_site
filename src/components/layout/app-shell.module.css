@@ -1,0 +1,42 @@
+.shell {
+  min-height: 100vh;
+  display: flex;
+  flex-direction: column;
+}
+
+.content {
+  flex: 1;
+  min-width: 0;
+}
+
+.withSidebar .content {
+  margin-left: var(--sidebar-width);
+}
+
+.sidebarRight .content {
+  margin-left: 0;
+  margin-right: var(--sidebar-width);
+}
+
+.skipLink {
+  position: absolute;
+  left: -9999px;
+  top: 8px;
+  padding: 10px 16px;
+  background: var(--color-primary);
+  color: var(--color-primary-contrast);
+  border-radius: var(--radius-sm);
+  z-index: 200;
+}
+
+.skipLink:focus {
+  left: 16px;
+}
+
+@media (max-width: 1024px) {
+  .withSidebar .content,
+  .sidebarRight .content {
+    margin-left: 0;
+    margin-right: 0;
+  }
+}

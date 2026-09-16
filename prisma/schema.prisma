@@ -1,0 +1,166 @@
+// Modelo de dados do Site Modelo.
+//
+// Uma empresa por implantacao: nao ha multiempresa na mesma instancia.
+// Os campos de dominio (tipo, status, prioridade, papel) sao String validadas
+// na aplicacao em vez de enums do banco, para manter as constantes em um unico
+// lugar (src/server/modules/submissions/constants.js) e o schema portavel.
+
+generator client {
+  provider = "prisma-client-js"
+}
+
+// `url` e a conexao usada pelas consultas e `directUrl` a usada por migration.
+//
+// Em Postgres proprio as duas sao iguais. Em Supabase (ou qualquer pooler em
+// transaction mode) a conexao do pool nao aceita prepared statements nem DDL:
+// sem separar, `prisma migrate` quebra. Nao e suporte a "outro banco" — o
+// Supabase e Postgres; muda so a string.
+datasource db {
+  provider  = "postgresql"
+  url       = env("DATABASE_URL")
+  directUrl = env("DIRECT_URL")
+}
+
+/// Dados da empresa desta implantacao.
+model Company {
+  id            String   @id @default(uuid())
+  name          String
+  logoUrl       String?  @map("logo_url")
+  description   String?
+  segment       String?
+  city          String?
+  state         String?
+  website       String?
+  phone         String?
+  email         String?
+  businessHours Json?    @map("business_hours")
+  status        String   @default("active")
+  createdAt     DateTime @default(now()) @map("created_at")
+  updatedAt     DateTime @updatedAt @map("updated_at")
+
+  users       CompanyUser[]
+  categories  Category[]
+  submissions Submission[]
+
+  @@map("companies")
+}
+
+/// Usuario da equipe da empresa, com acesso ao painel privado.
+model CompanyUser {
+  id                String    @id @default(uuid())
+  companyId         String    @map("company_id")
+  name              String
+  email             String    @unique
+  passwordHash      String    @map("password_hash")
+  role              String    @default("operator")
+  isActive          Boolean   @default(true) @map("is_active")
+  lastLoginAt       DateTime? @map("last_login_at")
+  /// Momento da ultima troca de senha.
+  ///
+  /// A sessao e um token assinado sem tabela: sem esta marca, redefinir a senha
+  /// nao derrubaria uma sessao ja aberta com a senha antiga. A guarda compara
+  /// este valor com a emissao do token.
+  passwordChangedAt DateTime? @map("password_changed_at")
+  createdAt         DateTime  @default(now()) @map("created_at")
+  updatedAt         DateTime  @updatedAt @map("updated_at")
+
+  company        Company           @relation(fields: [companyId], references: [id], onDelete: Cascade)
+  assigned       Submission[]      @relation("SubmissionAssignee")
+  events         SubmissionEvent[]
+  passwordResets PasswordReset[]
+
+  @@index([companyId])
+  @@map("company_users")
+}
+
+/// Categoria de manifestacao, configurada pela empresa no painel.
+model Category {
+  id          String   @id @default(uuid())
+  companyId   String   @map("company_id")
+  name        String
+  description String?
+  isActive    Boolean  @default(true) @map("is_active")
+  createdAt   DateTime @default(now()) @map("created_at")
+  updatedAt   DateTime @updatedAt @map("updated_at")
+
+  company     Company      @relation(fields: [companyId], references: [id], onDelete: Cascade)
+  submissions Submission[]
+
+  @@unique([companyId, name])
+  @@index([companyId])
+  @@map("categories")
+}
+
+/// Manifestacao registrada por um visitante.
+model Submission {
+  id          String  @id @default(uuid())
+  companyId   String  @map("company_id")
+  /// Identificador publico, unico e nao sequencial.
+  protocol    String  @unique
+  type        String
+  categoryId  String? @map("category_id")
+  title       String
+  description String
+
+  contactName  String?   @map("contact_name")
+  contactEmail String?   @map("contact_email")
+  contactPhone String?   @map("contact_phone")
+  /// Consentimento registrado com data/hora quando essa e a base da coleta.
+  consentAt    DateTime? @map("consent_at")
+
+  status     String  @default("new")
+  priority   String  @default("normal")
+  assignedTo String? @map("assigned_to")
+
+  /// Resposta visivel ao visitante. Notas internas ficam em SubmissionEvent.
+  publicResponse String? @map("public_response")
+
+  archivedAt DateTime? @map("archived_at")
+  resolvedAt DateTime? @map("resolved_at")
+  createdAt  DateTime  @default(now()) @map("created_at")
+  updatedAt  DateTime  @updatedAt @map("updated_at")
+
+  company  Company           @relation(fields: [companyId], references: [id], onDelete: Cascade)
+  category Category?         @relation(fields: [categoryId], references: [id], onDelete: SetNull)
+  assignee CompanyUser?      @relation("SubmissionAssignee", fields: [assignedTo], references: [id], onDelete: SetNull)
+  events   SubmissionEvent[]
+
+  @@index([companyId, status])
+  @@index([companyId, createdAt])
+  @@map("submissions")
+}
+
+/// Historico auditavel de uma manifestacao.
+model SubmissionEvent {
+  id           String   @id @default(uuid())
+  submissionId String   @map("submission_id")
+  /// Nulo quando a acao foi do proprio visitante ou do sistema.
+  actorId      String?  @map("actor_id")
+  eventType    String   @map("event_type")
+  fromValue    String?  @map("from_value")
+  toValue      String?  @map("to_value")
+  /// Nota interna: nunca pode ser exposta no ambiente publico.
+  note         String?
+  createdAt    DateTime @default(now()) @map("created_at")
+
+  submission Submission   @relation(fields: [submissionId], references: [id], onDelete: Cascade)
+  actor      CompanyUser? @relation(fields: [actorId], references: [id], onDelete: SetNull)
+
+  @@index([submissionId, createdAt])
+  @@map("submission_events")
+}
+
+/// Token de recuperacao de senha: com hash, expiravel e de uso unico.
+model PasswordReset {
+  id            String    @id @default(uuid())
+  companyUserId String    @map("company_user_id")
+  tokenHash     String    @unique @map("token_hash")
+  expiresAt     DateTime  @map("expires_at")
+  usedAt        DateTime? @map("used_at")
+  createdAt     DateTime  @default(now()) @map("created_at")
+
+  user CompanyUser @relation(fields: [companyUserId], references: [id], onDelete: Cascade)
+
+  @@index([companyUserId])
+  @@map("password_resets")
+}

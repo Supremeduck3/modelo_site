@@ -1,36 +1,190 @@
-This is a [Next.js](https://nextjs.org) project bootstrapped with [`create-next-app`](https://github.com/vercel/next.js/tree/canary/packages/create-next-app).
+# Site Modelo
 
-## Getting Started
+Molde reutilizável para sites de pequenos negócios. O mesmo código-base produz
+sites visualmente diferentes para clientes diferentes: o site é resultado de
+**configuração + conteúdo + componentes reutilizáveis**.
 
-First, run the development server:
+O produto tem três blocos:
+
+| Bloco | Situação |
+| --- | --- |
+| 1 — Site institucional | Implementado (fases 0–2) |
+| 2 — Canal de manifestações | Implementado (fase 3): formulário público, API, protocolo e histórico |
+| 3 — Painel da empresa | Em andamento: autenticação e casca prontas (fase 4); atendimento das manifestações na fase 5; equipe e categorias na fase 6 |
+| E-mail transacional | Confirmação ao visitante, aviso à equipe e link de recuperação de senha prontos; resposta pública acompanha a fase 5 |
+
+## Stack
+
+- Next.js 16 (App Router) + React 19, em JavaScript
+- CSS Modules sobre tokens em variáveis CSS
+- Ant Design só no painel: o runtime entra por `PanelThemeProvider`, usado apenas
+  no layout de `/painel`, e o site público não carrega nada dele
+- Sessão e hash de senha com `node:crypto` (scrypt + HMAC), sem dependência de
+  autenticação
+- PostgreSQL + Prisma (migrations versionadas)
+- Zod para validação, com schema compartilhado entre formulário e API
+- Biome para lint e formatação; `node --test` e Playwright para testes
+
+## Começando
 
 ```bash
-npm run dev
-# or
-yarn dev
-# or
-pnpm dev
-# or
-bun dev
+npm install
+cp .env.example .env.local   # preencha DATABASE_URL e AUTH_SECRET
+
+npm run db:migrate           # aplica as migrations
+npm run db:seed              # empresa, categorias e o primeiro usuário do painel
+
+npm run dev                  # http://localhost:3000
+npm run lint                 # biome check
+npm run test                 # regras críticas (node --test)
+npm run test:e2e             # fluxos críticos no navegador (Playwright)
+npm run build                # prisma generate + next build
 ```
 
-Open [http://localhost:3000](http://localhost:3000) with your browser to see the result.
+Os e2e do painel precisam de credenciais no ambiente
+(`E2E_PANEL_EMAIL`/`E2E_PANEL_PASSWORD`, ou os `SEED_ADMIN_*` já usados no
+seed). Sem elas, os casos que dependem de login são pulados com aviso, em vez de
+o molde trazer um usuário de teste embutido.
 
-You can start editing the page by modifying `app/page.js`. The page auto-updates as you edit the file.
+## Regra central de design
 
-This project uses [`next/font`](https://nextjs.org/docs/app/building-your-application/optimizing/fonts) to automatically optimize and load [Geist](https://vercel.com/font), a new font family for Vercel.
+**O design é escolhido pelo implementador, não pelo cliente final.** A empresa
+fornece logo, textos, fotos, serviços e contatos; a composição visual (navegação,
+seções, variantes, cores, tipografia) é decidida por quem constrói a implantação,
+editando a configuração. Não existe editor drag-and-drop no V1.
 
-## Learn More
+## Arquitetura
 
-To learn more about Next.js, take a look at the following resources:
+```
+src/
+  app/
+    (site)/             rotas públicas (home, páginas legais, canal)
+    painel/             ambiente privado; (interno)/ exige sessão
+    api/                submissions, auth
+  components/
+    layout/             AppShell, navegação (header/compacto/sidebar), rodapé
+    painel/             casca, tema e formulários do painel
+    sections/           seções da home, uma pasta por tipo, com variantes
+    ui/                 primitivos: Container, Section, Button, Media, LegalPage
+  config/
+    site/               schema + configuração desta implantação
+    theme/              tokens -> variáveis CSS e tema do Ant Design
+  proxy.js              atalho de navegação do painel (não é o controle de acesso)
+```
 
-- [Next.js Documentation](https://nextjs.org/docs) - learn about Next.js features and API.
-- [Learn Next.js](https://nextjs.org/learn) - an interactive Next.js tutorial.
+Os dois ambientes têm cascas separadas: o layout raiz só monta o documento e os
+tokens, `(site)/layout.jsx` envolve as páginas públicas no `AppShell` e
+`painel/layout.jsx` monta o painel. Um grupo não carrega o código do outro.
 
-You can check out [the Next.js GitHub repository](https://github.com/vercel/next.js) - your feedback and contributions are welcome!
+Camadas separadas de propósito:
 
-## Deploy on Vercel
+| Camada | Onde fica | Quem define |
+| --- | --- | --- |
+| Estrutura (navegação, ordem das seções) | `config/site/site.config.js` | Implementador |
+| Layout (variante de cada seção) | `config/site/site.config.js` | Implementador |
+| Visual (cores, fonte, raio, espaçamento) | `config/site/site.config.js` → `config/theme` | Implementador |
+| Conteúdo (textos, fotos, serviços) | `config/site/site.config.js` | Empresa + implementador |
+| Funcionalidade (blocos ativos) | `features` na config | Implementador |
 
-The easiest way to deploy your Next.js app is to use the [Vercel Platform](https://vercel.com/new?utm_medium=default-template&filter=next.js&utm_source=create-next-app&utm_campaign=create-next-app-readme) from the creators of Next.js.
+Regra que não se quebra: **variante visual não duplica regra de negócio.**
+Formulários, chamadas de API e validações ficam compartilhados; a variante só
+muda o arranjo.
 
-Check out our [Next.js deployment documentation](https://nextjs.org/docs/app/building-your-application/deploying) for more details.
+## Canal de manifestações
+
+O visitante registra em `/manifestacao`. O fluxo:
+
+1. O formulário valida no cliente com o schema compartilhado
+   (`src/lib/submissions/schema.js`) apenas para dar retorno rápido.
+2. `POST /api/submissions` revalida tudo no servidor, aplica rate limiting por
+   cliente, confere a categoria contra a empresa da implantação e grava a
+   manifestação junto do primeiro evento de histórico, na mesma transação.
+3. O visitante recebe um protocolo público no formato `AAAA-XXXX-XXXX`, sorteado
+   de um alfabeto sem caracteres ambíguos e sem sequência previsível.
+
+Notas internas (`SubmissionEvent.note`) são separadas da resposta pública
+(`Submission.publicResponse`) no modelo de dados: nada interno transita pelo
+ambiente público.
+
+Limite conhecido: o rate limiting é em memória, adequado a uma implantação de
+processo único. `src/server/lib/rate-limit.js` é o ponto de troca por Redis se
+alguma implantação passar a rodar em vários processos.
+
+## Painel da empresa
+
+A equipe entra em `/painel`. O que está pronto na fase 4:
+
+- **Senha** com scrypt (`node:crypto`), salt por senha e parâmetros de custo
+  gravados dentro do hash — aumentar o custo depois não invalida as senhas
+  existentes.
+- **Sessão** em cookie `httpOnly` assinado com HMAC-SHA256, válido por 12h. O
+  segredo vem de `AUTH_SECRET`; sem ele o painel derruba com mensagem explícita,
+  em vez de assinar com um padrão previsível.
+- **Autorização** sempre no servidor: `requireSessionUser()` confere a
+  assinatura do token *e* relê o usuário no banco, então desativar alguém tem
+  efeito imediato, sem esperar a sessão expirar.
+- **Login sem pista**: e-mail inexistente, senha errada e conta inativa dão a
+  mesma resposta, e o caminho do e-mail inexistente gasta o mesmo tempo de
+  scrypt, para o tempo de resposta não revelar quais contas existem.
+- **Rate limiting** em duas cotas, por cliente e por e-mail.
+- **Recuperação de senha** em `/painel/esqueci-senha`: o pedido responde sempre
+  a mesma coisa, exista ou não a conta; o link vale uma hora, serve uma vez só e
+  um pedido novo invalida os anteriores. O banco guarda apenas o hash do token.
+- **Nenhum usuário padrão**: o primeiro usuário só existe se o seed rodar com
+  `SEED_ADMIN_EMAIL` e `SEED_ADMIN_PASSWORD`, e o seed nunca sobrescreve a senha
+  de um usuário já existente.
+
+`src/proxy.js` só olha se o cookie existe, para redirecionar ao login com
+`?next=`. É conveniência de navegação, não controle de acesso — um cookie
+forjado passa por ele e é recusado no servidor.
+
+Redefinir a senha derruba as sessões abertas: `CompanyUser.passwordChangedAt`
+guarda o momento da troca e a guarda descarta todo token emitido antes disso. A
+comparação é em segundos, que é a resolução do carimbo dentro do token — o
+efeito colateral é uma janela de até um segundo em que um token antigo ainda
+passa, preço de não trancar do lado de fora quem entra no mesmo segundo em que
+redefiniu a senha.
+
+Limite conhecido: fora a troca de senha, a sessão é stateless — `logout` apaga o
+cookie do navegador mas não revoga um token que já tenha sido copiado; ele vale
+até expirar. Trocar `AUTH_SECRET` invalida todas de uma vez.
+`src/server/lib/session-token.js` é o ponto de troca por sessão persistida se
+alguma implantação precisar de revogação imediata em todos os casos.
+
+## E-mail transacional
+
+Ao registrar uma manifestação, o visitante recebe a confirmação com o protocolo
+e a equipe ativa recebe o aviso, com a descrição e um link para o painel. Quem
+pede recuperação de senha recebe o link de redefinição.
+
+Três decisões que valem no resto do molde:
+
+- **Nada de e-mail derruba o fluxo.** O envio acontece no `after()` do Next, já
+  depois da resposta: o visitante recebe o protocolo sem esperar o SMTP, e uma
+  caixa fora do ar não transforma um registro bem-sucedido em erro. `sendMail`
+  nunca lança; falha vira log.
+- **Sem SMTP configurado o site funciona igual**, só não envia. Em
+  desenvolvimento a mensagem vai para o log, para conferir o conteúdo sem
+  servidor de e-mail.
+- **O conteúdo do visitante é escapado no HTML.** O corpo do e-mail é HTML como
+  qualquer página; sem escape, uma manifestação com `<script>` viraria injeção na
+  caixa de entrada de quem abre o aviso.
+
+O que o visitante recebe não repete o que é interno: a confirmação leva
+protocolo, tipo, assunto e data, e nada de situação, prioridade, responsável ou
+nota.
+
+Camadas, de baixo para cima: `server/lib/mailer.js` fala SMTP,
+`server/modules/mail/messages.js` monta o conteúdo (funções puras, sem import
+nenhum) e `server/modules/mail/notifications.js` decide quem recebe o quê.
+
+## Configurando uma implantação
+
+Ver [`docs/NOVA_IMPLANTACAO.md`](docs/NOVA_IMPLANTACAO.md). Para um mapa das
+rotas e do que cada parte faz, [`docs/GUIA_DO_SITE.md`](docs/GUIA_DO_SITE.md).
+
+O único arquivo a editar para dar cara a um cliente é
+`src/config/site/site.config.js`. Ele é validado em runtime por
+`src/config/site/schema.js`: campos ausentes caem em padrões seguros, variantes
+inválidas viram aviso no console e fallback, e erros estruturais (sem nome, sem
+itens de menu, sem seções) derrubam o boot com mensagem explícita.

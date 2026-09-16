@@ -1,0 +1,19 @@
+.brand {
+  display: inline-flex;
+  align-items: center;
+  gap: 10px;
+  min-width: 0;
+}
+
+.logo {
+  max-height: 40px;
+  width: auto;
+}
+
+.wordmark {
+  font-family: var(--font-family-heading);
+  font-weight: var(--font-weight-heading);
+  font-size: 1.15rem;
+  color: var(--color-text);
+  white-space: nowrap;
+}

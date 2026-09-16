@@ -1,9 +1,128 @@
-* {
-    box-sizing: border-box;
+/*
+ * Tokens base do molde. Os valores reais vêm da configuração da implantação
+ * (src/config/theme) e são injetados como variáveis CSS no <head>.
+ * Os defaults abaixo garantem que o molde renderize mesmo sem configuração.
+ */
+:root {
+  --color-primary: #1f6feb;
+  --color-primary-contrast: #ffffff;
+  --color-secondary: #0b3a7a;
+  --color-accent: #f0a202;
+  --color-background: #ffffff;
+  --color-surface: #f5f7fa;
+  --color-surface-alt: #eef2f7;
+  --color-border: #dde3ec;
+  --color-text: #16202e;
+  --color-text-muted: #5b6982;
+  --color-success: #1f9254;
+  --color-danger: #c62828;
+
+  --font-family: system-ui, -apple-system, sans-serif;
+  --font-family-heading: var(--font-family);
+  --font-size-base: 16px;
+  --font-weight-heading: 700;
+  --font-weight-body: 400;
+  --line-height-base: 1.6;
+
+  --radius: 12px;
+  --radius-sm: 8px;
+  --radius-lg: 24px;
+  --border-width: 1px;
+
+  --section-y: 80px;
+  --section-y-mobile: 48px;
+  --container-width: 1160px;
+  --gap: 24px;
+
+  --shadow-soft: 0 2px 8px rgba(16, 24, 40, 0.06);
+  --shadow-medium: 0 8px 24px rgba(16, 24, 40, 0.1);
+
+  /* Sobreposições derivadas dos tokens, para funcionar também em paletas claras. */
+  --overlay-scrim: color-mix(in srgb, var(--color-text) 55%, transparent);
+  --overlay-hero-strong: color-mix(in srgb, var(--color-text) 78%, transparent);
+  --overlay-hero-soft: color-mix(in srgb, var(--color-text) 45%, transparent);
+  --on-dark-muted: color-mix(
+    in srgb,
+    var(--color-primary-contrast) 85%,
+    transparent
+  );
+
+  --header-height: 72px;
+  --sidebar-width: 260px;
+}
+
+*,
+*::before,
+*::after {
+  box-sizing: border-box;
 }
 
 html,
 body {
-    margin: 0;
-    padding: 0;
+  margin: 0;
+  padding: 0;
+}
+
+html {
+  scroll-behavior: smooth;
+  scroll-padding-top: calc(var(--header-height) + 16px);
+}
+
+body {
+  background: var(--color-background);
+  color: var(--color-text);
+  font-family: var(--font-family);
+  font-size: var(--font-size-base);
+  font-weight: var(--font-weight-body);
+  line-height: var(--line-height-base);
+  -webkit-font-smoothing: antialiased;
+}
+
+h1,
+h2,
+h3,
+h4,
+h5,
+h6 {
+  font-family: var(--font-family-heading);
+  font-weight: var(--font-weight-heading);
+  line-height: 1.2;
+  margin: 0 0 0.5em;
+}
+
+p {
+  margin: 0 0 1em;
+}
+
+a {
+  color: inherit;
+  text-decoration: none;
+}
+
+img {
+  max-width: 100%;
+  display: block;
+}
+
+:focus-visible {
+  outline: 2px solid var(--color-primary);
+  outline-offset: 3px;
+}
+
+/*
+ * !important é intencional aqui: a preferência do usuário por menos movimento
+ * precisa vencer qualquer animação declarada por componente ou variante.
+ * A regra noImportantStyles está desligada no biome.json por causa deste bloco.
+ */
+@media (prefers-reduced-motion: reduce) {
+  html {
+    scroll-behavior: auto;
+  }
+
+  *,
+  *::before,
+  *::after {
+    animation-duration: 0.01ms !important;
+    transition-duration: 0.01ms !important;
+  }
 }

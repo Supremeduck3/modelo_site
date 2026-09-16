@@ -1,0 +1,75 @@
+.info {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(230px, 1fr));
+  gap: var(--gap);
+}
+
+.infoCompact {
+  grid-template-columns: 1fr;
+}
+
+.card {
+  background: var(--color-background);
+  border: var(--border-width) solid var(--color-border);
+  border-radius: var(--radius);
+  padding: 20px;
+  box-shadow: var(--shadow-soft);
+}
+
+.cardLabel {
+  margin: 0 0 6px;
+  font-size: 0.8rem;
+  text-transform: uppercase;
+  letter-spacing: 0.06em;
+  color: var(--color-text-muted);
+}
+
+.cardValue {
+  margin: 0;
+  font-weight: 600;
+  color: var(--color-text);
+  word-break: break-word;
+}
+
+a.cardValue:hover {
+  color: var(--color-primary);
+}
+
+.hours {
+  margin: 0 0 4px;
+  color: var(--color-text-muted);
+  font-size: 0.925rem;
+}
+
+.split {
+  display: grid;
+  grid-template-columns: 1fr 1.2fr;
+  gap: calc(var(--gap) * 1.5);
+  align-items: start;
+}
+
+.map,
+.mapPlaceholder {
+  width: 100%;
+  min-height: 360px;
+  border: 0;
+  border-radius: var(--radius);
+}
+
+.mapPlaceholder {
+  background: var(--color-surface-alt);
+  border: var(--border-width) dashed var(--color-border);
+}
+
+.callout {
+  background: var(--color-background);
+  border: var(--border-width) solid var(--color-border);
+  border-radius: var(--radius);
+  padding: 28px;
+}
+
+@media (max-width: 900px) {
+  .split {
+    grid-template-columns: 1fr;
+  }
+}

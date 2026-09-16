@@ -1,0 +1,126 @@
+.wrapper {
+  max-width: 720px;
+  border: var(--border-width) solid var(--color-border);
+  border-radius: var(--radius);
+  background: var(--color-surface);
+  box-shadow: var(--shadow-soft);
+  padding: 32px;
+  display: flex;
+  flex-direction: column;
+  gap: 16px;
+}
+
+.badge {
+  align-self: flex-start;
+  margin: 0;
+  padding: 4px 12px;
+  border-radius: var(--radius-lg);
+  background: var(--color-success);
+  color: var(--color-primary-contrast);
+  font-size: 0.8rem;
+  font-weight: 700;
+  text-transform: uppercase;
+  letter-spacing: 0.04em;
+}
+
+.heading {
+  margin: 0;
+}
+
+.text {
+  margin: 0;
+  color: var(--color-text-muted);
+}
+
+.protocolBox {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: 12px;
+  padding: 16px;
+  border: var(--border-width) solid var(--color-border);
+  border-radius: var(--radius);
+  background: var(--color-background);
+}
+
+.protocolLabel {
+  font-size: 0.8rem;
+  color: var(--color-text-muted);
+  text-transform: uppercase;
+  letter-spacing: 0.04em;
+}
+
+.protocolValue {
+  font-size: 1.4rem;
+  font-weight: 700;
+  letter-spacing: 0.06em;
+  color: var(--color-primary);
+}
+
+.copyButton {
+  margin-left: auto;
+  border: var(--border-width) solid var(--color-primary);
+  background: var(--color-background);
+  color: var(--color-primary);
+  border-radius: var(--radius-sm);
+  padding: 8px 14px;
+  font: inherit;
+  font-weight: 600;
+  cursor: pointer;
+}
+
+.copyButton:hover {
+  background: var(--color-surface-alt);
+}
+
+.details {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(160px, 1fr));
+  gap: 12px;
+  margin: 0;
+}
+
+.detailRow {
+  display: flex;
+  flex-direction: column;
+  gap: 4px;
+}
+
+.detailRow dt {
+  font-size: 0.8rem;
+  color: var(--color-text-muted);
+  text-transform: uppercase;
+  letter-spacing: 0.03em;
+}
+
+.detailRow dd {
+  margin: 0;
+  font-weight: 600;
+  color: var(--color-text);
+}
+
+.nextSteps {
+  border-top: var(--border-width) solid var(--color-border);
+  padding-top: 16px;
+}
+
+.nextStepsTitle {
+  margin: 0 0 8px;
+  font-size: 1rem;
+}
+
+.nextStepsList {
+  margin: 0;
+  padding-left: 20px;
+  color: var(--color-text-muted);
+}
+
+@media (max-width: 768px) {
+  .wrapper {
+    padding: 20px;
+  }
+
+  .copyButton {
+    margin-left: 0;
+  }
+}

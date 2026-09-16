@@ -1,0 +1,10 @@
+.formWrapper {
+  max-width: 760px;
+  margin: 0 auto var(--section-y);
+}
+
+@media (max-width: 768px) {
+  .formWrapper {
+    margin-bottom: var(--section-y-mobile);
+  }
+}

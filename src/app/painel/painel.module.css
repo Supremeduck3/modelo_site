@@ -1,0 +1,8 @@
+/*
+ * O painel ocupa a janela inteira: ao contrário do site público, não há
+ * container centralizado nem largura máxima de leitura — é tela de trabalho.
+ */
+.root {
+  min-height: 100vh;
+  background: var(--color-surface);
+}
