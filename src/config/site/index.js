@@ -22,12 +22,29 @@ export const siteConfig = config;
 export const features = config.features;
 
 /**
+ * Nem toda seção tem o mesmo nome da flag que a controla.
+ * Este mapa evita que uma flag deixe de ter efeito por divergência de nome.
+ */
+const SECTION_FEATURE_FLAG = {
+  submission: 'submissions',
+};
+
+/**
  * Seções da home já filtradas pelas feature flags.
- * Uma seção desligada por flag não deve chegar ao renderer.
+ * Uma seção desligada por flag não deve chegar ao renderer; desligar por
+ * engano é um erro comum de implantação, então avisamos em desenvolvimento.
  */
 export function getHomeSections() {
   return config.pages.home.sections.filter((section) => {
-    const flag = features[section.type];
+    const flagName = SECTION_FEATURE_FLAG[section.type] ?? section.type;
+    const flag = features[flagName];
+
+    if (flag === false && process.env.NODE_ENV !== 'production') {
+      console.warn(
+        `[site-config] Seção "${section.type}" está declarada na home, mas features.${flagName} é false; ela não será renderizada.`,
+      );
+    }
+
     return flag === undefined || flag === true;
   });
 }

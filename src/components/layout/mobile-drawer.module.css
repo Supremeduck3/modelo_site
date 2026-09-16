@@ -10,7 +10,7 @@
   cursor: default;
   position: absolute;
   inset: 0;
-  background: rgba(16, 24, 40, 0.45);
+  background: var(--overlay-scrim);
 }
 
 .panel {

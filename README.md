@@ -16,7 +16,8 @@ O produto tem três blocos:
 
 - Next.js 16 (App Router) + React 19, em JavaScript
 - CSS Modules sobre tokens em variáveis CSS
-- Ant Design disponível para telas de operação (painel)
+- Ant Design fica reservado para o painel (fases 4+); o site público não carrega
+  o runtime do antd
 - Biome para lint e formatação
 
 ## Começando

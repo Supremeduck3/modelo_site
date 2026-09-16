@@ -5,36 +5,24 @@ import styles from './submission.module.css';
 
 /**
  * Bloco explicativo do canal incorporado à home.
+ * Textos e etapas vêm da configuração (content.submission), nunca do componente.
  * O formulário em si chega na fase 3 (bloco 2) e será reaproveitado aqui.
  */
-const STEPS = [
-  {
-    title: 'Você registra',
-    text: 'Escolha o tipo, descreva o ocorrido e informe um contato.',
-  },
-  {
-    title: 'Geramos um protocolo',
-    text: 'O número identifica sua manifestação e permite acompanhamento.',
-  },
-  {
-    title: 'A equipe responde',
-    text: 'A empresa analisa, classifica e retorna pelo canal informado.',
-  },
-];
-
-export default function SubmissionEmbedded({ id, content }) {
+export default function SubmissionEmbedded({ id, content = {}, headingLevel }) {
   const { navigation } = siteConfig;
 
   return (
     <Section
       id={id}
-      title={content.title ?? 'Canal de manifestações'}
+      title={content.title}
+      headingLevel={headingLevel}
       subtitle={content.text}
       tone="surface"
     >
       <ol className={styles.steps}>
-        {(content.steps ?? STEPS).map((step, index) => (
-          <li key={step.title} className={styles.step}>
+        {(content.steps ?? []).map((step, index) => (
+          // biome-ignore lint/suspicious/noArrayIndexKey: itens de conteúdo não têm id estável; o índice apenas desempata títulos repetidos.
+          <li key={`${step.title}-${index}`} className={styles.step}>
             <span className={styles.stepNumber}>{index + 1}</span>
             <div>
               <h3 className={styles.stepTitle}>{step.title}</h3>

@@ -37,6 +37,16 @@
   --shadow-soft: 0 2px 8px rgba(16, 24, 40, 0.06);
   --shadow-medium: 0 8px 24px rgba(16, 24, 40, 0.1);
 
+  /* Sobreposições derivadas dos tokens, para funcionar também em paletas claras. */
+  --overlay-scrim: color-mix(in srgb, var(--color-text) 55%, transparent);
+  --overlay-hero-strong: color-mix(in srgb, var(--color-text) 78%, transparent);
+  --overlay-hero-soft: color-mix(in srgb, var(--color-text) 45%, transparent);
+  --on-dark-muted: color-mix(
+    in srgb,
+    var(--color-primary-contrast) 85%,
+    transparent
+  );
+
   --header-height: 72px;
   --sidebar-width: 260px;
 }
@@ -99,6 +109,11 @@ img {
   outline-offset: 3px;
 }
 
+/*
+ * !important é intencional aqui: a preferência do usuário por menos movimento
+ * precisa vencer qualquer animação declarada por componente ou variante.
+ * A regra noImportantStyles está desligada no biome.json por causa deste bloco.
+ */
 @media (prefers-reduced-motion: reduce) {
   html {
     scroll-behavior: auto;

@@ -10,8 +10,9 @@ export default function AboutStats({ id, content = {} }) {
       {text && <p className={styles.text}>{text}</p>}
       {stats.length > 0 && (
         <dl className={styles.statsGrid}>
-          {stats.map((stat) => (
-            <div key={stat.label} className={styles.statItem}>
+          {stats.map((stat, index) => (
+            // biome-ignore lint/suspicious/noArrayIndexKey: itens de conteúdo não têm id estável; o índice apenas desempata títulos repetidos.
+            <div key={`${stat.label}-${index}`} className={styles.statItem}>
               <dt className={styles.statValue}>{stat.value}</dt>
               <dd className={styles.statLabel}>{stat.label}</dd>
             </div>

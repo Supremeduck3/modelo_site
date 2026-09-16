@@ -118,19 +118,44 @@ export const DEFAULT_CONFIG = {
     testimonials: { items: [] },
     team: { items: [] },
     faq: { items: [] },
-    contact: {},
-    submission: {},
+    contact: {
+      calloutTitle: 'Prefere escrever?',
+      calloutText:
+        'Registre sua mensagem no canal de manifestações e acompanhe pelo número de protocolo.',
+      calloutCta: null,
+    },
+    submission: {
+      title: 'Canal de manifestações',
+      text: '',
+      ctaLabel: null,
+      ctaHref: null,
+      steps: [
+        {
+          title: 'Você registra',
+          text: 'Escolha o tipo, descreva o ocorrido e informe um contato.',
+        },
+        {
+          title: 'Geramos um protocolo',
+          text: 'O número identifica sua manifestação e permite acompanhamento.',
+        },
+        {
+          title: 'A equipe responde',
+          text: 'A empresa analisa, classifica e retorna pelo canal informado.',
+        },
+      ],
+    },
   },
   pages: {
     home: { sections: [{ type: 'hero', variant: 'split' }] },
   },
+  // Declarar a seção na home já é o opt-in; a flag existe para desligar um
+  // bloco sem mexer na lista de seções.
   features: {
     submissions: true,
-    gallery: false,
-    testimonials: false,
-    team: false,
-    faq: false,
-    newsletter: false,
+    gallery: true,
+    testimonials: true,
+    team: true,
+    faq: true,
   },
   seo: {
     title: null,

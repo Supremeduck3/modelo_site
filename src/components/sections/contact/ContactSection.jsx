@@ -9,7 +9,7 @@ const VARIANTS = {
   'form-split': ContactFormSplit,
 };
 
-export default function ContactSection({ id, variant, content }) {
+export default function ContactSection({ id, variant, content = {} }) {
   const Variant = VARIANTS[variant] ?? ContactCards;
   return <Variant id={id} content={content} />;
 }

@@ -37,7 +37,7 @@
 
 .inverted .subtitle,
 .inverted .eyebrow {
-  color: rgba(255, 255, 255, 0.85);
+  color: var(--on-dark-muted);
 }
 
 .actions {
@@ -84,8 +84,8 @@
   inset: 0;
   background: linear-gradient(
     90deg,
-    rgba(8, 15, 26, 0.78) 0%,
-    rgba(8, 15, 26, 0.45) 100%
+    var(--overlay-hero-strong) 0%,
+    var(--overlay-hero-soft) 100%
   );
 }
 

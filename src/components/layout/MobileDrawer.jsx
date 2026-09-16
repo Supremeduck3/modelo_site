@@ -7,21 +7,52 @@ import styles from './mobile-drawer.module.css';
 import NavigationLinks from './NavigationLinks';
 
 /** Menu mobile compartilhado por todas as variantes de navegação. */
+/** Id do painel, referenciado pelos botões que abrem o menu (aria-controls). */
+export const DRAWER_ID = 'menu-mobile';
+
+const FOCUSABLE =
+  'a[href], button:not([disabled]), input, select, textarea, [tabindex]:not([tabindex="-1"])';
+
 export default function MobileDrawer({ open, onClose, navigation, identity }) {
   const closeRef = useRef(null);
+  const panelRef = useRef(null);
 
   useEffect(() => {
     if (!open) return undefined;
+
+    const previouslyFocused = document.activeElement;
+
     const onKeyDown = (event) => {
-      if (event.key === 'Escape') onClose();
+      if (event.key === 'Escape') {
+        onClose();
+        return;
+      }
+      if (event.key !== 'Tab') return;
+
+      // Mantém o foco dentro do painel enquanto ele está aberto.
+      const focusables = panelRef.current?.querySelectorAll(FOCUSABLE);
+      if (!focusables || focusables.length === 0) return;
+      const first = focusables[0];
+      const last = focusables[focusables.length - 1];
+
+      if (event.shiftKey && document.activeElement === first) {
+        event.preventDefault();
+        last.focus();
+      } else if (!event.shiftKey && document.activeElement === last) {
+        event.preventDefault();
+        first.focus();
+      }
     };
+
     document.addEventListener('keydown', onKeyDown);
     closeRef.current?.focus();
     const previousOverflow = document.body.style.overflow;
     document.body.style.overflow = 'hidden';
+
     return () => {
       document.removeEventListener('keydown', onKeyDown);
       document.body.style.overflow = previousOverflow;
+      previouslyFocused?.focus?.();
     };
   }, [open, onClose]);
 
@@ -37,6 +68,8 @@ export default function MobileDrawer({ open, onClose, navigation, identity }) {
         aria-hidden="true"
       />
       <aside
+        ref={panelRef}
+        id={DRAWER_ID}
         className={styles.panel}
         role="dialog"
         aria-modal="true"

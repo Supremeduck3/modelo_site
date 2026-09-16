@@ -1,3 +1,4 @@
+import { createSectionDispatcher } from '../dispatchSection';
 import TestimonialsCards from './TestimonialsCards';
 import TestimonialsSingle from './TestimonialsSingle';
 import TestimonialsSlider from './TestimonialsSlider';
@@ -8,9 +9,10 @@ const VARIANTS = {
   single: TestimonialsSingle,
 };
 
-/** Seção "Depoimentos": despacha para a variante visual configurada. */
-export default function TestimonialsSection({ id, variant, content = {} }) {
-  const Variant = VARIANTS[variant] ?? TestimonialsCards;
+/**
+ * Seção "Depoimentos": despacha para a variante visual configurada.
+ * Sem itens configurados, renderiza apenas o cabeçalho da seção.
+ */
+const TestimonialsSection = createSectionDispatcher(VARIANTS);
 
-  return <Variant id={id} content={content} />;
-}
+export default TestimonialsSection;

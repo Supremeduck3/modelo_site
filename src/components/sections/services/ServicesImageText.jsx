@@ -6,16 +6,13 @@ import styles from './services.module.css';
 export default function ServicesImageText({ id, content = {} }) {
   const { title, subtitle, items = [] } = content;
 
-  if (items.length === 0) {
-    return <Section id={id} title={title} subtitle={subtitle} />;
-  }
-
   return (
     <Section id={id} title={title} subtitle={subtitle}>
       <div className={styles.imageTextList}>
         {items.map((item, index) => (
           <article
-            key={item.title}
+            // biome-ignore lint/suspicious/noArrayIndexKey: itens de conteúdo não têm id estável; o índice apenas desempata títulos repetidos.
+            key={`${item.title}-${index}`}
             className={`${styles.imageTextRow} ${
               index % 2 === 1 ? styles.reversed : ''
             }`}

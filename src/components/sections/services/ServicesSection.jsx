@@ -1,3 +1,4 @@
+import { createSectionDispatcher } from '../dispatchSection';
 import ServicesCards from './ServicesCards';
 import ServicesGrid from './ServicesGrid';
 import ServicesImageText from './ServicesImageText';
@@ -10,9 +11,10 @@ const VARIANTS = {
   'image-text': ServicesImageText,
 };
 
-/** Seção "Serviços": despacha para a variante visual configurada. */
-export default function ServicesSection({ id, variant, content = {} }) {
-  const Variant = VARIANTS[variant] ?? ServicesCards;
+/**
+ * Seção "Serviços": despacha para a variante visual configurada.
+ * Sem itens configurados, renderiza apenas o cabeçalho da seção.
+ */
+const ServicesSection = createSectionDispatcher(VARIANTS);
 
-  return <Variant id={id} content={content} />;
-}
+export default ServicesSection;

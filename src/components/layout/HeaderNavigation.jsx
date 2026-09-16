@@ -5,7 +5,7 @@ import Button from '@/components/ui/Button';
 import Container from '@/components/ui/Container';
 import BrandLogo from './BrandLogo';
 import styles from './header-navigation.module.css';
-import MobileDrawer from './MobileDrawer';
+import MobileDrawer, { DRAWER_ID } from './MobileDrawer';
 import NavigationLinks from './NavigationLinks';
 
 /**
@@ -52,8 +52,9 @@ export default function HeaderNavigation({ navigation, identity, compact }) {
           <button
             type="button"
             className={styles.menuButton}
-            aria-label="Abrir menu"
+            aria-label={drawerOpen ? 'Fechar menu' : 'Abrir menu'}
             aria-expanded={drawerOpen}
+            aria-controls={DRAWER_ID}
             onClick={() => setDrawerOpen(true)}
           >
             <span className={styles.menuIcon} aria-hidden="true" />

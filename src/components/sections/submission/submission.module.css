@@ -14,7 +14,7 @@
 .text {
   margin: 0;
   max-width: 620px;
-  color: rgba(255, 255, 255, 0.85);
+  color: var(--on-dark-muted);
 }
 
 .steps {

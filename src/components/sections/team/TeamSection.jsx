@@ -1,3 +1,4 @@
+import { createSectionDispatcher } from '../dispatchSection';
 import TeamCards from './TeamCards';
 import TeamHighlight from './TeamHighlight';
 import TeamList from './TeamList';
@@ -8,9 +9,10 @@ const VARIANTS = {
   highlight: TeamHighlight,
 };
 
-/** Seção "Equipe": despacha para a variante visual configurada. */
-export default function TeamSection({ id, variant, content = {} }) {
-  const Variant = VARIANTS[variant] ?? TeamCards;
+/**
+ * Seção "Equipe": despacha para a variante visual configurada.
+ * Sem itens configurados, renderiza apenas o cabeçalho da seção.
+ */
+const TeamSection = createSectionDispatcher(VARIANTS);
 
-  return <Variant id={id} content={content} />;
-}
+export default TeamSection;

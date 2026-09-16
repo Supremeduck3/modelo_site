@@ -1,4 +1,4 @@
-import { getSectionContent } from '@/config/site';
+import { getSectionContent, siteConfig } from '@/config/site';
 import AboutSection from './about/AboutSection';
 import ContactSection from './contact/ContactSection';
 import DifferentialsSection from './differentials/DifferentialsSection';
@@ -28,6 +28,16 @@ const SECTION_COMPONENTS = {
 };
 
 /**
+ * Mídia declarada em `media.<seção>` entra como `image`/`items` da seção,
+ * para que o bloco `media` da configuração não seja decorativo.
+ */
+function resolveMedia(type) {
+  const media = siteConfig.media?.[type];
+  if (!media) return {};
+  return Array.isArray(media) ? { items: media } : { image: media };
+}
+
+/**
  * Renderiza a lista de seções declarada na configuração, na ordem configurada.
  * A ordem da home é dado, não código.
  */
@@ -42,6 +52,9 @@ export default function SectionRenderer({ sections }) {
         id={section.id ?? section.type}
         variant={section.variant}
         content={{
+          // Precedência: mídia global da implantação < conteúdo da seção <
+          // conteúdo declarado na própria entrada de pages.home.sections.
+          ...resolveMedia(section.type),
           ...getSectionContent(section.type),
           ...(section.content ?? {}),
         }}

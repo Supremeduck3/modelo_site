@@ -4,7 +4,7 @@ import ContactInfo from './ContactInfo';
 import styles from './contact.module.css';
 
 /** Contatos ao lado de um mapa incorporado (quando configurado). */
-export default function ContactMap({ id, content }) {
+export default function ContactMap({ id, content = {} }) {
   const { mapEmbedUrl } = siteConfig.contact;
 
   return (

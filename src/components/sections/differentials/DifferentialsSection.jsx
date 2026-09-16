@@ -1,3 +1,4 @@
+import { createSectionDispatcher } from '../dispatchSection';
 import DifferentialsCards from './DifferentialsCards';
 import DifferentialsIcons from './DifferentialsIcons';
 import DifferentialsSideBlocks from './DifferentialsSideBlocks';
@@ -8,9 +9,10 @@ const VARIANTS = {
   'side-blocks': DifferentialsSideBlocks,
 };
 
-/** Seção "Diferenciais": despacha para a variante visual configurada. */
-export default function DifferentialsSection({ id, variant, content = {} }) {
-  const Variant = VARIANTS[variant] ?? DifferentialsIcons;
+/**
+ * Seção "Diferenciais": despacha para a variante visual configurada.
+ * Sem itens configurados, renderiza apenas o cabeçalho da seção.
+ */
+const DifferentialsSection = createSectionDispatcher(VARIANTS);
 
-  return <Variant id={id} content={content} />;
-}
+export default DifferentialsSection;

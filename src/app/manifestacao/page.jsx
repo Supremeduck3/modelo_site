@@ -20,7 +20,11 @@ export default function ManifestacaoPage() {
 
   return (
     <>
-      <SubmissionEmbedded id="manifestacao" content={content} />
+      <SubmissionEmbedded
+        id="manifestacao"
+        content={content}
+        headingLevel="h1"
+      />
       <Container>
         <p className={styles.notice}>
           O formulário de registro será disponibilizado nesta página. Enquanto

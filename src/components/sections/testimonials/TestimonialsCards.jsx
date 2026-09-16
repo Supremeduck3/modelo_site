@@ -6,10 +6,6 @@ import styles from './testimonials.module.css';
 export default function TestimonialsCards({ id, content = {} }) {
   const { title, subtitle, items = [] } = content;
 
-  if (items.length === 0) {
-    return <Section id={id} title={title} subtitle={subtitle} />;
-  }
-
   return (
     <Section id={id} title={title} subtitle={subtitle} align="center">
       <div className={styles.cardsGrid}>

@@ -10,10 +10,6 @@ export default function GalleryCarousel({ id, content = {} }) {
   const { title, subtitle, items = [] } = content;
   const [activeIndex, setActiveIndex] = useState(0);
 
-  if (items.length === 0) {
-    return <Section id={id} title={title} subtitle={subtitle} />;
-  }
-
   const goTo = (index) => {
     setActiveIndex((index + items.length) % items.length);
   };
@@ -23,7 +19,9 @@ export default function GalleryCarousel({ id, content = {} }) {
     if (event.key === 'ArrowLeft') goTo(activeIndex - 1);
   };
 
-  const active = items[activeIndex];
+  // Se a configuração encolher a lista, o índice guardado pode sair do intervalo.
+  const safeIndex = Math.min(activeIndex, items.length - 1);
+  const active = items[safeIndex];
 
   return (
     <Section id={id} title={title} subtitle={subtitle} align="center">
@@ -36,13 +34,13 @@ export default function GalleryCarousel({ id, content = {} }) {
         <button
           type="button"
           className={styles.carouselControl}
-          onClick={() => goTo(activeIndex - 1)}
+          onClick={() => goTo(safeIndex - 1)}
           aria-label="Imagem anterior"
         >
           ‹
         </button>
 
-        <figure className={styles.carouselSlide}>
+        <figure className={styles.carouselSlide} aria-live="polite">
           <Media src={active.src} alt={active.alt ?? ''} ratio="16 / 9" />
           {active.caption && (
             <figcaption className={styles.caption}>{active.caption}</figcaption>
@@ -52,7 +50,7 @@ export default function GalleryCarousel({ id, content = {} }) {
         <button
           type="button"
           className={styles.carouselControl}
-          onClick={() => goTo(activeIndex + 1)}
+          onClick={() => goTo(safeIndex + 1)}
           aria-label="Próxima imagem"
         >
           ›
@@ -65,10 +63,10 @@ export default function GalleryCarousel({ id, content = {} }) {
             key={item.src ?? index}
             type="button"
             className={`${styles.dot} ${
-              index === activeIndex ? styles.dotActive : ''
+              index === safeIndex ? styles.dotActive : ''
             }`}
             aria-label={`Ir para imagem ${index + 1}`}
-            aria-current={index === activeIndex}
+            aria-current={index === safeIndex}
             onClick={() => goTo(index)}
           />
         ))}

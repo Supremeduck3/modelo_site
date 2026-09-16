@@ -1,3 +1,4 @@
+import { createSectionDispatcher } from '../dispatchSection';
 import FaqAccordion from './FaqAccordion';
 import FaqBlocks from './FaqBlocks';
 import FaqTwoColumns from './FaqTwoColumns';
@@ -8,9 +9,10 @@ const VARIANTS = {
   'two-columns': FaqTwoColumns,
 };
 
-/** Seção "Perguntas frequentes": despacha para a variante visual configurada. */
-export default function FaqSection({ id, variant, content = {} }) {
-  const Variant = VARIANTS[variant] ?? FaqAccordion;
+/**
+ * Seção "Perguntas frequentes": despacha para a variante visual configurada.
+ * Sem itens configurados, renderiza apenas o cabeçalho da seção.
+ */
+const FaqSection = createSectionDispatcher(VARIANTS);
 
-  return <Variant id={id} content={content} />;
-}
+export default FaqSection;

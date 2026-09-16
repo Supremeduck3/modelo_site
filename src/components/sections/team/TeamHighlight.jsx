@@ -6,10 +6,6 @@ import styles from './team.module.css';
 export default function TeamHighlight({ id, content = {} }) {
   const { title, subtitle, items = [] } = content;
 
-  if (items.length === 0) {
-    return <Section id={id} title={title} subtitle={subtitle} />;
-  }
-
   const [featured, ...rest] = items;
 
   return (

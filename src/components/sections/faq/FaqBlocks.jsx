@@ -5,10 +5,6 @@ import styles from './faq.module.css';
 export default function FaqBlocks({ id, content = {} }) {
   const { title, subtitle, items = [] } = content;
 
-  if (items.length === 0) {
-    return <Section id={id} title={title} subtitle={subtitle} />;
-  }
-
   return (
     <Section id={id} title={title} subtitle={subtitle} align="center">
       <div className={styles.blocksGrid}>

@@ -1,0 +1,20 @@
+.icon {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  width: 48px;
+  height: 48px;
+  border-radius: var(--radius-sm);
+  background: var(--color-surface);
+  font-size: 1.5rem;
+  line-height: 1;
+}
+
+.fallback {
+  display: inline-flex;
+  width: 48px;
+  height: 48px;
+  border-radius: var(--radius-sm);
+  background: var(--color-surface-alt);
+  border: var(--border-width) solid var(--color-border);
+}

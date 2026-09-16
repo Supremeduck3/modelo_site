@@ -3,7 +3,7 @@ import HeroContent from './HeroContent';
 import styles from './hero.module.css';
 
 /** Imagem de fundo ocupando a dobra, com overlay para manter contraste. */
-export default function HeroFullImage({ id, content }) {
+export default function HeroFullImage({ id, content = {} }) {
   return (
     <section
       id={id}

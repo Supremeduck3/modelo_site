@@ -10,18 +10,20 @@ export default function Section({
   title,
   subtitle,
   eyebrow,
+  headingLevel = 'h2',
   tone = 'default',
   align = 'left',
   fullWidth = false,
   className = '',
   children,
 }) {
+  const Heading = headingLevel;
   const body = (
     <>
       {(eyebrow || title || subtitle) && (
-        <header className={`${styles.header} ${styles[align]}`}>
+        <header className={`${styles.header} ${styles[align] ?? ''}`.trim()}>
           {eyebrow && <p className={styles.eyebrow}>{eyebrow}</p>}
-          {title && <h2 className={styles.title}>{title}</h2>}
+          {title && <Heading className={styles.title}>{title}</Heading>}
           {subtitle && <p className={styles.subtitle}>{subtitle}</p>}
         </header>
       )}
@@ -32,7 +34,7 @@ export default function Section({
   return (
     <section
       id={id}
-      className={`${styles.section} ${styles[tone]} ${className}`.trim()}
+      className={`${styles.section} ${styles[tone] ?? styles.default} ${className}`.trim()}
     >
       {fullWidth ? body : <Container>{body}</Container>}
     </section>

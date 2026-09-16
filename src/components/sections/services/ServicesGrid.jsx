@@ -6,15 +6,12 @@ import styles from './services.module.css';
 export default function ServicesGrid({ id, content = {} }) {
   const { title, subtitle, items = [] } = content;
 
-  if (items.length === 0) {
-    return <Section id={id} title={title} subtitle={subtitle} />;
-  }
-
   return (
     <Section id={id} title={title} subtitle={subtitle} align="center">
       <div className={styles.grid}>
-        {items.map((item) => (
-          <article key={item.title} className={styles.gridItem}>
+        {items.map((item, index) => (
+          // biome-ignore lint/suspicious/noArrayIndexKey: itens de conteúdo não têm id estável; o índice apenas desempata títulos repetidos.
+          <article key={`${item.title}-${index}`} className={styles.gridItem}>
             <Media
               src={item.image}
               alt={item.title || ''}

@@ -13,7 +13,10 @@ domínio próprios. O código do molde é reaproveitado.
 4. **Design** — decidir navegação, seções e variantes (seções abaixo). Essa
    decisão é do implementador.
 5. **Marca e mídia** — colocar logo/imagens em `public/` (ou usar URLs) e
-   referenciá-las em `identity`, `media` e no `content` das seções.
+   referenciá-las em `identity` e no `content` das seções. O bloco `media`
+   funciona como fallback por tipo de seção: `media.hero` vira o `image` do
+   hero e `media.gallery` vira os `items` da galeria, sempre com precedência
+   menor que o `content` da seção.
 6. **Conteúdo** — preencher `content` com textos, serviços, diferenciais, FAQ.
 7. **Funcionalidades** — ligar/desligar blocos em `features`.
 8. **SEO e legais** — preencher `seo` e `legal` (textos jurídicos fornecidos e
@@ -57,7 +60,11 @@ pages: {
 
 - `id` vira a âncora usada pelos links do menu.
 - `content` opcional dentro da seção sobrescreve o `content[type]` global.
-- Uma seção cujo `features[type]` está `false` não é renderizada.
+- Uma seção cujo `features[type]` está `false` não é renderizada (e o console
+  avisa em desenvolvimento, para você não perder uma seção sem perceber). O
+  canal de manifestações é controlado por `features.submissions`.
+- Seção baseada em lista sem `items` configurados renderiza só o cabeçalho —
+  a guarda fica no dispatcher, não em cada variante.
 
 Variantes disponíveis (fonte da verdade: `SECTION_VARIANTS` em
 `src/config/site/schema.js`):

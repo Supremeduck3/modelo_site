@@ -157,7 +157,7 @@ const siteConfig = {
         { type: 'services', variant: 'cards', id: 'servicos' },
         { type: 'differentials', variant: 'icons', id: 'diferenciais' },
         { type: 'faq', variant: 'accordion', id: 'faq' },
-        { type: 'submission', variant: 'cta', id: 'manifestacao' },
+        { type: 'submission', variant: 'cta', id: 'canal' },
         { type: 'contact', variant: 'cards', id: 'contato' },
       ],
     },

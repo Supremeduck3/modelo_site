@@ -9,10 +9,6 @@ export default function FaqAccordion({ id, content = {} }) {
   const { title, subtitle, items = [] } = content;
   const [openIndex, setOpenIndex] = useState(0);
 
-  if (items.length === 0) {
-    return <Section id={id} title={title} subtitle={subtitle} />;
-  }
-
   return (
     <Section id={id} title={title} subtitle={subtitle}>
       <div className={styles.accordion}>
@@ -40,13 +36,10 @@ export default function FaqAccordion({ id, content = {} }) {
                 </button>
               </h3>
               {isOpen && (
-                <section
-                  id={panelId}
-                  aria-labelledby={buttonId}
-                  className={styles.panel}
-                >
+                /* div em vez de section: evita criar um landmark por pergunta. */
+                <div id={panelId} className={styles.panel}>
                   <p>{item.answer}</p>
-                </section>
+                </div>
               )}
             </div>
           );

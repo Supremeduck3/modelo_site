@@ -1,16 +1,12 @@
 import Section from '@/components/ui/Section';
+import { splitInColumns } from '../columns';
 import styles from './faq.module.css';
 
 /** Variante que distribui as perguntas em duas colunas. */
 export default function FaqTwoColumns({ id, content = {} }) {
   const { title, subtitle, items = [] } = content;
 
-  if (items.length === 0) {
-    return <Section id={id} title={title} subtitle={subtitle} />;
-  }
-
-  const half = Math.ceil(items.length / 2);
-  const columns = [items.slice(0, half), items.slice(half)];
+  const columns = splitInColumns(items, 2);
 
   return (
     <Section id={id} title={title} subtitle={subtitle}>

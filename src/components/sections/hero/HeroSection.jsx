@@ -11,7 +11,7 @@ const VARIANTS = {
   'cta-focus': HeroCtaFocus,
 };
 
-export default function HeroSection({ id, variant, content }) {
+export default function HeroSection({ id, variant, content = {} }) {
   const Variant = VARIANTS[variant] ?? HeroSplit;
   return <Variant id={id} content={content} />;
 }

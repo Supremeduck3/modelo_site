@@ -7,7 +7,7 @@ const VARIANTS = {
   embedded: SubmissionEmbedded,
 };
 
-export default function SubmissionSection({ id, variant, content }) {
+export default function SubmissionSection({ id, variant, content = {} }) {
   const Variant = VARIANTS[variant] ?? SubmissionCta;
   return <Variant id={id} content={content} />;
 }

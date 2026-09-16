@@ -4,16 +4,14 @@ import { siteConfig } from '@/config/site';
 import styles from './submission.module.css';
 
 /** Faixa de chamada para o canal de manifestações. */
-export default function SubmissionCta({ id, content }) {
+export default function SubmissionCta({ id, content = {} }) {
   const { navigation } = siteConfig;
 
   return (
     <Section id={id} tone="accent" fullWidth={false}>
       <div className={styles.banner}>
         <div>
-          <h2 className={styles.title}>
-            {content.title ?? 'Canal de manifestações'}
-          </h2>
+          <h2 className={styles.title}>{content.title}</h2>
           {content.text && <p className={styles.text}>{content.text}</p>}
         </div>
         <Button

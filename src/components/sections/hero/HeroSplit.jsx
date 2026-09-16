@@ -4,7 +4,7 @@ import HeroContent from './HeroContent';
 import styles from './hero.module.css';
 
 /** Texto à esquerda, mídia à direita. */
-export default function HeroSplit({ id, content }) {
+export default function HeroSplit({ id, content = {} }) {
   return (
     <section id={id} className={styles.split}>
       <Container className={styles.splitInner}>

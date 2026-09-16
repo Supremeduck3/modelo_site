@@ -14,7 +14,7 @@ export default function Button({
   ...rest
 }) {
   const classes =
-    `${styles.button} ${styles[variant]} ${styles[size]} ${className}`.trim();
+    `${styles.button} ${styles[variant] ?? styles.primary} ${styles[size] ?? styles.md} ${className}`.trim();
 
   if (!href) {
     return (

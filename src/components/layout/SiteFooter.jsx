@@ -1,5 +1,5 @@
 import Container from '@/components/ui/Container';
-import { siteConfig } from '@/config/site';
+import { features, siteConfig } from '@/config/site';
 import styles from './site-footer.module.css';
 
 /** Rodapé institucional: contatos, navegação secundária e páginas legais. */
@@ -85,11 +85,13 @@ export default function SiteFooter() {
                 Termos de uso
               </a>
             </li>
-            <li>
-              <a className={styles.link} href="/manifestacao">
-                Canal de manifestações
-              </a>
-            </li>
+            {features.submissions && (
+              <li>
+                <a className={styles.link} href="/manifestacao">
+                  Canal de manifestações
+                </a>
+              </li>
+            )}
           </ul>
         </div>
       </Container>

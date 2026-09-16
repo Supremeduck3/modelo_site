@@ -3,7 +3,7 @@
 import { useState } from 'react';
 import Button from '@/components/ui/Button';
 import BrandLogo from './BrandLogo';
-import MobileDrawer from './MobileDrawer';
+import MobileDrawer, { DRAWER_ID } from './MobileDrawer';
 import NavigationLinks from './NavigationLinks';
 import styles from './sidebar-navigation.module.css';
 
@@ -37,8 +37,9 @@ export default function SidebarNavigation({ navigation, identity }) {
         <button
           type="button"
           className={styles.menuButton}
-          aria-label="Abrir menu"
+          aria-label={drawerOpen ? 'Fechar menu' : 'Abrir menu'}
           aria-expanded={drawerOpen}
+          aria-controls={DRAWER_ID}
           onClick={() => setDrawerOpen(true)}
         >
           <span className={styles.menuIcon} aria-hidden="true" />

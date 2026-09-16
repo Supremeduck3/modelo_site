@@ -1,3 +1,4 @@
+import { createSectionDispatcher } from '../dispatchSection';
 import GalleryCarousel from './GalleryCarousel';
 import GalleryGrid from './GalleryGrid';
 import GalleryMasonry from './GalleryMasonry';
@@ -8,9 +9,10 @@ const VARIANTS = {
   carousel: GalleryCarousel,
 };
 
-/** Seção "Galeria": despacha para a variante visual configurada. */
-export default function GallerySection({ id, variant, content = {} }) {
-  const Variant = VARIANTS[variant] ?? GalleryGrid;
+/**
+ * Seção "Galeria": despacha para a variante visual configurada.
+ * Sem itens configurados, renderiza apenas o cabeçalho da seção.
+ */
+const GallerySection = createSectionDispatcher(VARIANTS);
 
-  return <Variant id={id} content={content} />;
-}
+export default GallerySection;

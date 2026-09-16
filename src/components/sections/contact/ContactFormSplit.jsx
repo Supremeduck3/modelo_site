@@ -8,7 +8,7 @@ import styles from './contact.module.css';
  * Contatos + chamada para o canal de manifestações.
  * O formulário real vive no canal (bloco 2) — aqui não duplicamos a regra.
  */
-export default function ContactFormSplit({ id, content }) {
+export default function ContactFormSplit({ id, content = {} }) {
   const { navigation } = siteConfig;
 
   return (
@@ -21,11 +21,8 @@ export default function ContactFormSplit({ id, content }) {
       <div className={styles.split}>
         <ContactInfo compact />
         <div className={styles.callout}>
-          <h3>{content.calloutTitle ?? 'Prefere escrever?'}</h3>
-          <p>
-            {content.calloutText ??
-              'Registre sua mensagem no canal de manifestações e acompanhe pelo número de protocolo.'}
-          </p>
+          <h3>{content.calloutTitle}</h3>
+          <p>{content.calloutText}</p>
           <Button href={navigation.ctaHref} size="lg">
             {content.calloutCta ?? navigation.ctaLabel}
           </Button>

@@ -60,29 +60,3 @@ export function buildThemeVariables(theme = siteConfig.theme) {
   }
   return vars;
 }
-
-/** Bloco `:root { ... }` pronto para ser injetado no <head>. */
-export function buildThemeStyleSheet(theme = siteConfig.theme) {
-  const declarations = Object.entries(buildThemeVariables(theme))
-    .map(([name, value]) => `${name}: ${value};`)
-    .join('\n    ');
-  return `:root {\n    ${declarations}\n}`;
-}
-
-/** Mapeia os tokens do molde para o ConfigProvider do Ant Design. */
-export function buildAntdTheme(theme = siteConfig.theme) {
-  const { colors, typography, shape } = theme;
-  return {
-    token: {
-      colorPrimary: colors.primary,
-      colorText: colors.text,
-      colorTextSecondary: colors.textMuted,
-      colorBgBase: colors.background,
-      colorBorder: colors.border,
-      colorSuccess: colors.success,
-      colorError: colors.danger,
-      borderRadius: Number.parseInt(shape.radius, 10) || 8,
-      fontFamily: typography.fontFamily,
-    },
-  };
-}

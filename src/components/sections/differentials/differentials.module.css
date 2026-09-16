@@ -1,22 +1,3 @@
-.icon {
-  display: inline-flex;
-  align-items: center;
-  justify-content: center;
-  width: 48px;
-  height: 48px;
-  border-radius: var(--radius-sm);
-  background: var(--color-surface-alt);
-  font-size: 1.5rem;
-}
-
-.iconFallback {
-  display: inline-block;
-  width: 48px;
-  height: 48px;
-  border-radius: var(--radius-sm);
-  background: var(--color-border);
-}
-
 .iconsGrid {
   display: grid;
   grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));

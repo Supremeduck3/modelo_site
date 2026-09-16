@@ -6,15 +6,12 @@ import styles from './team.module.css';
 export default function TeamCards({ id, content = {} }) {
   const { title, subtitle, items = [] } = content;
 
-  if (items.length === 0) {
-    return <Section id={id} title={title} subtitle={subtitle} />;
-  }
-
   return (
     <Section id={id} title={title} subtitle={subtitle} align="center">
       <div className={styles.cardsGrid}>
-        {items.map((item) => (
-          <article key={item.name} className={styles.card}>
+        {items.map((item, index) => (
+          // biome-ignore lint/suspicious/noArrayIndexKey: itens de conteúdo não têm id estável; o índice apenas desempata títulos repetidos.
+          <article key={`${item.name}-${index}`} className={styles.card}>
             <Media
               src={item.photo}
               alt={item.name ?? ''}

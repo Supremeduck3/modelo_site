@@ -6,15 +6,12 @@ import styles from './team.module.css';
 export default function TeamList({ id, content = {} }) {
   const { title, subtitle, items = [] } = content;
 
-  if (items.length === 0) {
-    return <Section id={id} title={title} subtitle={subtitle} />;
-  }
-
   return (
     <Section id={id} title={title} subtitle={subtitle}>
       <ul className={styles.list}>
-        {items.map((item) => (
-          <li key={item.name} className={styles.listItem}>
+        {items.map((item, index) => (
+          // biome-ignore lint/suspicious/noArrayIndexKey: itens de conteúdo não têm id estável; o índice apenas desempata títulos repetidos.
+          <li key={`${item.name}-${index}`} className={styles.listItem}>
             <Media
               src={item.photo}
               alt={item.name ?? ''}
