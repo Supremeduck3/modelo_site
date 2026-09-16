@@ -7,6 +7,16 @@ import { defineConfig } from '@playwright/test';
 export default defineConfig({
   testDir: './tests/e2e',
   timeout: 30_000,
+  // O projeto de setup autentica uma vez e guarda a sessão; ver
+  // tests/e2e/auth.setup.js para o motivo.
+  projects: [
+    { name: 'setup', testMatch: /auth\.setup\.js/ },
+    {
+      name: 'e2e',
+      testIgnore: /auth\.setup\.js/,
+      dependencies: ['setup'],
+    },
+  ],
   use: {
     baseURL: process.env.E2E_BASE_URL ?? 'http://localhost:3210',
     launchOptions: { executablePath: '/opt/pw-browsers/chromium' },

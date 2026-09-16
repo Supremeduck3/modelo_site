@@ -1,4 +1,5 @@
-import { Alert, Card, Col, Row, Statistic } from 'antd';
+import { Card, Col, Row, Statistic } from 'antd';
+import Link from 'next/link';
 import { SUBMISSION_STATUSES } from '@/lib/submissions/constants';
 import { requireSessionUser } from '@/server/modules/auth/session';
 import { getSubmissionSummary } from '@/server/modules/submissions/service';
@@ -45,12 +46,9 @@ export default async function PanelHomePage() {
         </Row>
       </Card>
 
-      <Alert
-        type="info"
-        showIcon
-        message="Atendimento das manifestações chega na fase 5"
-        description="A lista, o detalhe, a troca de situação e a resposta ao visitante entram na próxima fase. Por ora o painel mostra o panorama do canal."
-      />
+      <Card>
+        <Link href="/painel/manifestacoes">Ver todas as manifestações</Link>
+      </Card>
     </div>
   );
 }

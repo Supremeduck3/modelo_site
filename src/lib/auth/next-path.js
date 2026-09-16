@@ -15,6 +15,9 @@ export const FORGOT_PASSWORD_PATH = '/painel/esqueci-senha';
 
 export const RESET_PASSWORD_PATH = '/painel/redefinir-senha';
 
+/** Aceite de convite: quem abre ainda não tem sessão. */
+export const ACCEPT_INVITE_PATH = '/painel/convite';
+
 /**
  * Saneia o `?next=` do login.
  *

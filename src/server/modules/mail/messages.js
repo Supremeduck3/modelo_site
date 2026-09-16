@@ -215,3 +215,108 @@ export function passwordResetRequested({
 
   return { subject, text, html };
 }
+
+/**
+ * Resposta da empresa ao visitante que registrou a manifestação.
+ *
+ * Leva o protocolo, o assunto e o texto que a equipe escreveu para ser enviado
+ * — nada mais. Situação interna, responsável, prioridade e notas ficam de fora
+ * por definição: o que o painel anota não transita por aqui.
+ */
+export function submissionAnsweredForVisitor({
+  submission,
+  companyName,
+  typeLabel,
+  response,
+}) {
+  const subject = `Resposta à sua manifestação ${submission.protocol}`;
+  const greeting = submission.contactName
+    ? `Olá, ${submission.contactName}.`
+    : 'Olá.';
+
+  const text = [
+    greeting,
+    '',
+    `${companyName} respondeu à manifestação que você registrou.`,
+    '',
+    `Protocolo: ${submission.protocol}`,
+    `Tipo: ${typeLabel}`,
+    `Assunto: ${submission.title}`,
+    '',
+    'Resposta:',
+    response,
+    '',
+    'Se precisar complementar, responda a este e-mail informando o protocolo.',
+  ].join('\n');
+
+  const html = layout({
+    title: 'Resposta à sua manifestação',
+    body: `
+    <p>${escapeHtml(greeting)}</p>
+    <p>${escapeHtml(companyName)} respondeu à manifestação que você registrou.</p>
+    <p>
+      <strong>Protocolo:</strong> ${escapeHtml(submission.protocol)}<br>
+      <strong>Tipo:</strong> ${escapeHtml(typeLabel)}<br>
+      <strong>Assunto:</strong> ${escapeHtml(submission.title)}
+    </p>
+    <div style="margin:24px 0;padding:16px;background:#f5f7fa;border-radius:8px">
+      ${paragraphs(response)}
+    </div>
+    <p style="color:#5b6982;font-size:14px">
+      Se precisar complementar, responda a este e-mail informando o protocolo.
+    </p>`,
+    footer: `Mensagem do canal de manifestações de ${companyName}.`,
+  });
+
+  return { subject, text, html };
+}
+
+/**
+ * Convite de acesso ao painel.
+ *
+ * Leva o link e o prazo. Não leva senha: quem aceita escolhe a própria, e
+ * senha nenhuma trafega por e-mail.
+ */
+export function memberInvited({
+  memberName,
+  companyName,
+  invitedByName,
+  inviteUrl,
+  expiresInDays,
+}) {
+  const subject = `Acesso ao painel de ${companyName}`;
+  const quem = invitedByName ? `${invitedByName} ` : '';
+
+  const text = [
+    `Olá, ${memberName}.`,
+    '',
+    `${quem}convidou você para o painel de ${companyName}, onde a equipe acompanha as manifestações recebidas pelo site.`,
+    '',
+    'Abra o endereço abaixo para definir sua senha e ativar o acesso:',
+    inviteUrl,
+    '',
+    `O convite vale por ${expiresInDays} dias e só pode ser usado uma vez.`,
+    'Se você não esperava este convite, ignore esta mensagem.',
+  ].join('\n');
+
+  const html = layout({
+    title: 'Convite para o painel',
+    body: `
+    <p>Olá, ${escapeHtml(memberName)}.</p>
+    <p>
+      ${escapeHtml(quem)}convidou você para o painel de
+      ${escapeHtml(companyName)}, onde a equipe acompanha as manifestações
+      recebidas pelo site.
+    </p>
+    <p>
+      <a href="${escapeHtml(inviteUrl)}" style="display:inline-block;padding:12px 20px;background:#1f6feb;color:#ffffff;border-radius:8px;text-decoration:none">Definir minha senha</a>
+    </p>
+    <p style="color:#5b6982;font-size:14px">
+      O convite vale por ${escapeHtml(expiresInDays)} dias e só pode ser usado
+      uma vez. Se você não esperava este convite, ignore esta mensagem.
+    </p>`,
+    footer: `Mensagem automática do painel de ${companyName}.`,
+  });
+
+  return { subject, text, html };
+}

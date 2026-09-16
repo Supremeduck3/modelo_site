@@ -1,10 +1,10 @@
 import assert from 'node:assert/strict';
 import test from 'node:test';
+import { PASSWORD_MIN_LENGTH } from '../src/lib/auth/password-rules.js';
 import {
   validateForgotPasswordInput,
   validateResetPasswordInput,
 } from '../src/lib/auth/schema.js';
-import { PASSWORD_MIN_LENGTH } from '../src/lib/auth/password-rules.js';
 import {
   generateResetToken,
   hashResetToken,

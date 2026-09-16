@@ -3,8 +3,11 @@ import { prisma } from '@/server/db/client';
 import { isMailConfigured, sendMail } from '@/server/lib/mailer';
 import { RESET_TTL_MS } from '@/server/modules/auth/password-reset';
 import { getCurrentCompany } from '@/server/modules/company/service';
+import { INVITE_TTL_MS } from '@/server/modules/team/service';
 import {
+  memberInvited,
   passwordResetRequested,
+  submissionAnsweredForVisitor,
   submissionReceivedForTeam,
   submissionReceivedForVisitor,
 } from './messages';
@@ -118,5 +121,69 @@ export async function notifyPasswordResetRequested({ user, token }) {
   } catch (error) {
     // Roda depois da resposta: não há a quem devolver erro.
     console.error('[mail] falha ao enviar link de recuperação', error);
+  }
+}
+
+/**
+ * Entrega ao visitante a resposta escrita pela equipe.
+ *
+ * Só é chamada quando há e-mail de contato. O texto enviado é exatamente o que
+ * a equipe escreveu no campo público — nenhuma nota interna chega aqui, porque
+ * nota interna nem faz parte do que `respondToSubmission` devolve.
+ */
+export async function notifySubmissionAnswered({ submission, response }) {
+  if (!isMailConfigured()) return;
+  if (!submission?.contactEmail) return;
+
+  try {
+    const company = await getCurrentCompany();
+
+    await sendMail({
+      to: submission.contactEmail,
+      ...submissionAnsweredForVisitor({
+        submission,
+        companyName: company.name,
+        typeLabel: labelOf(SUBMISSION_TYPES, submission.type),
+        response,
+      }),
+    });
+  } catch (error) {
+    // Roda depois da resposta à equipe: não há a quem devolver erro.
+    console.error('[mail] falha ao enviar resposta ao visitante', error);
+  }
+}
+
+/**
+ * Envia o convite de acesso ao painel.
+ *
+ * Sem SMTP não há envio, e isso não é falha: a rota devolve o link para quem
+ * convidou repassar. Em produção o link não vai para o log — quem lesse o log
+ * entraria na conta antes da pessoa convidada.
+ */
+export async function notifyMemberInvited({ member, link, invitedByName }) {
+  if (!isMailConfigured()) {
+    if (process.env.NODE_ENV !== 'production') {
+      console.info(`[mail] SMTP ausente; link de convite: ${link}`);
+    }
+    return;
+  }
+
+  try {
+    const company = await getCurrentCompany();
+
+    await sendMail({
+      to: member.email,
+      ...memberInvited({
+        memberName: member.name,
+        companyName: company.name,
+        invitedByName,
+        inviteUrl: link,
+        expiresInDays: Math.round(INVITE_TTL_MS / (24 * 60 * 60 * 1000)),
+      }),
+    });
+  } catch (error) {
+    // Roda depois da resposta: não há a quem devolver erro, e o admin já tem o
+    // link na tela.
+    console.error('[mail] falha ao enviar convite', error);
   }
 }
