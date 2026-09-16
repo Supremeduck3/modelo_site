@@ -10,8 +10,8 @@ O produto tem três blocos:
 | --- | --- |
 | 1 — Site institucional | Implementado (fases 0–2) |
 | 2 — Canal de manifestações | Implementado (fase 3): formulário público, API, protocolo e histórico |
-| 3 — Painel da empresa | Em andamento: autenticação e casca prontas (fase 4); atendimento das manifestações na fase 5; equipe e categorias na fase 6 |
-| E-mail transacional | Confirmação ao visitante, aviso à equipe e link de recuperação de senha prontos; resposta pública acompanha a fase 5 |
+| 3 — Painel da empresa | Em andamento: autenticação (fase 4) e atendimento das manifestações (fase 5) prontos; equipe e categorias na fase 6 |
+| E-mail transacional | Confirmação ao visitante, aviso à equipe, resposta pública e link de recuperação de senha prontos |
 
 ## Stack
 
@@ -33,6 +33,7 @@ cp .env.example .env.local   # preencha DATABASE_URL e AUTH_SECRET
 
 npm run db:migrate           # aplica as migrations
 npm run db:seed              # empresa, categorias e o primeiro usuário do painel
+npm run db:seed:demo         # manifestações fictícias para exercitar o painel (nunca em produção)
 
 npm run dev                  # http://localhost:3000
 npm run lint                 # biome check
@@ -150,6 +151,43 @@ cookie do navegador mas não revoga um token que já tenha sido copiado; ele val
 até expirar. Trocar `AUTH_SECRET` invalida todas de uma vez.
 `src/server/lib/session-token.js` é o ponto de troca por sessão persistida se
 alguma implantação precisar de revogação imediata em todos os casos.
+
+## Atendimento das manifestações
+
+A equipe trabalha em `/painel/manifestacoes`: fila com filtros (busca por
+protocolo ou assunto, situação, tipo, prioridade, categoria, responsável e "sem
+responsável"), paginação e detalhe com histórico.
+
+No detalhe estão as quatro ações: classificar (situação, prioridade, categoria,
+responsável), registrar nota interna, responder ao visitante e arquivar.
+
+Regras que o código garante, não a disciplina de quem usa:
+
+- **`companyId` é parâmetro obrigatório de toda consulta do módulo.** Nenhuma
+  função resolve a empresa sozinha: o filtro entra na assinatura, então um id de
+  outra implantação simplesmente não é encontrado — e responde 404 igual a um id
+  inexistente, sem confirmar que o registro existe em algum lugar. Categoria e
+  responsável também são conferidos contra a empresa antes de serem vinculados.
+- **Nota interna e resposta pública são campos diferentes.** A nota vive só no
+  histórico e nunca entra em nenhuma projeção que saia da empresa; o e-mail ao
+  visitante recebe apenas o texto da resposta, o protocolo e o assunto.
+- **Toda alteração relevante vira evento na mesma transação da alteração.** Não
+  existe mudança de situação sem trilha de auditoria, e classificar sem mudar
+  nada não gera evento vazio.
+- **Arquivar em vez de excluir**, como pede a especificação: o registro sai da
+  fila e continua auditável. Não há rota de exclusão.
+- **Filtro inválido na URL é descartado, não recusado.** Um link antigo ou um
+  valor renomeado mostram a lista sem aquele filtro, em vez de derrubar a fila
+  de trabalho.
+
+Permissões (`src/lib/auth/permissions.js`): operador vê e opera manifestações;
+arquivar e as configurações ficam com responsável e administrador. Cada rota
+confere no servidor — esconder o botão é conveniência, não autorização.
+
+Uma armadilha registrada no código: num Server Component, `Typography.Paragraph`
+e outros subcomponentes do antd expostos como objeto chegam `undefined` pela
+referência de cliente e quebram a página em execução, não no build.
+Subcomponentes que são função simples, como `Descriptions.Item`, funcionam.
 
 ## E-mail transacional
 

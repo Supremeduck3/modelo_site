@@ -215,3 +215,58 @@ export function passwordResetRequested({
 
   return { subject, text, html };
 }
+
+/**
+ * Resposta da empresa ao visitante que registrou a manifestação.
+ *
+ * Leva o protocolo, o assunto e o texto que a equipe escreveu para ser enviado
+ * — nada mais. Situação interna, responsável, prioridade e notas ficam de fora
+ * por definição: o que o painel anota não transita por aqui.
+ */
+export function submissionAnsweredForVisitor({
+  submission,
+  companyName,
+  typeLabel,
+  response,
+}) {
+  const subject = `Resposta à sua manifestação ${submission.protocol}`;
+  const greeting = submission.contactName
+    ? `Olá, ${submission.contactName}.`
+    : 'Olá.';
+
+  const text = [
+    greeting,
+    '',
+    `${companyName} respondeu à manifestação que você registrou.`,
+    '',
+    `Protocolo: ${submission.protocol}`,
+    `Tipo: ${typeLabel}`,
+    `Assunto: ${submission.title}`,
+    '',
+    'Resposta:',
+    response,
+    '',
+    'Se precisar complementar, responda a este e-mail informando o protocolo.',
+  ].join('\n');
+
+  const html = layout({
+    title: 'Resposta à sua manifestação',
+    body: `
+    <p>${escapeHtml(greeting)}</p>
+    <p>${escapeHtml(companyName)} respondeu à manifestação que você registrou.</p>
+    <p>
+      <strong>Protocolo:</strong> ${escapeHtml(submission.protocol)}<br>
+      <strong>Tipo:</strong> ${escapeHtml(typeLabel)}<br>
+      <strong>Assunto:</strong> ${escapeHtml(submission.title)}
+    </p>
+    <div style="margin:24px 0;padding:16px;background:#f5f7fa;border-radius:8px">
+      ${paragraphs(response)}
+    </div>
+    <p style="color:#5b6982;font-size:14px">
+      Se precisar complementar, responda a este e-mail informando o protocolo.
+    </p>`,
+    footer: `Mensagem do canal de manifestações de ${companyName}.`,
+  });
+
+  return { subject, text, html };
+}

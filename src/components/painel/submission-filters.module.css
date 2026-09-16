@@ -1,0 +1,25 @@
+.filters {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 16px;
+  align-items: flex-end;
+}
+
+.field {
+  display: grid;
+  gap: 6px;
+  min-width: 160px;
+}
+
+.label {
+  font-weight: 600;
+  font-size: 0.875rem;
+}
+
+.select {
+  min-width: 160px;
+}
+
+.clear {
+  padding-left: 0;
+}

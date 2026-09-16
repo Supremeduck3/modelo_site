@@ -5,6 +5,7 @@ import { RESET_TTL_MS } from '@/server/modules/auth/password-reset';
 import { getCurrentCompany } from '@/server/modules/company/service';
 import {
   passwordResetRequested,
+  submissionAnsweredForVisitor,
   submissionReceivedForTeam,
   submissionReceivedForVisitor,
 } from './messages';
@@ -118,5 +119,34 @@ export async function notifyPasswordResetRequested({ user, token }) {
   } catch (error) {
     // Roda depois da resposta: não há a quem devolver erro.
     console.error('[mail] falha ao enviar link de recuperação', error);
+  }
+}
+
+/**
+ * Entrega ao visitante a resposta escrita pela equipe.
+ *
+ * Só é chamada quando há e-mail de contato. O texto enviado é exatamente o que
+ * a equipe escreveu no campo público — nenhuma nota interna chega aqui, porque
+ * nota interna nem faz parte do que `respondToSubmission` devolve.
+ */
+export async function notifySubmissionAnswered({ submission, response }) {
+  if (!isMailConfigured()) return;
+  if (!submission?.contactEmail) return;
+
+  try {
+    const company = await getCurrentCompany();
+
+    await sendMail({
+      to: submission.contactEmail,
+      ...submissionAnsweredForVisitor({
+        submission,
+        companyName: company.name,
+        typeLabel: labelOf(SUBMISSION_TYPES, submission.type),
+        response,
+      }),
+    });
+  } catch (error) {
+    // Roda depois da resposta à equipe: não há a quem devolver erro.
+    console.error('[mail] falha ao enviar resposta ao visitante', error);
   }
 }

@@ -1,0 +1,5 @@
+.description {
+  margin: 24px 0;
+  /* O visitante escreveu em texto livre: as quebras de linha dele importam. */
+  white-space: pre-wrap;
+}

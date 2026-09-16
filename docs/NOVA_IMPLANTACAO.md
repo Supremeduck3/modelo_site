@@ -210,3 +210,13 @@ Nesse cenário a recuperação exige intervenção do implementador no banco —
 gravar um novo `password_hash` ou remover o usuário e recriá-lo pelo seed.
 
 Vale configurar SMTP antes de entregar o painel à empresa.
+
+## Dados de demonstração
+
+`npm run db:seed:demo` cria 35 manifestações fictícias (`SEED_DEMO_COUNT` muda a
+quantidade) para conferir lista, filtros, paginação e histórico sem preencher o
+formulário público dezenas de vezes.
+
+São dados falsos: o script recusa `NODE_ENV=production` para não se misturarem
+às manifestações reais da empresa. Antes de entregar a implantação, apague-os —
+eles não têm marca que os distinga na tela, só o sufixo "(demo N)" no assunto.
