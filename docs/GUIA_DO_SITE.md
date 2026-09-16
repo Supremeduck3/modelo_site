@@ -143,6 +143,11 @@ chegam a composições de verdade diferentes:
   ligado, tudo aparece imediatamente.
 - **Cabeçalho assimétrico**: `Section` aceita `aside` para pôr apoio ou CTA ao
   lado do título, sem a variante remontar um grid próprio.
+- **Carrossel** (`gallery` na variante `carousel`): trilho com rolagem nativa e
+  encaixe por imagem. Arrastar com o dedo, trackpad, setas do teclado e as
+  bolinhas convergem para o mesmo índice, e a próxima foto fica espiando na
+  lateral — é assim que o visitante percebe que há mais imagens. Para vitrine de
+  loja física, compare com a variante `grid`, que mostra várias fotos de uma vez.
 
 ## Comandos do dia a dia
 

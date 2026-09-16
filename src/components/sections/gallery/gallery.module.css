@@ -59,23 +59,51 @@
   border-radius: var(--image-radius);
 }
 
-.carousel {
+/*
+ * Trilho com rolagem nativa: o encaixe é do navegador, então arrastar com o
+ * dedo, o trackpad e os botões chegam ao mesmo resultado. O recuo lateral
+ * negativo deixa a próxima imagem espiar além do gutter do container, sem
+ * transbordar a página.
+ */
+.carouselTrack {
   display: flex;
-  align-items: center;
-  justify-content: center;
-  gap: 24px;
+  gap: var(--gap);
+  overflow-x: auto;
+  overscroll-behavior-x: contain;
+  scroll-snap-type: x mandatory;
+  scroll-padding-inline: clamp(20px, 5vw, 56px);
+  margin-inline: calc(clamp(20px, 5vw, 56px) * -1);
+  padding-inline: clamp(20px, 5vw, 56px);
+  padding-bottom: 8px;
+  /* A barra de rolagem some: a navegação é por arrastar, setas e bolinhas. */
+  scrollbar-width: none;
+}
+
+.carouselTrack::-webkit-scrollbar {
+  display: none;
+}
+
+.carouselTrack:focus-visible {
+  outline: 2px solid var(--color-primary);
+  outline-offset: 6px;
 }
 
 .carouselSlide {
   margin: 0;
-  max-width: 880px;
-  width: 100%;
+  flex: 0 0 min(76%, 820px);
+  scroll-snap-align: center;
+  scroll-snap-stop: always;
 }
 
 .carouselSlide img,
 .carouselSlide > div {
   border-radius: var(--image-radius);
-  box-shadow: var(--shadow-medium);
+}
+
+.carouselControls {
+  display: flex;
+  gap: 10px;
+  justify-content: flex-end;
 }
 
 .carouselControl {
@@ -87,6 +115,7 @@
   background: transparent;
   color: var(--color-text);
   font-size: 1.3rem;
+  line-height: 1;
   cursor: pointer;
   transition:
     border-color var(--motion-duration) var(--motion-easing),
@@ -100,9 +129,8 @@
 
 .dots {
   display: flex;
-  justify-content: center;
   gap: 10px;
-  margin-top: 24px;
+  margin-top: 28px;
 }
 
 .dot {
@@ -123,8 +151,10 @@
     columns: 2;
   }
 
-  .carousel {
-    gap: 10px;
+  /* No celular a imagem ocupa quase a tela toda, com uma fresta da próxima
+     sinalizando que dá para arrastar. */
+  .carouselSlide {
+    flex-basis: 88%;
   }
 }
 
