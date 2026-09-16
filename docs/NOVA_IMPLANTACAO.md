@@ -24,7 +24,8 @@ domínio próprios. O código do molde é reaproveitado.
    revisados pelo responsável — o molde não inventa texto legal).
 9. **E-mail** — preencher `SMTP_*` e `MAIL_FROM`. Use um remetente do domínio da
    empresa, com SPF e DKIM configurados; remetente de domínio alheio cai em spam.
-   Sem essas variáveis a implantação funciona, apenas sem enviar e-mail.
+   Sem essas variáveis a implantação funciona, apenas sem enviar e-mail — mas
+   veja a ressalva sobre recuperação de senha abaixo.
 10. **Conferir** — `npm run lint` e `npm run dev`, revisando mobile e desktop.
 11. **Deploy + domínio.**
 
@@ -191,3 +192,21 @@ Cuidados com `AUTH_SECRET`:
 As categorias ficam no banco, não na configuração do site: elas são dado
 operacional da empresa. O formulário público lista apenas as ativas e a API
 recusa qualquer categoria que não pertença à empresa da implantação.
+
+## Recuperação de senha e SMTP
+
+A recuperação de senha entrega o link **só por e-mail**. Sem `SMTP_*`
+configurado:
+
+- em desenvolvimento o link aparece no log do servidor, para dar para testar o
+  fluxo sem servidor de e-mail;
+- em produção o link não é registrado em lugar nenhum, de propósito: quem
+  tivesse acesso ao log entraria na conta. O pedido é aceito e nada é entregue.
+
+Ou seja, numa implantação sem SMTP quem perde a senha não tem caminho de volta
+sozinho. O seed não resolve: ele nunca sobrescreve a senha de um usuário que já
+existe, justamente para não desfazer em silêncio uma troca feita pela empresa.
+Nesse cenário a recuperação exige intervenção do implementador no banco —
+gravar um novo `password_hash` ou remover o usuário e recriá-lo pelo seed.
+
+Vale configurar SMTP antes de entregar o painel à empresa.

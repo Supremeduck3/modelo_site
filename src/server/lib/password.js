@@ -1,5 +1,12 @@
 import { randomBytes, scrypt, timingSafeEqual } from 'node:crypto';
 import { promisify } from 'node:util';
+import {
+  PASSWORD_MAX_LENGTH,
+  PASSWORD_MIN_LENGTH,
+  PASSWORD_RULES,
+  // Caminho relativo (e não o alias `@/`): este módulo é exercitado por
+  // `node --test`, que não resolve os aliases do bundler.
+} from '../../lib/auth/password-rules.js';
 
 /**
  * Hash de senha dos usuários do painel.
@@ -21,15 +28,11 @@ const COST = { N: 32_768, r: 8, p: 1 };
 /** maxmem padrão do Node (32MB) não cobre N=32768; 128*N*r deixa folga. */
 const MAX_MEM = 128 * COST.N * COST.r * 2;
 
-const MIN_PASSWORD_LENGTH = 10;
-/** Limite de entrada: scrypt não tem o truncamento do bcrypt, mas negar texto
- * gigante evita transformar o login em vetor de CPU. */
-const MAX_PASSWORD_LENGTH = 200;
+// Os números vêm do módulo compartilhado com o formulário: uma política só.
+const MIN_PASSWORD_LENGTH = PASSWORD_MIN_LENGTH;
+const MAX_PASSWORD_LENGTH = PASSWORD_MAX_LENGTH;
 
-export const PASSWORD_RULES = {
-  minLength: MIN_PASSWORD_LENGTH,
-  maxLength: MAX_PASSWORD_LENGTH,
-};
+export { PASSWORD_RULES };
 
 /** Gera o hash de uma senha em texto claro. */
 export async function hashPassword(password) {

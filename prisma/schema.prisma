@@ -47,16 +47,22 @@ model Company {
 
 /// Usuario da equipe da empresa, com acesso ao painel privado.
 model CompanyUser {
-  id           String    @id @default(uuid())
-  companyId    String    @map("company_id")
-  name         String
-  email        String    @unique
-  passwordHash String    @map("password_hash")
-  role         String    @default("operator")
-  isActive     Boolean   @default(true) @map("is_active")
-  lastLoginAt  DateTime? @map("last_login_at")
-  createdAt    DateTime  @default(now()) @map("created_at")
-  updatedAt    DateTime  @updatedAt @map("updated_at")
+  id                String    @id @default(uuid())
+  companyId         String    @map("company_id")
+  name              String
+  email             String    @unique
+  passwordHash      String    @map("password_hash")
+  role              String    @default("operator")
+  isActive          Boolean   @default(true) @map("is_active")
+  lastLoginAt       DateTime? @map("last_login_at")
+  /// Momento da ultima troca de senha.
+  ///
+  /// A sessao e um token assinado sem tabela: sem esta marca, redefinir a senha
+  /// nao derrubaria uma sessao ja aberta com a senha antiga. A guarda compara
+  /// este valor com a emissao do token.
+  passwordChangedAt DateTime? @map("password_changed_at")
+  createdAt         DateTime  @default(now()) @map("created_at")
+  updatedAt         DateTime  @updatedAt @map("updated_at")
 
   company        Company           @relation(fields: [companyId], references: [id], onDelete: Cascade)
   assigned       Submission[]      @relation("SubmissionAssignee")

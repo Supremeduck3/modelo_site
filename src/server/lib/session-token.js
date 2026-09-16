@@ -113,6 +113,10 @@ export function verifySessionToken(token, { now = Date.now() } = {}) {
     companyId: payload.cid,
     role: typeof payload.role === 'string' ? payload.role : null,
     name: typeof payload.name === 'string' ? payload.name : null,
+    // A emissão sai daqui para a guarda poder descartar tokens anteriores à
+    // última troca de senha do usuário.
+    issuedAt:
+      typeof payload.iat === 'number' ? new Date(payload.iat * 1000) : null,
     expiresAt: new Date(payload.exp * 1000),
   };
 }

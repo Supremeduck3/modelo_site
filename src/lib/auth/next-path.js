@@ -11,6 +11,10 @@ export const PANEL_HOME = '/painel';
 
 export const LOGIN_PATH = '/painel/login';
 
+export const FORGOT_PASSWORD_PATH = '/painel/esqueci-senha';
+
+export const RESET_PASSWORD_PATH = '/painel/redefinir-senha';
+
 /**
  * Saneia o `?next=` do login.
  *

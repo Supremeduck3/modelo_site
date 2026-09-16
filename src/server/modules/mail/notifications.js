@@ -1,8 +1,10 @@
 import { labelOf, SUBMISSION_TYPES } from '@/lib/submissions/constants';
 import { prisma } from '@/server/db/client';
 import { isMailConfigured, sendMail } from '@/server/lib/mailer';
+import { RESET_TTL_MS } from '@/server/modules/auth/password-reset';
 import { getCurrentCompany } from '@/server/modules/company/service';
 import {
+  passwordResetRequested,
   submissionReceivedForTeam,
   submissionReceivedForVisitor,
 } from './messages';
@@ -75,5 +77,46 @@ export async function notifySubmissionCreated({ submission }) {
   } catch (error) {
     // Roda depois da resposta ao visitante: não há a quem devolver erro.
     console.error('[mail] falha ao avisar sobre manifestação nova', error);
+  }
+}
+
+/**
+ * Envia o link de recuperação de senha.
+ *
+ * Sem SMTP configurado o link vai para o log em desenvolvimento — é o que
+ * permite ao implementador testar o fluxo antes de ter servidor de e-mail. Em
+ * produção não registramos o link em lugar nenhum: quem lesse o log entraria na
+ * conta.
+ */
+export async function notifyPasswordResetRequested({ user, token }) {
+  const base = process.env.NEXT_PUBLIC_SITE_URL?.trim().replace(/\/$/, '');
+  const resetUrl = `${base ?? ''}/painel/redefinir-senha?token=${encodeURIComponent(token)}`;
+
+  if (!isMailConfigured()) {
+    if (process.env.NODE_ENV !== 'production') {
+      console.info(`[mail] SMTP ausente; link de recuperação: ${resetUrl}`);
+    } else {
+      console.warn(
+        '[mail] pedido de recuperação sem SMTP configurado: nenhum link foi entregue.',
+      );
+    }
+    return;
+  }
+
+  try {
+    const company = await getCurrentCompany();
+
+    await sendMail({
+      to: user.email,
+      ...passwordResetRequested({
+        userName: user.name,
+        companyName: company.name,
+        resetUrl,
+        expiresInMinutes: Math.round(RESET_TTL_MS / 60000),
+      }),
+    });
+  } catch (error) {
+    // Roda depois da resposta: não há a quem devolver erro.
+    console.error('[mail] falha ao enviar link de recuperação', error);
   }
 }

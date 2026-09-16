@@ -1,6 +1,10 @@
 import { NextResponse } from 'next/server';
 import { SESSION_COOKIE } from '@/lib/auth/cookie';
-import { LOGIN_PATH } from '@/lib/auth/next-path';
+import {
+  FORGOT_PASSWORD_PATH,
+  LOGIN_PATH,
+  RESET_PASSWORD_PATH,
+} from '@/lib/auth/next-path';
 
 /**
  * Atalho de navegação do painel: quem chega sem cookie de sessão vai direto ao
@@ -26,6 +30,31 @@ export default function proxy(request) {
 }
 
 export const config = {
-  // Tudo sob /painel menos o próprio login, que não pode exigir sessão.
-  matcher: ['/painel', '/painel/((?!login(?:/|$)).*)'],
+  // Tudo sob /painel menos as telas de acesso, que não podem exigir sessão:
+  // login e as duas etapas da recuperação de senha. Mandar quem perdeu a senha
+  // para o login seria um laço — é justamente de lá que ele veio.
+  //
+  // O matcher precisa ser literal: o Next o lê em tempo de build e não resolve
+  // variáveis. As constantes ao lado existem para que uma renomeação de rota
+  // quebre o build aqui, em vez de silenciosamente deixar a página protegida.
+  matcher: [
+    '/painel',
+    '/painel/((?!login(?:/|$)|esqueci-senha(?:/|$)|redefinir-senha(?:/|$)).*)',
+  ],
 };
+
+// Se algum destes caminhos mudar, o matcher acima precisa mudar junto.
+const PUBLIC_PANEL_PATHS = [
+  LOGIN_PATH,
+  FORGOT_PASSWORD_PATH,
+  RESET_PASSWORD_PATH,
+];
+
+for (const path of PUBLIC_PANEL_PATHS) {
+  const slug = path.replace('/painel/', '');
+  if (!config.matcher[1].includes(`${slug}(?:/|$)`)) {
+    throw new Error(
+      `A rota pública "${path}" não está isenta no matcher do proxy do painel.`,
+    );
+  }
+}

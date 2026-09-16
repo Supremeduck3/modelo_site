@@ -11,7 +11,7 @@ O produto tem três blocos:
 | 1 — Site institucional | Implementado (fases 0–2) |
 | 2 — Canal de manifestações | Implementado (fase 3): formulário público, API, protocolo e histórico |
 | 3 — Painel da empresa | Em andamento: autenticação e casca prontas (fase 4); atendimento das manifestações na fase 5; equipe e categorias na fase 6 |
-| E-mail transacional | Confirmação ao visitante e aviso à equipe prontos; resposta pública e recuperação de senha acompanham as fases 5 e 6 |
+| E-mail transacional | Confirmação ao visitante, aviso à equipe e link de recuperação de senha prontos; resposta pública acompanha a fase 5 |
 
 ## Stack
 
@@ -127,6 +127,9 @@ A equipe entra em `/painel`. O que está pronto na fase 4:
   mesma resposta, e o caminho do e-mail inexistente gasta o mesmo tempo de
   scrypt, para o tempo de resposta não revelar quais contas existem.
 - **Rate limiting** em duas cotas, por cliente e por e-mail.
+- **Recuperação de senha** em `/painel/esqueci-senha`: o pedido responde sempre
+  a mesma coisa, exista ou não a conta; o link vale uma hora, serve uma vez só e
+  um pedido novo invalida os anteriores. O banco guarda apenas o hash do token.
 - **Nenhum usuário padrão**: o primeiro usuário só existe se o seed rodar com
   `SEED_ADMIN_EMAIL` e `SEED_ADMIN_PASSWORD`, e o seed nunca sobrescreve a senha
   de um usuário já existente.
@@ -135,16 +138,24 @@ A equipe entra em `/painel`. O que está pronto na fase 4:
 `?next=`. É conveniência de navegação, não controle de acesso — um cookie
 forjado passa por ele e é recusado no servidor.
 
-Limite conhecido: a sessão é stateless, então `logout` apaga o cookie do
-navegador mas não revoga um token que já tenha sido copiado; ele vale até
-expirar. Trocar `AUTH_SECRET` invalida todas de uma vez.
+Redefinir a senha derruba as sessões abertas: `CompanyUser.passwordChangedAt`
+guarda o momento da troca e a guarda descarta todo token emitido antes disso. A
+comparação é em segundos, que é a resolução do carimbo dentro do token — o
+efeito colateral é uma janela de até um segundo em que um token antigo ainda
+passa, preço de não trancar do lado de fora quem entra no mesmo segundo em que
+redefiniu a senha.
+
+Limite conhecido: fora a troca de senha, a sessão é stateless — `logout` apaga o
+cookie do navegador mas não revoga um token que já tenha sido copiado; ele vale
+até expirar. Trocar `AUTH_SECRET` invalida todas de uma vez.
 `src/server/lib/session-token.js` é o ponto de troca por sessão persistida se
-alguma implantação precisar de revogação imediata.
+alguma implantação precisar de revogação imediata em todos os casos.
 
 ## E-mail transacional
 
 Ao registrar uma manifestação, o visitante recebe a confirmação com o protocolo
-e a equipe ativa recebe o aviso, com a descrição e um link para o painel.
+e a equipe ativa recebe o aviso, com a descrição e um link para o painel. Quem
+pede recuperação de senha recebe o link de redefinição.
 
 Três decisões que valem no resto do molde:
 

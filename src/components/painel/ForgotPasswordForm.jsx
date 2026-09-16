@@ -2,31 +2,30 @@
 
 import { Alert, Button, Input } from 'antd';
 import Link from 'next/link';
-import { useRouter } from 'next/navigation';
 import { useId, useState } from 'react';
-import { FORGOT_PASSWORD_PATH } from '@/lib/auth/next-path';
-import { validateLoginInput } from '@/lib/auth/schema';
-import styles from './login-form.module.css';
+import { LOGIN_PATH } from '@/lib/auth/next-path';
+import { validateForgotPasswordInput } from '@/lib/auth/schema';
+import styles from './forgot-password-form.module.css';
 
-const INITIAL_FORM = { email: '', password: '' };
+const INITIAL_FORM = { email: '' };
 
 const GENERIC_ERROR =
-  'Não foi possível entrar agora. Tente novamente em instantes.';
+  'Não foi possível concluir o pedido agora. Tente novamente em instantes.';
 
 /**
- * Formulário de entrada no painel.
+ * Formulário de recuperação de senha.
  *
- * Valida no cliente com o mesmo schema da API só para dar retorno rápido; quem
- * decide é sempre `POST /api/auth/login`. Em caso de sucesso a sessão já veio
- * no cookie httpOnly — o `refresh()` faz o servidor reavaliar a guarda do
- * painel com ela.
+ * A API sempre responde 200, mesmo quando o e-mail não existe: assim ninguém
+ * descobre por aqui quais e-mails estão cadastrados. Por isso o sucesso vira
+ * uma confirmação neutra com a mensagem que a própria API devolve, em vez de
+ * um texto fixo escrito no cliente.
  */
-export default function LoginForm({ nextPath }) {
-  const router = useRouter();
+export default function ForgotPasswordForm() {
   const [form, setForm] = useState(INITIAL_FORM);
   const [errors, setErrors] = useState({});
   const [formError, setFormError] = useState('');
   const [submitting, setSubmitting] = useState(false);
+  const [successMessage, setSuccessMessage] = useState('');
 
   const uid = useId();
   const fieldId = (name) => `${uid}-${name}`;
@@ -42,7 +41,7 @@ export default function LoginForm({ nextPath }) {
 
     setFormError('');
 
-    const result = validateLoginInput(form);
+    const result = validateForgotPasswordInput(form);
     if (!result.success) {
       setErrors(result.errors);
       return;
@@ -52,37 +51,42 @@ export default function LoginForm({ nextPath }) {
     setSubmitting(true);
 
     try {
-      const response = await fetch('/api/auth/login', {
+      const response = await fetch('/api/auth/forgot-password', {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify(form),
       });
 
+      const body = await response.json().catch(() => null);
+
       if (response.ok) {
-        // `replace` para o login não ficar no histórico: voltar depois de entrar
-        // levaria a uma tela que só redireciona de novo.
-        router.replace(nextPath);
-        router.refresh();
+        setSuccessMessage(body?.message ?? '');
         return;
       }
 
-      const body = await response.json().catch(() => null);
       const error = body?.error;
 
       if (response.status === 400 && error?.details) {
         setErrors(error.details);
       }
 
-      // A senha sai do estado em qualquer falha: assim uma tentativa recusada
-      // não fica pendurada no formulário.
-      setForm((prev) => ({ ...prev, password: '' }));
       setFormError(error?.message ?? GENERIC_ERROR);
     } catch {
-      setForm((prev) => ({ ...prev, password: '' }));
       setFormError(GENERIC_ERROR);
     } finally {
       setSubmitting(false);
     }
+  }
+
+  if (successMessage) {
+    return (
+      <div className={styles.confirmation}>
+        <Alert type="success" message={successMessage} showIcon role="status" />
+        <Link href={LOGIN_PATH} className={styles.backLink}>
+          Voltar para o login
+        </Link>
+      </div>
+    );
   }
 
   return (
@@ -114,27 +118,6 @@ export default function LoginForm({ nextPath }) {
         )}
       </div>
 
-      <div className={styles.field}>
-        <label htmlFor={fieldId('password')} className={styles.label}>
-          Senha
-        </label>
-        <Input.Password
-          id={fieldId('password')}
-          size="large"
-          autoComplete="current-password"
-          value={form.password}
-          status={errors.password ? 'error' : undefined}
-          onChange={(event) => updateField('password', event.target.value)}
-          aria-describedby={errors.password ? errorId('password') : undefined}
-          aria-invalid={errors.password ? 'true' : undefined}
-        />
-        {errors.password && (
-          <p id={errorId('password')} className={styles.fieldError}>
-            {errors.password}
-          </p>
-        )}
-      </div>
-
       <Button
         type="primary"
         size="large"
@@ -142,12 +125,12 @@ export default function LoginForm({ nextPath }) {
         loading={submitting}
         block
       >
-        Entrar
+        Enviar link de recuperação
       </Button>
 
-      <p className={styles.helper}>
-        <Link href={FORGOT_PASSWORD_PATH}>Esqueci minha senha</Link>
-      </p>
+      <Link href={LOGIN_PATH} className={styles.backLink}>
+        Voltar para o login
+      </Link>
     </form>
   );
 }

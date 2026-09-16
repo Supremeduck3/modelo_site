@@ -166,3 +166,52 @@ export function submissionReceivedForTeam({
 
   return { subject, text, html, replyTo: submission.contactEmail ?? undefined };
 }
+
+/**
+ * Link de recuperação de senha para um usuário do painel.
+ *
+ * Só o link e o prazo. Nada de "clique aqui se não foi você mudar sua senha"
+ * com ação embutida: a única ação possível é abrir o link, e quem não pediu
+ * simplesmente ignora — o pedido sozinho não altera nada na conta.
+ */
+export function passwordResetRequested({
+  userName,
+  companyName,
+  resetUrl,
+  expiresInMinutes,
+}) {
+  const subject = `Recuperação de acesso ao painel — ${companyName}`;
+
+  const text = [
+    `Olá, ${userName}.`,
+    '',
+    `Recebemos um pedido para redefinir a senha de acesso ao painel de ${companyName}.`,
+    '',
+    'Abra o endereço abaixo para definir uma nova senha:',
+    resetUrl,
+    '',
+    `O link vale por ${expiresInMinutes} minutos e só pode ser usado uma vez.`,
+    'Se você não pediu a recuperação, ignore esta mensagem: sua senha atual continua valendo.',
+  ].join('\n');
+
+  const html = layout({
+    title: 'Recuperação de acesso',
+    body: `
+    <p>Olá, ${escapeHtml(userName)}.</p>
+    <p>
+      Recebemos um pedido para redefinir a senha de acesso ao painel de
+      ${escapeHtml(companyName)}.
+    </p>
+    <p>
+      <a href="${escapeHtml(resetUrl)}" style="display:inline-block;padding:12px 20px;background:#1f6feb;color:#ffffff;border-radius:8px;text-decoration:none">Definir nova senha</a>
+    </p>
+    <p style="color:#5b6982;font-size:14px">
+      O link vale por ${escapeHtml(expiresInMinutes)} minutos e só pode ser usado uma vez.
+      Se você não pediu a recuperação, ignore esta mensagem: sua senha atual
+      continua valendo.
+    </p>`,
+    footer: `Mensagem automática do painel de ${companyName}.`,
+  });
+
+  return { subject, text, html };
+}

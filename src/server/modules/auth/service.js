@@ -137,8 +137,8 @@ export async function authenticate(
  * ativo e vinculado à empresa desta implantação.
  *
  * O token é assinado mas stateless: sem esta conferência, desativar um usuário
- * só teria efeito quando a sessão dele expirasse. Devolve `null` quando a
- * sessão não serve mais.
+ * ou trocar a senha dele só teria efeito quando a sessão expirasse. Devolve
+ * `null` quando a sessão não serve mais.
  */
 export async function loadSessionUser(session) {
   if (!session?.userId) return null;
@@ -152,10 +152,32 @@ export async function loadSessionUser(session) {
       email: true,
       role: true,
       isActive: true,
+      passwordChangedAt: true,
     },
   });
 
   if (!user?.isActive) return null;
+
+  // Token emitido antes da última troca de senha não vale mais: é assim que
+  // redefinir a senha derruba as sessões abertas com a senha antiga.
+  //
+  // A comparação é em segundos porque é essa a resolução do `iat`. Comparar em
+  // milissegundos invalidaria o token de quem entra no mesmo segundo em que a
+  // senha foi trocada — justamente o login logo depois de redefinir —, e o
+  // usuário ficaria preso num laço de login. O preço é uma janela de até um
+  // segundo em que um token antigo ainda passa.
+  if (user.passwordChangedAt) {
+    const issuedAtSeconds = session.issuedAt
+      ? Math.floor(session.issuedAt.getTime() / 1000)
+      : null;
+    const changedAtSeconds = Math.floor(
+      user.passwordChangedAt.getTime() / 1000,
+    );
+
+    if (issuedAtSeconds === null || issuedAtSeconds < changedAtSeconds) {
+      return null;
+    }
+  }
   // Token emitido para outra empresa (base restaurada, segredo reaproveitado)
   // não vale nesta implantação.
   if (user.companyId !== session.companyId) return null;
