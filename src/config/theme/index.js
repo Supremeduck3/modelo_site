@@ -22,6 +22,11 @@ const CSS_VAR_MAP = {
     headingWeight: '--font-weight-heading',
     bodyWeight: '--font-weight-body',
     lineHeight: '--line-height-base',
+    displayScale: '--display-scale',
+    headingTracking: '--heading-tracking',
+    headingTransform: '--heading-transform',
+    headingLineHeight: '--heading-line-height',
+    eyebrowTracking: '--eyebrow-tracking',
   },
   shape: {
     radius: '--radius',
@@ -34,10 +39,30 @@ const CSS_VAR_MAP = {
     sectionYMobile: '--section-y-mobile',
     containerWidth: '--container-width',
     gap: '--gap',
+    gapLarge: '--gap-lg',
+    measure: '--measure',
   },
   shadows: {
     soft: '--shadow-soft',
     medium: '--shadow-medium',
+  },
+  buttons: {
+    radius: '--button-radius',
+    padding: '--button-padding',
+    weight: '--button-weight',
+    tracking: '--button-tracking',
+    transform: '--button-transform',
+  },
+  images: {
+    ratio: '--image-ratio',
+    radius: '--image-radius',
+    filter: '--image-filter',
+    hoverFilter: '--image-hover-filter',
+  },
+  motion: {
+    duration: '--motion-duration',
+    easing: '--motion-easing',
+    revealShift: '--reveal-shift',
   },
 };
 

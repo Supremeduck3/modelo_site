@@ -7,7 +7,7 @@ export default function DifferentialsIcons({ id, content = {} }) {
   const { title, items = [] } = content;
 
   return (
-    <Section id={id} title={title} align="center">
+    <Section id={id} title={title}>
       <div className={styles.iconsGrid}>
         {items.map((item, index) => (
           // biome-ignore lint/suspicious/noArrayIndexKey: itens de conteúdo não têm id estável; o índice apenas desempata títulos repetidos.

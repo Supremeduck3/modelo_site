@@ -1,17 +1,31 @@
-.image {
+.image,
+.placeholder {
   width: 100%;
+  border-radius: var(--image-radius);
+}
+
+.image {
   height: auto;
   object-fit: cover;
-  border-radius: var(--radius);
+  /* O tratamento da imagem é parte da identidade: um escritório pede
+     dessaturação, um restaurante pede saturação. */
+  filter: var(--image-filter);
+  transition:
+    filter var(--motion-duration) var(--motion-easing),
+    transform var(--motion-duration) var(--motion-easing);
+}
+
+.image:hover {
+  filter: var(--image-hover-filter);
 }
 
 .placeholder {
-  width: 100%;
-  border-radius: var(--radius);
-  background: linear-gradient(
-    135deg,
-    var(--color-surface) 0%,
-    var(--color-surface-alt) 100%
-  );
-  border: var(--border-width) dashed var(--color-border);
+  background:
+    repeating-linear-gradient(
+      135deg,
+      transparent 0 14px,
+      color-mix(in srgb, var(--color-border) 45%, transparent) 14px 15px
+    ),
+    var(--color-surface-alt);
+  border: var(--border-width) solid var(--color-border);
 }

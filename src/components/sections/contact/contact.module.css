@@ -1,7 +1,13 @@
+/*
+ * Os dados de contato são tipografia sobre filete, não cartões empilhados:
+ * a seção fecha a página com calma em vez de repetir a grade de serviços.
+ */
 .info {
+  composes: stagger from global;
   display: grid;
   grid-template-columns: repeat(auto-fit, minmax(230px, 1fr));
-  gap: var(--gap);
+  gap: 0;
+  border-top: var(--border-width) solid var(--color-border);
 }
 
 .infoCompact {
@@ -9,26 +15,32 @@
 }
 
 .card {
-  background: var(--color-background);
-  border: var(--border-width) solid var(--color-border);
-  border-radius: var(--radius);
-  padding: 20px;
-  box-shadow: var(--shadow-soft);
+  padding: 28px 28px 28px 0;
+  border-bottom: var(--border-width) solid var(--color-border);
+}
+
+.infoCompact .card:last-child {
+  border-bottom: 0;
 }
 
 .cardLabel {
-  margin: 0 0 6px;
-  font-size: 0.8rem;
+  margin: 0 0 10px;
+  font-size: var(--fs-eyebrow);
   text-transform: uppercase;
-  letter-spacing: 0.06em;
+  letter-spacing: var(--eyebrow-tracking);
   color: var(--color-text-muted);
 }
 
 .cardValue {
+  display: inline-block;
   margin: 0;
-  font-weight: 600;
+  font-family: var(--font-family-heading);
+  font-size: var(--fs-h3);
+  font-weight: var(--font-weight-heading);
+  letter-spacing: var(--heading-tracking);
   color: var(--color-text);
   word-break: break-word;
+  transition: color var(--motion-duration) var(--motion-easing);
 }
 
 a.cardValue:hover {
@@ -36,40 +48,72 @@ a.cardValue:hover {
 }
 
 .hours {
-  margin: 0 0 4px;
+  margin: 0 0 6px;
   color: var(--color-text-muted);
-  font-size: 0.925rem;
+  font-size: var(--fs-small);
 }
 
 .split {
   display: grid;
-  grid-template-columns: 1fr 1.2fr;
-  gap: calc(var(--gap) * 1.5);
+  grid-template-columns: minmax(0, 0.9fr) minmax(0, 1.1fr);
+  gap: var(--gap-lg);
   align-items: start;
 }
 
 .map,
 .mapPlaceholder {
   width: 100%;
-  min-height: 360px;
+  min-height: 420px;
+  height: 100%;
   border: 0;
-  border-radius: var(--radius);
+  border-radius: var(--image-radius);
+  /* O mapa recebe o mesmo tratamento das imagens: em identidade editorial ele
+     dessatura junto, em vez de destoar do resto da página. */
+  filter: var(--image-filter);
 }
 
 .mapPlaceholder {
   background: var(--color-surface-alt);
-  border: var(--border-width) dashed var(--color-border);
+  border: var(--border-width) solid var(--color-border);
 }
 
+/*
+ * O callout é o único bloco sólido da seção — é o ponto de conversão, então
+ * é o único que tem direito a peso visual.
+ */
 .callout {
-  background: var(--color-background);
-  border: var(--border-width) solid var(--color-border);
-  border-radius: var(--radius);
-  padding: 28px;
+  background: var(--color-secondary);
+  color: var(--color-primary-contrast);
+  border-radius: var(--radius-lg);
+  padding: 40px;
+  display: flex;
+  flex-direction: column;
+  align-items: flex-start;
+  gap: 16px;
+}
+
+.callout h3 {
+  margin: 0;
+  font-size: var(--fs-h3);
+}
+
+.callout p {
+  margin: 0 0 8px;
+  color: var(--on-dark-muted);
+  max-width: 44ch;
 }
 
 @media (max-width: 900px) {
   .split {
     grid-template-columns: 1fr;
+    gap: 32px;
+  }
+
+  .callout {
+    padding: 28px;
+  }
+
+  .card {
+    padding-right: 0;
   }
 }

@@ -1,8 +1,13 @@
 .header {
   width: 100%;
-  background: var(--color-background);
-  border-bottom: var(--border-width) solid var(--color-border);
+  background: color-mix(in srgb, var(--color-background) 88%, transparent);
+  /* Blur leve só no cabeçalho: dá profundidade sem virar vidro por toda parte. */
+  backdrop-filter: blur(14px);
+  border-bottom: var(--border-width) solid transparent;
   z-index: 50;
+  transition:
+    background var(--motion-duration) var(--motion-easing),
+    border-color var(--motion-duration) var(--motion-easing);
 }
 
 .fixed {
@@ -12,6 +17,8 @@
 
 .static {
   position: relative;
+  background: var(--color-background);
+  border-bottom-color: var(--color-border);
 }
 
 .inner {
@@ -20,43 +27,50 @@
   justify-content: space-between;
   gap: var(--gap);
   min-height: var(--header-height);
-  transition: min-height 0.2s ease;
+  transition: min-height var(--motion-duration) var(--motion-easing);
 }
 
 .compact .inner {
-  min-height: 56px;
+  min-height: 60px;
 }
 
+/* Depois do scroll o cabeçalho se assume como barra: fundo sólido e filete. */
 .scrolled {
-  box-shadow: var(--shadow-soft);
+  background: var(--color-background);
+  border-bottom-color: var(--color-border);
 }
 
 .scrolled .inner {
-  min-height: 56px;
+  min-height: 60px;
 }
 
 .desktopNav {
   display: flex;
   flex: 1;
-  justify-content: center;
+  justify-content: flex-end;
 }
 
 .actions {
   display: flex;
   align-items: center;
-  gap: 12px;
+  gap: 16px;
 }
 
 .menuButton {
   display: none;
-  width: 42px;
-  height: 42px;
+  width: 44px;
+  height: 44px;
   align-items: center;
   justify-content: center;
   background: transparent;
   border: var(--border-width) solid var(--color-border);
   border-radius: var(--radius-sm);
   cursor: pointer;
+  transition: border-color var(--motion-duration) var(--motion-easing);
+}
+
+.menuButton:hover {
+  border-color: var(--color-text);
 }
 
 .menuIcon,
@@ -64,7 +78,7 @@
 .menuIcon::after {
   display: block;
   width: 18px;
-  height: 2px;
+  height: 1.5px;
   background: var(--color-text);
   content: "";
 }
@@ -74,10 +88,10 @@
 }
 
 .menuIcon::after {
-  transform: translateY(4px);
+  transform: translateY(4.5px);
 }
 
-@media (max-width: 900px) {
+@media (max-width: 960px) {
   .desktopNav {
     display: none;
   }

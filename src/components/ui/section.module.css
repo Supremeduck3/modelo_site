@@ -1,5 +1,6 @@
 .section {
   padding-block: var(--section-y);
+  position: relative;
 }
 
 .default {
@@ -11,13 +12,18 @@
 }
 
 .accent {
+  background: var(--color-primary);
+  color: var(--color-primary-contrast);
+}
+
+.contrast {
   background: var(--color-secondary);
   color: var(--color-primary-contrast);
 }
 
 .header {
-  margin-bottom: 40px;
-  max-width: 680px;
+  margin-bottom: var(--gap-lg);
+  max-width: var(--measure);
 }
 
 .center {
@@ -25,24 +31,98 @@
   text-align: center;
 }
 
+/*
+ * Cabeçalho assimétrico: o título ocupa a coluna larga e o apoio desce para a
+ * base do bloco, alinhado pelo filete. É o que dá cara de composição editorial
+ * em vez de "título centralizado + grade".
+ */
+.withAside {
+  max-width: none;
+  display: grid;
+  grid-template-columns: minmax(0, 1.35fr) minmax(0, 1fr);
+  align-items: end;
+  gap: var(--gap-lg);
+  padding-bottom: 28px;
+  border-bottom: var(--border-width) solid var(--color-border);
+}
+
+.withAside .headerMain {
+  max-width: var(--measure);
+}
+
+.headerAside {
+  color: var(--color-text-muted);
+  font-size: var(--fs-small);
+}
+
 .eyebrow {
-  margin: 0 0 8px;
+  display: inline-flex;
+  align-items: center;
+  gap: 0.7em;
+  margin: 0 0 18px;
   text-transform: uppercase;
-  letter-spacing: 0.08em;
-  font-size: 0.8rem;
+  letter-spacing: var(--eyebrow-tracking);
+  font-size: var(--fs-eyebrow);
   font-weight: 600;
   color: var(--color-primary);
 }
 
+/* Filete curto antes do eyebrow: detalhe de acabamento, não decoração. */
+.eyebrow::before {
+  content: "";
+  width: 28px;
+  height: 1px;
+  background: currentColor;
+  opacity: 0.55;
+}
+
+.center .eyebrow {
+  justify-content: center;
+}
+
 .title {
-  font-size: clamp(1.6rem, 3.4vw, 2.4rem);
-  margin-bottom: 12px;
+  font-size: var(--fs-h2);
+  margin: 0 0 16px;
+  max-width: 20ch;
+}
+
+.center .title,
+.withAside .title {
+  max-width: none;
 }
 
 .subtitle {
   margin: 0;
   color: var(--color-text-muted);
-  font-size: 1.05rem;
+  font-size: var(--fs-lead);
+  max-width: var(--measure);
+}
+
+.center .subtitle {
+  margin-inline: auto;
+}
+
+/*
+ * Em fundo escuro, o texto de apoio precisa de um cinza próprio: o muted claro
+ * some. Resolvemos no nível da seção para nenhuma variante ter de saber disso.
+ */
+.accent .subtitle,
+.contrast .subtitle {
+  color: var(--on-dark-muted);
+}
+
+.accent .eyebrow,
+.contrast .eyebrow {
+  color: var(--color-primary-contrast);
+  opacity: 0.72;
+}
+
+@media (max-width: 900px) {
+  .withAside {
+    grid-template-columns: 1fr;
+    align-items: start;
+    gap: 24px;
+  }
 }
 
 @media (max-width: 768px) {
@@ -51,6 +131,10 @@
   }
 
   .header {
-    margin-bottom: 28px;
+    margin-bottom: 32px;
+  }
+
+  .title {
+    max-width: none;
   }
 }

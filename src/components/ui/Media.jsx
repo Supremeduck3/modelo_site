@@ -4,17 +4,14 @@ import styles from './media.module.css';
  * Imagem configurável com fallback seguro: quando a implantação ainda não
  * definiu a mídia, mostramos um placeholder neutro em vez de quebrar o layout.
  */
-export default function Media({
-  src,
-  alt = '',
-  ratio = '4 / 3',
-  className = '',
-}) {
+export default function Media({ src, alt = '', ratio = null, className = '' }) {
+  // Sem proporção declarada, quem manda é a direção de arte da implantação.
+  const aspectRatio = ratio ?? 'var(--image-ratio)';
   if (!src) {
     return (
       <div
         className={`${styles.placeholder} ${className}`.trim()}
-        style={{ aspectRatio: ratio }}
+        style={{ aspectRatio }}
         role="img"
         aria-label={alt || 'Imagem não configurada'}
       />
@@ -25,7 +22,7 @@ export default function Media({
     // biome-ignore lint/performance/noImgElement: a mídia vem de URLs arbitrárias da implantação.
     <img
       className={`${styles.image} ${className}`.trim()}
-      style={{ aspectRatio: ratio }}
+      style={{ aspectRatio }}
       src={src}
       alt={alt}
       loading="lazy"

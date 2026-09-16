@@ -1,89 +1,218 @@
+/* ───────── cards: filete em vez de caixa cinza ───────── */
+
 .cardsGrid {
+  composes: stagger from global;
   display: grid;
-  grid-template-columns: repeat(auto-fit, minmax(220px, 1fr));
+  grid-template-columns: repeat(auto-fit, minmax(260px, 1fr));
   gap: var(--gap);
 }
 
+/*
+ * O cartão é definido pela borda e pelo respiro, não por um fundo cinza:
+ * assim a mesma estrutura funciona em identidade clara, escura ou editorial.
+ */
 .card {
-  padding: 24px;
+  position: relative;
+  padding: 32px 28px 36px;
+  border: var(--border-width) solid var(--color-border);
   border-radius: var(--radius);
-  background: var(--color-surface);
-  text-align: left;
+  background: var(--color-background);
+  transition:
+    border-color var(--motion-duration) var(--motion-easing),
+    box-shadow var(--motion-duration) var(--motion-easing),
+    transform var(--motion-duration) var(--motion-easing);
+}
+
+.card:hover {
+  border-color: color-mix(in srgb, var(--color-primary) 55%, transparent);
+  box-shadow: var(--shadow-soft);
+  transform: translateY(-4px);
 }
 
 .cardTitle {
-  font-size: 1.1rem;
-  margin: 12px 0 8px;
+  font-size: var(--fs-h3);
+  margin: 24px 0 10px;
 }
 
 .cardDescription {
   margin: 0;
   color: var(--color-text-muted);
-  font-size: 0.95rem;
+  font-size: var(--fs-small);
+  max-width: 34ch;
 }
 
+/* ───────── list: lista editorial numerada, com filetes ───────── */
+
 .list {
+  composes: stagger from global;
   list-style: none;
   margin: 0;
   padding: 0;
-  display: flex;
-  flex-direction: column;
-  gap: var(--gap);
+  border-top: var(--border-width) solid var(--color-border);
 }
 
 .listItem {
-  display: flex;
-  align-items: flex-start;
-  gap: 16px;
+  display: grid;
+  grid-template-columns: auto minmax(0, 1fr);
+  align-items: start;
+  gap: 28px;
+  padding-block: 32px;
+  border-bottom: var(--border-width) solid var(--color-border);
+  transition: padding-left var(--motion-duration) var(--motion-easing);
+}
+
+.listItem:hover {
+  padding-left: 12px;
 }
 
 .listItemTitle {
-  font-size: 1.05rem;
-  margin: 0 0 4px;
+  font-size: var(--fs-h3);
+  margin: 0 0 8px;
 }
 
 .listItemDescription {
   margin: 0;
   color: var(--color-text-muted);
-  font-size: 0.95rem;
+  font-size: var(--fs-small);
+  max-width: var(--measure);
 }
 
+/* ───────── grid: imagem por item, legenda discreta ───────── */
+
 .grid {
+  composes: stagger from global;
   display: grid;
-  grid-template-columns: repeat(auto-fit, minmax(240px, 1fr));
-  gap: var(--gap);
-  text-align: left;
+  grid-template-columns: repeat(auto-fit, minmax(280px, 1fr));
+  gap: var(--gap-lg) var(--gap);
+}
+
+.gridItem {
+  display: flex;
+  flex-direction: column;
 }
 
 .gridImage {
-  border-radius: var(--radius);
-  margin-bottom: 12px;
+  margin-bottom: 20px;
 }
+
+/* ───────── image-text: linhas alternadas, colunas desiguais ───────── */
 
 .imageTextList {
   display: flex;
   flex-direction: column;
-  gap: 40px;
+  gap: calc(var(--gap-lg) * 1.2);
 }
 
 .imageTextRow {
   display: grid;
-  grid-template-columns: 1fr 1fr;
-  gap: var(--gap);
+  grid-template-columns: minmax(0, 1fr) minmax(0, 0.85fr);
+  gap: var(--gap-lg);
   align-items: center;
 }
 
+/*
+ * A alternância inverte a ordem visual sem inverter a ordem do DOM: a leitura
+ * por teclado e por leitor de tela continua imagem → texto em todas as linhas.
+ */
+.imageTextRow.reversed > *:first-child {
+  order: 2;
+}
+
 .imageTextRow.reversed {
-  direction: rtl;
+  grid-template-columns: minmax(0, 0.85fr) minmax(0, 1fr);
 }
 
-.imageTextRow.reversed > * {
-  direction: ltr;
+/* ───────── feature: um serviço em destaque, o resto em lista ───────── */
+
+.featureGrid {
+  display: grid;
+  grid-template-columns: minmax(0, 1.15fr) minmax(0, 0.85fr);
+  gap: var(--gap-lg);
+  align-items: stretch;
 }
 
-@media (max-width: 768px) {
-  .imageTextRow {
+.featureMain {
+  display: flex;
+  flex-direction: column;
+  justify-content: flex-end;
+  gap: 20px;
+  padding: 40px;
+  background: var(--color-secondary);
+  color: var(--color-primary-contrast);
+  border-radius: var(--radius-lg);
+  min-height: 340px;
+}
+
+.featureTitle {
+  font-size: var(--fs-h2);
+  margin: 0;
+  max-width: 14ch;
+}
+
+.featureDescription {
+  margin: 0;
+  color: var(--on-dark-muted);
+  max-width: 40ch;
+}
+
+.featureBadge {
+  align-self: flex-start;
+  margin: 0 0 auto;
+  font-size: var(--fs-eyebrow);
+  text-transform: uppercase;
+  letter-spacing: var(--eyebrow-tracking);
+  color: var(--color-primary-contrast);
+  opacity: 0.75;
+}
+
+.featureList {
+  composes: stagger from global;
+  list-style: none;
+  margin: 0;
+  padding: 0;
+  display: flex;
+  flex-direction: column;
+}
+
+.featureItem {
+  padding-block: 22px;
+  border-bottom: var(--border-width) solid var(--color-border);
+}
+
+.featureItem:first-child {
+  padding-top: 0;
+}
+
+.featureItem:last-child {
+  border-bottom: 0;
+}
+
+@media (max-width: 900px) {
+  .imageTextRow,
+  .imageTextRow.reversed,
+  .featureGrid {
     grid-template-columns: 1fr;
-    direction: ltr;
+    gap: 28px;
+  }
+
+  .imageTextRow.reversed > *:first-child {
+    order: 0;
+  }
+
+  .featureMain {
+    padding: 28px;
+    min-height: 0;
+  }
+}
+
+@media (max-width: 560px) {
+  .listItem {
+    grid-template-columns: 1fr;
+    gap: 16px;
+    padding-block: 24px;
+  }
+
+  .card {
+    padding: 26px 22px 28px;
   }
 }

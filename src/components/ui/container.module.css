@@ -2,11 +2,7 @@
   width: 100%;
   max-width: var(--container-width);
   margin-inline: auto;
-  padding-inline: 20px;
-}
-
-@media (max-width: 640px) {
-  .container {
-    padding-inline: 16px;
-  }
+  /* Gutter fluido: o respiro lateral acompanha a tela em vez de saltar em um
+     único breakpoint. */
+  padding-inline: clamp(20px, 5vw, 56px);
 }

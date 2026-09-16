@@ -1,11 +1,42 @@
+/* ───────── miolo textual, comum a todas as variantes ───────── */
+
 .content {
-  max-width: 640px;
   display: flex;
   flex-direction: column;
+  align-items: flex-start;
+}
+
+/*
+ * Escalonamento da entrada: um observer por hero, o atraso de cada elemento
+ * resolvido aqui. Os filhos partem do mesmo estado do [data-reveal] global.
+ */
+.content > * {
+  opacity: 0;
+  transform: translate3d(0, var(--reveal-shift), 0);
+  transition:
+    opacity var(--motion-duration) var(--motion-easing),
+    transform var(--motion-duration) var(--motion-easing);
+}
+
+.content[data-reveal="visible"] > * {
+  opacity: 1;
+  transform: none;
+}
+
+.content > *:nth-child(2) {
+  transition-delay: 90ms;
+}
+
+.content > *:nth-child(3) {
+  transition-delay: 170ms;
+}
+
+.content > *:nth-child(4) {
+  transition-delay: 250ms;
 }
 
 .center {
-  max-width: 760px;
+  max-width: 820px;
   margin-inline: auto;
   text-align: center;
   align-items: center;
@@ -16,98 +47,239 @@
 }
 
 .eyebrow {
-  margin: 0 0 12px;
+  display: inline-flex;
+  align-items: center;
+  gap: 0.7em;
+  margin: 0 0 24px;
   text-transform: uppercase;
-  letter-spacing: 0.08em;
-  font-size: 0.8rem;
+  letter-spacing: var(--eyebrow-tracking);
+  font-size: var(--fs-eyebrow);
   font-weight: 600;
   color: var(--color-primary);
 }
 
+.eyebrow::before {
+  content: "";
+  width: 32px;
+  height: 1px;
+  background: currentColor;
+  opacity: 0.6;
+}
+
+/*
+ * A medida do título é contada em ch do próprio corpo de display: o limite
+ * acompanha o tamanho da fonte em vez de fixar uma largura em pixels.
+ */
 .title {
-  font-size: clamp(2rem, 5vw, 3.2rem);
-  margin-bottom: 16px;
+  font-size: var(--fs-display);
+  margin: 0 0 24px;
+  max-width: 15ch;
+}
+
+.center .title {
+  max-width: 18ch;
 }
 
 .subtitle {
-  font-size: 1.1rem;
+  font-size: var(--fs-lead);
   color: var(--color-text-muted);
-  margin-bottom: 28px;
+  margin: 0 0 40px;
+  max-width: 46ch;
 }
 
-.inverted .subtitle,
 .inverted .eyebrow {
+  color: var(--color-primary-contrast);
+  opacity: 0.8;
+}
+
+.inverted .subtitle {
   color: var(--on-dark-muted);
 }
 
 .actions {
   display: flex;
   flex-wrap: wrap;
-  gap: 12px;
+  align-items: center;
+  gap: 18px;
 }
 
+/* ───────── split: texto e mídia em colunas desiguais ───────── */
+
 .split {
-  padding-block: var(--section-y);
+  padding-block: calc(var(--section-y) * 1.15) var(--section-y);
   background: var(--color-background);
+  overflow: hidden;
 }
 
 .splitInner {
   display: grid;
-  grid-template-columns: 1.1fr 1fr;
+  /* Colunas deliberadamente desiguais: o texto manda, a imagem apoia. */
+  grid-template-columns: minmax(0, 1.08fr) minmax(0, 0.92fr);
   align-items: center;
-  gap: calc(var(--gap) * 2);
+  gap: var(--gap-lg);
 }
 
 .splitMedia {
-  border-radius: var(--radius-lg);
   box-shadow: var(--shadow-medium);
 }
 
-.centeredSection {
-  padding-block: calc(var(--section-y) * 1.2);
-  background: var(--color-surface);
+/*
+ * Na tela larga a mídia sangra em direção à borda: a composição deixa de ser
+ * "duas caixas dentro de um container" e ganha profundidade.
+ */
+@media (min-width: 1280px) {
+  .splitInner {
+    grid-template-columns: minmax(0, 1fr) minmax(0, 1.02fr);
+  }
+
+  .splitMedia {
+    margin-right: calc(clamp(20px, 5vw, 56px) * -1);
+  }
 }
+
+/* ───────── centered: editorial, medida estreita e filetes ───────── */
+
+/*
+ * Fundo base, não surface: a alternância de fundo da home começa na seção
+ * seguinte, e o hero não pode empatar de tom com ela.
+ */
+.centeredSection {
+  padding-block: calc(var(--section-y) * 1.35);
+  background: var(--color-background);
+  text-align: center;
+}
+
+.centeredRule {
+  width: 100%;
+  height: var(--border-width);
+  background: var(--color-border);
+  margin-block: 56px 0;
+}
+
+.centeredMeta {
+  list-style: none;
+  padding: 0;
+  display: flex;
+  justify-content: center;
+  flex-wrap: wrap;
+  gap: 8px 40px;
+  margin: 24px 0 0;
+  color: var(--color-text-muted);
+  font-size: var(--fs-small);
+  letter-spacing: var(--eyebrow-tracking);
+  text-transform: uppercase;
+}
+
+/* ───────── full-image: imagem dominante, conteúdo ancorado embaixo ───────── */
 
 .fullImage {
   position: relative;
   display: flex;
-  align-items: center;
-  min-height: min(78vh, 620px);
+  align-items: flex-end;
+  min-height: min(92vh, 860px);
   background-color: var(--color-secondary);
   background-size: cover;
   background-position: center;
-  padding-block: var(--section-y);
+  padding-block: calc(var(--section-y) * 1.1);
+  isolation: isolate;
 }
 
+/*
+ * Scrim vertical em vez de véu uniforme: a imagem continua legível no topo e
+ * o texto ganha contraste só onde ele está.
+ */
 .overlay {
   position: absolute;
   inset: 0;
   background: linear-gradient(
-    90deg,
-    var(--overlay-hero-strong) 0%,
-    var(--overlay-hero-soft) 100%
+    180deg,
+    transparent 0%,
+    var(--overlay-hero-soft) 45%,
+    var(--overlay-hero-strong) 100%
   );
 }
 
 .fullImageInner {
   position: relative;
+  z-index: 1;
 }
+
+.fullImage .title {
+  max-width: 17ch;
+}
+
+/* ───────── cta-focus: bloco sólido, título e ação lado a lado ───────── */
 
 .ctaFocus {
   padding-block: var(--section-y);
   background: var(--color-primary);
+  color: var(--color-primary-contrast);
 }
 
-@media (max-width: 900px) {
-  .splitInner {
+.ctaFocusInner {
+  display: grid;
+  grid-template-columns: minmax(0, 1.25fr) minmax(0, 0.75fr);
+  align-items: end;
+  gap: var(--gap-lg);
+}
+
+.ctaFocus .content {
+  max-width: none;
+}
+
+.ctaFocus .subtitle {
+  margin-bottom: 0;
+}
+
+.ctaFocusAside {
+  display: flex;
+  justify-content: flex-end;
+}
+
+@media (max-width: 1024px) {
+  .splitInner,
+  .ctaFocusInner {
     grid-template-columns: 1fr;
-    gap: var(--gap);
+    gap: 40px;
+  }
+
+  .ctaFocusInner {
+    align-items: start;
+  }
+
+  .ctaFocusAside {
+    justify-content: flex-start;
+  }
+}
+
+@media (max-width: 768px) {
+  .center,
+  .title,
+  .center .title,
+  .fullImage .title {
+    max-width: none;
+  }
+
+  .subtitle {
+    margin-bottom: 32px;
   }
 
   .split,
   .centeredSection,
-  .ctaFocus,
-  .fullImage {
+  .ctaFocus {
     padding-block: var(--section-y-mobile);
+  }
+
+  .fullImage {
+    min-height: min(84vh, 620px);
+    padding-block: calc(var(--section-y-mobile) * 1.2);
+  }
+
+  .actions {
+    width: 100%;
+  }
+
+  .centeredRule {
+    margin-top: 40px;
   }
 }
