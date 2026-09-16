@@ -143,7 +143,8 @@ alguma implantação precisar de revogação imediata.
 
 ## Configurando uma implantação
 
-Ver [`docs/NOVA_IMPLANTACAO.md`](docs/NOVA_IMPLANTACAO.md).
+Ver [`docs/NOVA_IMPLANTACAO.md`](docs/NOVA_IMPLANTACAO.md). Para um mapa das
+rotas e do que cada parte faz, [`docs/GUIA_DO_SITE.md`](docs/GUIA_DO_SITE.md).
 
 O único arquivo a editar para dar cara a um cliente é
 `src/config/site/site.config.js`. Ele é validado em runtime por
