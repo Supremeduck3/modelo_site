@@ -23,16 +23,50 @@
   --font-weight-heading: 700;
   --font-weight-body: 400;
   --line-height-base: 1.6;
+  --display-scale: 1;
+  --heading-tracking: -0.02em;
+  --heading-transform: none;
+  --heading-line-height: 1.15;
+  --eyebrow-tracking: 0.1em;
+
+  /*
+   * Escala tipográfica fluida. O corpo do texto não escala com a direção de
+   * arte — só os títulos — para que uma identidade expressiva não prejudique
+   * a leitura dos parágrafos.
+   */
+  --fs-display: calc(clamp(2.25rem, 5.6vw, 3.75rem) * var(--display-scale));
+  --fs-h2: calc(clamp(1.65rem, 3.4vw, 2.5rem) * var(--display-scale));
+  --fs-h3: calc(clamp(1.05rem, 1.5vw, 1.25rem) * var(--display-scale));
+  --fs-lead: clamp(1.05rem, 1.35vw, 1.2rem);
+  --fs-small: 0.9rem;
+  --fs-eyebrow: 0.78rem;
 
   --radius: 12px;
   --radius-sm: 8px;
   --radius-lg: 24px;
   --border-width: 1px;
 
-  --section-y: 80px;
-  --section-y-mobile: 48px;
+  --section-y: 96px;
+  --section-y-mobile: 56px;
   --container-width: 1160px;
   --gap: 24px;
+  --gap-lg: 64px;
+  --measure: 62ch;
+
+  --button-radius: var(--radius-sm);
+  --button-padding: 0.9em 1.7em;
+  --button-weight: 600;
+  --button-tracking: 0;
+  --button-transform: none;
+
+  --image-ratio: 4 / 3;
+  --image-radius: var(--radius);
+  --image-filter: none;
+  --image-hover-filter: none;
+
+  --motion-duration: 520ms;
+  --motion-easing: cubic-bezier(0.22, 0.61, 0.36, 1);
+  --reveal-shift: 18px;
 
   --shadow-soft: 0 2px 8px rgba(16, 24, 40, 0.06);
   --shadow-medium: 0 8px 24px rgba(16, 24, 40, 0.1);
@@ -86,8 +120,22 @@ h5,
 h6 {
   font-family: var(--font-family-heading);
   font-weight: var(--font-weight-heading);
-  line-height: 1.2;
+  line-height: var(--heading-line-height);
+  letter-spacing: var(--heading-tracking);
+  text-transform: var(--heading-transform);
+  text-wrap: balance;
   margin: 0 0 0.5em;
+}
+
+/*
+ * Subtítulos e textos corridos não herdam a caixa alta nem o tracking da
+ * direção de arte: a personalidade fica nos títulos, a legibilidade no corpo.
+ */
+h4,
+h5,
+h6 {
+  text-transform: none;
+  letter-spacing: normal;
 }
 
 p {
@@ -110,6 +158,82 @@ img {
 }
 
 /*
+ * RITMO DA PÁGINA.
+ *
+ * Alternar o fundo das seções é o que impede a home de virar um rolo único de
+ * blocos iguais. Fica aqui, e não em cada seção, porque depende da posição da
+ * seção na página — algo que a seção não sabe. Quem declara um tom explícito
+ * (`tone`) não recebe a classe e não entra na alternância.
+ */
+main > .section-rhythm:nth-of-type(even) {
+  background: var(--color-surface);
+}
+
+/*
+ * ENTRADA DAS SEÇÕES.
+ *
+ * O estado inicial vive no CSS e quem libera é o componente Reveal, via
+ * IntersectionObserver. Sem JavaScript, o <noscript> do layout devolve tudo
+ * ao estado visível — conteúdo nunca depende de animação para existir.
+ */
+[data-reveal] {
+  opacity: 0;
+  transform: translate3d(0, var(--reveal-shift), 0);
+  transition:
+    opacity var(--motion-duration) var(--motion-easing),
+    transform var(--motion-duration) var(--motion-easing);
+  transition-delay: var(--reveal-delay, 0ms);
+  will-change: opacity, transform;
+}
+
+[data-reveal="visible"] {
+  opacity: 1;
+  transform: none;
+  will-change: auto;
+}
+
+/*
+ * Escalonamento em lista. Uma grade que aparece de uma vez parece um bloco;
+ * escalonada, parece uma composição. Os filhos partem do mesmo estado do
+ * bloco revelado, então continua sendo um observer por seção.
+ *
+ * As seções usam por `composes: stagger from global` — nenhuma variante
+ * precisa repetir a regra nem receber classe nova no JSX.
+ */
+[data-reveal] .stagger > * {
+  opacity: 0;
+  transform: translate3d(0, var(--reveal-shift), 0);
+  transition:
+    opacity var(--motion-duration) var(--motion-easing),
+    transform var(--motion-duration) var(--motion-easing);
+}
+
+[data-reveal="visible"] .stagger > * {
+  opacity: 1;
+  transform: none;
+}
+
+.stagger > *:nth-child(2) {
+  transition-delay: 70ms;
+}
+
+.stagger > *:nth-child(3) {
+  transition-delay: 140ms;
+}
+
+.stagger > *:nth-child(4) {
+  transition-delay: 210ms;
+}
+
+.stagger > *:nth-child(5) {
+  transition-delay: 280ms;
+}
+
+.stagger > *:nth-child(n + 6) {
+  transition-delay: 340ms;
+}
+
+/*
  * !important é intencional aqui: a preferência do usuário por menos movimento
  * precisa vencer qualquer animação declarada por componente ou variante.
  * A regra noImportantStyles está desligada no biome.json por causa deste bloco.
@@ -124,5 +248,11 @@ img {
   *::after {
     animation-duration: 0.01ms !important;
     transition-duration: 0.01ms !important;
+  }
+
+  [data-reveal],
+  [data-reveal] .stagger > * {
+    opacity: 1 !important;
+    transform: none !important;
   }
 }

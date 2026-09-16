@@ -1,59 +1,77 @@
+/*
+ * Banner do canal: título e ação disputando a mesma linha de base, com a ação
+ * empurrada para a borda. Sem cartão, sem moldura — é uma faixa de decisão.
+ */
 .banner {
-  display: flex;
-  align-items: center;
-  justify-content: space-between;
-  gap: calc(var(--gap) * 1.5);
-  flex-wrap: wrap;
+  display: grid;
+  grid-template-columns: minmax(0, 1fr) auto;
+  align-items: end;
+  gap: var(--gap-lg);
 }
 
 .title {
-  margin-bottom: 8px;
-  font-size: clamp(1.4rem, 3vw, 2rem);
+  margin: 0 0 12px;
+  font-size: var(--fs-h2);
+  max-width: 18ch;
 }
 
 .text {
   margin: 0;
-  max-width: 620px;
+  max-width: 52ch;
   color: var(--on-dark-muted);
+  font-size: var(--fs-lead);
 }
 
+/* Passos numerados: a numeração é o elemento gráfico, não um cartão. */
 .steps {
+  composes: stagger from global;
   list-style: none;
-  margin: 0 0 32px;
+  margin: 0 0 var(--gap-lg);
   padding: 0;
   display: grid;
-  grid-template-columns: repeat(auto-fit, minmax(240px, 1fr));
-  gap: var(--gap);
+  grid-template-columns: repeat(auto-fit, minmax(260px, 1fr));
+  gap: 0;
+  border-top: var(--border-width) solid var(--color-border);
 }
 
 .step {
   display: flex;
-  gap: 14px;
-  background: var(--color-background);
-  border: var(--border-width) solid var(--color-border);
-  border-radius: var(--radius);
-  padding: 20px;
+  flex-direction: column;
+  gap: 12px;
+  padding: 28px 28px 32px 0;
+  border-bottom: var(--border-width) solid var(--color-border);
 }
 
 .stepNumber {
-  flex: 0 0 34px;
-  height: 34px;
   display: inline-flex;
-  align-items: center;
-  justify-content: center;
-  border-radius: 50%;
-  background: var(--color-primary);
-  color: var(--color-primary-contrast);
-  font-weight: 700;
+  align-items: baseline;
+  font-family: var(--font-family-heading);
+  font-size: calc(1.6rem * var(--display-scale));
+  font-weight: var(--font-weight-heading);
+  line-height: 1;
+  color: var(--color-primary);
 }
 
 .stepTitle {
-  font-size: 1rem;
-  margin-bottom: 4px;
+  margin: 0;
+  font-size: var(--fs-h3);
 }
 
 .stepText {
   margin: 0;
   color: var(--color-text-muted);
-  font-size: 0.925rem;
+  font-size: var(--fs-small);
+  max-width: 36ch;
+}
+
+@media (max-width: 900px) {
+  .banner {
+    grid-template-columns: 1fr;
+    align-items: start;
+    gap: 28px;
+  }
+
+  .step {
+    padding-right: 0;
+  }
 }

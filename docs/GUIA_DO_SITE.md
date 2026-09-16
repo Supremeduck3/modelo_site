@@ -99,6 +99,56 @@ variante, e quais funcionalidades estão ligadas.
 O painel herda as mesmas cores e a mesma fonte — cliente com marca verde tem
 painel verde sem ninguém editar o painel.
 
+## Direção de arte (`theme.preset`)
+
+Trocar cor e logo não faz dois clientes parecerem sites diferentes. Quem faz
+isso é o preset: uma direção de arte nomeada, em `src/config/theme/presets.js`,
+que define de uma vez tipografia de display, escala, forma dos botões,
+espaçamento das seções, tratamento das imagens e intensidade das animações.
+
+| preset | para quem | como se parece |
+| --- | --- | --- |
+| `padrao` | quem ainda não decidiu | neutro, fonte de sistema, sem webfont |
+| `editorial` | escritórios, consultorias, clínicas | serifada, muito espaço negativo, sem raio nem sombra, imagem dessaturada |
+| `expressivo` | restaurantes, hospitalidade | fundo escuro, display em caixa alta, imagem quadrada e grande, botão pílula |
+| `comercial` | lojas, catálogos, produtos | claro e denso, cartões com elevação, raio generoso, leitura rápida |
+
+```js
+theme: {
+  preset: 'editorial',
+  // opcional: corrigir um token sem abandonar a direção de arte
+  colors: { primary: '#2f6f4f' },
+}
+```
+
+A precedência é **padrões do molde → preset → o que a implantação declarar**.
+Por isso, ao adotar um preset, remova as cores que você não quer mesmo manter:
+uma paleta antiga sobrevivendo sobre um preset novo é a causa mais comum de
+"o site ficou estranho".
+
+Combinando preset + variantes de seção, dois clientes com os mesmos módulos
+chegam a composições de verdade diferentes:
+
+- escritório: `editorial` + hero `centered` + services `feature` + differentials `side-blocks`;
+- restaurante: `expressivo` + hero `full-image` + gallery `grid` + testimonials `single`;
+- loja: `comercial` + hero `split` + services `cards` + contact `form-split`.
+
+### O que a camada visual resolve sozinha
+
+- **Ritmo da página**: o fundo das seções alterna automaticamente (`globals.css`).
+  Uma seção que declara `tone` fica fora da alternância, por decisão explícita.
+- **Entrada em cena**: `Reveal` (`src/components/ui/Reveal.jsx`) revela a seção
+  quando ela entra na tela — um observer por seção. Listas escalonam via
+  `composes: stagger from global`. Sem JavaScript ou com "reduzir movimento"
+  ligado, tudo aparece imediatamente.
+- **Cabeçalho assimétrico**: `Section` aceita `aside` para pôr apoio ou CTA ao
+  lado do título, sem a variante remontar um grid próprio.
+- **Carrossel** (`gallery` na variante `carousel`): trilho com rolagem nativa e
+  encaixe por imagem. Arrastar com o dedo, trackpad, setas do teclado e as
+  bolinhas convergem para o mesmo índice, e a próxima foto fica espiando na
+  lateral — é assim que o visitante percebe que há mais imagens. Para vitrine de
+  loja física, compare com a variante `grid`, que mostra várias fotos de uma vez.
+
 ## Comandos do dia a dia
 
 ```bash

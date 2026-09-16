@@ -1,64 +1,70 @@
 .cardsGrid {
+  composes: stagger from global;
   display: grid;
   grid-template-columns: repeat(auto-fit, minmax(220px, 1fr));
-  gap: var(--gap);
+  gap: var(--gap-lg) var(--gap);
 }
 
+/* Retrato alinhado à esquerda e nome sob filete: ficha, não cartão de rede social. */
 .card {
-  text-align: center;
+  text-align: left;
 }
 
 .photo {
-  border-radius: var(--radius);
-  margin-bottom: 12px;
-  max-width: 200px;
-  margin-inline: auto;
+  margin-bottom: 20px;
+  width: 100%;
+  max-width: none;
 }
 
 .name {
-  font-size: 1.05rem;
+  font-size: var(--fs-h3);
   margin: 0 0 4px;
+  padding-top: 16px;
+  border-top: var(--border-width) solid var(--color-border);
 }
 
 .role {
-  margin: 0 0 8px;
+  margin: 0 0 10px;
   color: var(--color-primary);
-  font-size: 0.85rem;
+  font-size: var(--fs-eyebrow);
+  text-transform: uppercase;
+  letter-spacing: var(--eyebrow-tracking);
   font-weight: 600;
 }
 
 .bio {
   margin: 0;
   color: var(--color-text-muted);
-  font-size: 0.9rem;
+  font-size: var(--fs-small);
 }
 
 .list {
+  composes: stagger from global;
   list-style: none;
   margin: 0;
   padding: 0;
-  display: flex;
-  flex-direction: column;
-  gap: var(--gap);
+  border-top: var(--border-width) solid var(--color-border);
 }
 
 .listItem {
   display: flex;
   align-items: center;
-  gap: 16px;
+  gap: 24px;
+  padding-block: 24px;
+  border-bottom: var(--border-width) solid var(--color-border);
 }
 
 .listPhoto {
-  width: 64px;
-  height: 64px;
+  width: 72px;
+  height: 72px;
   border-radius: 50%;
   flex: 0 0 auto;
 }
 
 .highlightGrid {
   display: grid;
-  grid-template-columns: 1fr 1fr;
-  gap: 40px;
+  grid-template-columns: minmax(0, 1fr) minmax(0, 1.1fr);
+  gap: var(--gap-lg);
   align-items: start;
 }
 
@@ -67,11 +73,14 @@
 }
 
 .featured .photo {
-  max-width: 320px;
-  margin-inline: 0;
+  max-width: 420px;
 }
 
-@media (max-width: 768px) {
+.featured .name {
+  font-size: var(--fs-h2);
+}
+
+@media (max-width: 900px) {
   .highlightGrid {
     grid-template-columns: 1fr;
   }

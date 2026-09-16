@@ -7,7 +7,7 @@ export default function ServicesCards({ id, content = {} }) {
   const { title, subtitle, items = [] } = content;
 
   return (
-    <Section id={id} title={title} subtitle={subtitle} align="center">
+    <Section id={id} title={title} subtitle={subtitle}>
       <div className={styles.cardsGrid}>
         {items.map((item, index) => (
           // biome-ignore lint/suspicious/noArrayIndexKey: itens de conteúdo não têm id estável; o índice apenas desempata títulos repetidos.

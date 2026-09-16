@@ -1,5 +1,6 @@
 import { createSectionDispatcher } from '../dispatchSection';
 import ServicesCards from './ServicesCards';
+import ServicesFeature from './ServicesFeature';
 import ServicesGrid from './ServicesGrid';
 import ServicesImageText from './ServicesImageText';
 import ServicesList from './ServicesList';
@@ -9,6 +10,7 @@ const VARIANTS = {
   list: ServicesList,
   grid: ServicesGrid,
   'image-text': ServicesImageText,
+  feature: ServicesFeature,
 };
 
 /**

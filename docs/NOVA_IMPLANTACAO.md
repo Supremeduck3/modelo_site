@@ -78,7 +78,7 @@ Variantes disponíveis (fonte da verdade: `SECTION_VARIANTS` em
 | --- | --- |
 | `hero` | `full-image`, `split`, `centered`, `cta-focus` |
 | `about` | `simple`, `image-text`, `stats` |
-| `services` | `cards`, `list`, `grid`, `image-text` |
+| `services` | `cards`, `list`, `grid`, `image-text`, `feature` |
 | `differentials` | `icons`, `cards`, `side-blocks` |
 | `gallery` | `grid`, `masonry`, `carousel` |
 | `testimonials` | `cards`, `slider`, `single` |
@@ -94,14 +94,32 @@ Tudo em `theme` vira variável CSS (`--color-primary`, `--radius`, `--section-y`
 Ant Design. Componentes consomem apenas as variáveis — não existe cor literal de
 cliente em CSS de componente.
 
+Comece pelo `preset` (a direção de arte) e só depois ajuste tokens soltos:
+
 ```js
 theme: {
+    preset: 'editorial', // padrao | editorial | expressivo | comercial
     colors: { primary: '#1f6feb', secondary: '#0b3a7a', accent: '#f0a202' },
     typography: { fontFamily: "'Inter', system-ui, sans-serif" },
     shape: { radius: '4px' },      // um cliente mais "duro"
     spacing: { sectionY: '120px' } // outro mais arejado
 }
 ```
+
+Precedência: **padrões do molde → preset → o que estiver escrito aqui**. Um
+preset traz tipografia de display, escala, forma de botão, espaçamento,
+tratamento de imagem e intensidade de animação de uma vez; ver
+`src/config/theme/presets.js` e a tabela no guia do site.
+
+Grupos além dos já citados: `buttons` (forma e caixa do botão), `images`
+(`ratio`, `radius`, `filter`, `hoverFilter`) e `motion` (`duration`, `easing`,
+`revealShift`). `typography.fontImport` é a URL da webfont da direção de arte —
+sem ela, nenhuma requisição externa é feita.
+
+### Escolhendo um preset novo
+
+Um preset é um objeto de tema parcial exportado em `THEME_PRESETS`. Criar um é
+copiar o mais próximo e ajustar; nenhum componente precisa saber que ele existe.
 
 ## Adicionando uma variante nova
 

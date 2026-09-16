@@ -6,6 +6,8 @@
  * Nenhum dado específico de cliente deve morar aqui — apenas fallbacks seguros.
  */
 
+import { getThemePreset, THEME_PRESET_NAMES } from '../theme/presets.js';
+
 /** Variantes de navegação suportadas pelo motor visual. */
 export const NAVIGATION_VARIANTS = ['header', 'header-compact', 'sidebar'];
 
@@ -19,7 +21,7 @@ export const NAVIGATION_POSITIONS = ['top', 'left', 'right'];
 export const SECTION_VARIANTS = {
   hero: ['full-image', 'split', 'centered', 'cta-focus'],
   about: ['simple', 'image-text', 'stats'],
-  services: ['cards', 'list', 'grid', 'image-text'],
+  services: ['cards', 'list', 'grid', 'image-text', 'feature'],
   differentials: ['icons', 'cards', 'side-blocks'],
   gallery: ['grid', 'masonry', 'carousel'],
   testimonials: ['cards', 'slider', 'single'],
@@ -63,6 +65,8 @@ export const DEFAULT_CONFIG = {
     items: [{ label: 'Início', href: '/' }],
   },
   theme: {
+    // Direção de arte da implantação. Ver src/config/theme/presets.js.
+    preset: 'padrao',
     colors: {
       primary: '#1f6feb',
       primaryContrast: '#ffffff',
@@ -78,12 +82,20 @@ export const DEFAULT_CONFIG = {
       danger: '#c62828',
     },
     typography: {
+      // URL de webfont da direção de arte; null mantém as fontes do sistema.
+      fontImport: null,
       fontFamily: "'Segoe UI', system-ui, -apple-system, sans-serif",
       headingFamily: null,
       baseSize: '16px',
       headingWeight: 700,
       bodyWeight: 400,
       lineHeight: 1.6,
+      // Multiplicador da escala tipográfica: só os títulos crescem, o corpo não.
+      displayScale: 1,
+      headingTracking: '-0.02em',
+      headingTransform: 'none',
+      headingLineHeight: 1.15,
+      eyebrowTracking: '0.1em',
     },
     shape: {
       radius: '12px',
@@ -92,16 +104,38 @@ export const DEFAULT_CONFIG = {
       borderWidth: '1px',
     },
     spacing: {
-      sectionY: '80px',
-      sectionYMobile: '48px',
+      sectionY: '96px',
+      sectionYMobile: '56px',
       containerWidth: '1160px',
       gap: '24px',
+      // Respiro entre blocos de uma composição (coluna de texto x mídia).
+      gapLarge: '64px',
+      // Medida de leitura confortável dos parágrafos longos.
+      measure: '62ch',
     },
     shadows: {
       soft: '0 2px 8px rgba(16, 24, 40, 0.06)',
       medium: '0 8px 24px rgba(16, 24, 40, 0.1)',
     },
-    buttons: { style: 'solid' },
+    buttons: {
+      style: 'solid',
+      radius: 'var(--radius-sm)',
+      padding: '0.9em 1.7em',
+      weight: 600,
+      tracking: '0',
+      transform: 'none',
+    },
+    images: {
+      ratio: '4 / 3',
+      radius: 'var(--radius)',
+      filter: 'none',
+      hoverFilter: 'none',
+    },
+    motion: {
+      duration: '520ms',
+      easing: 'cubic-bezier(0.22, 0.61, 0.36, 1)',
+      revealShift: '18px',
+    },
   },
   media: {
     hero: null,
@@ -199,7 +233,23 @@ function mergeDeep(base, override) {
 export function validateSiteConfig(rawConfig) {
   const errors = [];
   const warnings = [];
-  const config = mergeDeep(DEFAULT_CONFIG, rawConfig ?? {});
+
+  /*
+   * O preset entra entre os padrões e a configuração da implantação: adotar
+   * uma direção de arte não impede o cliente de corrigir um token isolado.
+   */
+  const presetName = rawConfig?.theme?.preset ?? DEFAULT_CONFIG.theme.preset;
+  const preset = getThemePreset(presetName);
+  if (!preset) {
+    warnings.push(
+      `theme.preset "${presetName}" não existe; usando "padrao". Disponíveis: ${THEME_PRESET_NAMES.join(', ')}.`,
+    );
+  }
+  const withPreset = mergeDeep(DEFAULT_CONFIG, {
+    theme: preset ?? getThemePreset('padrao'),
+  });
+  const config = mergeDeep(withPreset, rawConfig ?? {});
+  config.theme.preset = preset ? presetName : 'padrao';
 
   if (!config.identity.name?.trim()) {
     errors.push('identity.name é obrigatório.');

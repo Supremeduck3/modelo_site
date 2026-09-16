@@ -1,6 +1,6 @@
 .list {
   display: flex;
-  gap: 6px;
+  gap: 4px;
   list-style: none;
   margin: 0;
   padding: 0;
@@ -18,18 +18,45 @@
   gap: 2px;
 }
 
+/*
+ * Sublinhado que cresce a partir da esquerda, em vez de fundo cinza no hover:
+ * é o mesmo gesto do CTA discreto e mantém o cabeçalho leve.
+ */
 .link {
+  position: relative;
   display: block;
   padding: 10px 14px;
-  border-radius: var(--radius-sm);
   color: var(--color-text);
+  font-size: 0.925rem;
   font-weight: 500;
-  transition:
-    background 0.15s ease,
-    color 0.15s ease;
+  transition: color var(--motion-duration) var(--motion-easing);
+}
+
+.link::after {
+  content: "";
+  position: absolute;
+  left: 14px;
+  right: calc(100% - 14px);
+  bottom: 4px;
+  height: 1px;
+  background: currentColor;
+  transition: right var(--motion-duration) var(--motion-easing);
 }
 
 .link:hover {
-  background: var(--color-surface);
   color: var(--color-primary);
+}
+
+.link:hover::after {
+  right: 14px;
+}
+
+.column .link {
+  padding: 12px 0;
+  font-size: 1.05rem;
+  border-bottom: var(--border-width) solid var(--color-border);
+}
+
+.column .link::after {
+  display: none;
 }
