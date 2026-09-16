@@ -167,6 +167,8 @@ export const DEFAULT_CONFIG = {
     localBusiness: false,
   },
   legal: {
+    consentText:
+      'Autorizo o uso dos meus dados de contato para retorno sobre esta manifestação.',
     privacyPolicy: '',
     terms: '',
     companyRegistration: '',

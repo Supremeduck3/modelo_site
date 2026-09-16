@@ -106,3 +106,27 @@ theme: {
 
 Nenhuma página muda. Se a variante precisar de regra de negócio, ela vai para um
 componente compartilhado — não para dentro da variante.
+
+## Banco de dados
+
+A implantação usa PostgreSQL próprio. Nenhuma instância é compartilhada entre
+clientes.
+
+```bash
+createdb site_modelo                 # ou o banco provisionado no seu host
+export DATABASE_URL="postgresql://usuario:senha@host:5432/site_modelo"
+
+npm run db:migrate   # desenvolvimento: cria/aplica migrations
+npm run db:deploy    # produção: aplica as migrations já versionadas
+npm run db:seed      # empresa da implantação + categorias iniciais
+```
+
+O seed é idempotente: rodar de novo não duplica registros. Ele cria a empresa
+(nome via `SEED_COMPANY_NAME`) e quatro categorias iniciais, que a empresa pode
+ajustar no painel a partir da fase 6.
+
+## Categorias de manifestação
+
+As categorias ficam no banco, não na configuração do site: elas são dado
+operacional da empresa. O formulário público lista apenas as ativas e a API
+recusa qualquer categoria que não pertença à empresa da implantação.

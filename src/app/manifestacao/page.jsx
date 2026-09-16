@@ -1,6 +1,8 @@
 import SubmissionEmbedded from '@/components/sections/submission/SubmissionEmbedded';
+import SubmissionForm from '@/components/submissions/SubmissionForm';
 import Container from '@/components/ui/Container';
 import { getSectionContent, siteConfig } from '@/config/site';
+import { listActiveCategories } from '@/server/modules/company/service';
 import styles from './page.module.css';
 
 export const metadata = {
@@ -9,33 +11,29 @@ export const metadata = {
     'Registre reclamações, elogios, sugestões, dúvidas ou solicitações e acompanhe pelo protocolo.',
 };
 
+/** A lista de categorias vem do banco da implantação, então nada é estático. */
+export const dynamic = 'force-dynamic';
+
 /**
  * Página dedicada do canal de manifestações (bloco 2).
- * O formulário, a API e o protocolo entram na fase 3; por ora a página
- * apresenta o canal e encaminha para os contatos diretos da empresa.
+ *
+ * Carrega as categorias no servidor e entrega ao formulário; o registro em si
+ * passa pela API, que revalida tudo.
  */
-export default function ManifestacaoPage() {
+export default async function ManifestacaoPage() {
   const content = getSectionContent('submission');
-  const { contact } = siteConfig;
+  const categories = await listActiveCategories();
 
   return (
     <>
-      <SubmissionEmbedded
-        id="manifestacao"
-        content={content}
-        headingLevel="h1"
-      />
+      <SubmissionEmbedded id="canal" content={content} headingLevel="h1" />
       <Container>
-        <p className={styles.notice}>
-          O formulário de registro será disponibilizado nesta página. Enquanto
-          isso, fale com a equipe por{' '}
-          {contact.email ? (
-            <a href={`mailto:${contact.email}`}>{contact.email}</a>
-          ) : (
-            'um dos canais informados no rodapé'
-          )}
-          .
-        </p>
+        <div className={styles.formWrapper}>
+          <SubmissionForm
+            categories={categories}
+            consentText={siteConfig.legal.consentText}
+          />
+        </div>
       </Container>
     </>
   );

@@ -1,0 +1,125 @@
+.form {
+  display: flex;
+  flex-direction: column;
+  gap: var(--gap);
+  max-width: 720px;
+}
+
+.errorSummary {
+  border: var(--border-width) solid var(--color-danger);
+  background: var(--color-surface);
+  border-radius: var(--radius);
+  padding: 16px;
+}
+
+.errorSummaryTitle {
+  margin: 0 0 8px;
+  font-weight: 700;
+  color: var(--color-danger);
+}
+
+.errorSummaryList {
+  margin: 0;
+  padding-left: 20px;
+  color: var(--color-danger);
+}
+
+.fieldset {
+  border: var(--border-width) solid var(--color-border);
+  border-radius: var(--radius);
+  padding: 16px;
+  margin: 0;
+}
+
+.legend {
+  padding: 0 8px;
+  font-weight: 700;
+}
+
+.radioGroup {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 12px;
+  margin-top: 8px;
+}
+
+.radioOption {
+  display: inline-flex;
+  align-items: center;
+  gap: 8px;
+  border: var(--border-width) solid var(--color-border);
+  border-radius: var(--radius-sm);
+  padding: 8px 14px;
+  cursor: pointer;
+}
+
+.field {
+  display: flex;
+  flex-direction: column;
+  gap: 6px;
+  flex: 1 1 200px;
+}
+
+.row {
+  display: flex;
+  flex-wrap: wrap;
+  gap: var(--gap);
+}
+
+.label {
+  font-weight: 600;
+  color: var(--color-text);
+}
+
+.input,
+.select,
+.textarea {
+  border: var(--border-width) solid var(--color-border);
+  border-radius: var(--radius-sm);
+  padding: 10px 12px;
+  font: inherit;
+  color: var(--color-text);
+  background: var(--color-background);
+}
+
+.textarea {
+  resize: vertical;
+  min-height: 140px;
+}
+
+.counter {
+  margin: 0;
+  font-size: 0.85rem;
+  color: var(--color-text-muted);
+  text-align: right;
+}
+
+.hint {
+  margin: 0;
+  font-size: 0.9rem;
+  color: var(--color-text-muted);
+}
+
+.checkboxOption {
+  display: flex;
+  align-items: flex-start;
+  gap: 10px;
+  font-size: 0.95rem;
+  color: var(--color-text);
+}
+
+.fieldError {
+  margin: 0;
+  font-size: 0.85rem;
+  color: var(--color-danger);
+}
+
+@media (max-width: 768px) {
+  .row {
+    flex-direction: column;
+  }
+
+  .radioGroup {
+    flex-direction: column;
+  }
+}
