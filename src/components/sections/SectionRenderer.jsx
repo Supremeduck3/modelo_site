@@ -46,18 +46,34 @@ export default function SectionRenderer({ sections }) {
     const Component = SECTION_COMPONENTS[section.type];
     if (!Component) return null;
 
+    const media = resolveMedia(section.type);
+    const content = {
+      // Precedência: mídia global da implantação < conteúdo da seção <
+      // conteúdo declarado na própria entrada de pages.home.sections.
+      ...media,
+      ...getSectionContent(section.type),
+      ...(section.content ?? {}),
+    };
+
+    /*
+     * Ausência não é decisão: o schema entrega `items: []` e `image: null` como
+     * padrão de toda seção, e um padrão vazio não pode apagar a mídia que a
+     * implantação declarou em `media.<seção>`. Sem isso, `media.gallery` nunca
+     * chegava à galeria — o vazio do padrão vencia por ser o último a entrar.
+     */
+    if (!content.items?.length && media.items?.length) {
+      content.items = media.items;
+    }
+    if (!content.image && media.image) {
+      content.image = media.image;
+    }
+
     return (
       <Component
         key={section.id ?? `${section.type}-${index}`}
         id={section.id ?? section.type}
         variant={section.variant}
-        content={{
-          // Precedência: mídia global da implantação < conteúdo da seção <
-          // conteúdo declarado na própria entrada de pages.home.sections.
-          ...resolveMedia(section.type),
-          ...getSectionContent(section.type),
-          ...(section.content ?? {}),
-        }}
+        content={content}
       />
     );
   });

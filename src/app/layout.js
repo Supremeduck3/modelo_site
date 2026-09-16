@@ -36,10 +36,36 @@ export const viewport = {
  * público não carregue nada do painel nem o contrário.
  */
 export default function RootLayout({ children }) {
+  // A direção de arte pode pedir webfont; sem ela, seguimos com fonte de
+  // sistema e nenhuma requisição extra.
+  const fontImport = siteConfig.theme.typography.fontImport;
+
   return (
     // Os tokens da implantação vão como style inline no <html>: assim vencem
     // os defaults de globals.css sem depender da ordem das folhas de estilo.
     <html lang="pt-BR" style={buildThemeVariables()}>
+      <head>
+        {fontImport && (
+          <>
+            <link rel="preconnect" href="https://fonts.googleapis.com" />
+            <link
+              rel="preconnect"
+              href="https://fonts.gstatic.com"
+              crossOrigin=""
+            />
+            <link rel="stylesheet" href={fontImport} />
+          </>
+        )}
+        {/* Sem JavaScript, o conteúdo que espera a entrada em cena aparece
+            imediatamente: animação nunca é requisito para ler a página. */}
+        <noscript>
+          <style>
+            {
+              '[data-reveal],[data-reveal] .stagger>*{opacity:1!important;transform:none!important}'
+            }
+          </style>
+        </noscript>
+      </head>
       <body>
         {children}
         <Toaster position="top-right" />

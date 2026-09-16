@@ -53,20 +53,32 @@ const siteConfig = {
     ],
   },
   theme: {
+    /*
+     * Direção de arte da implantação (src/config/theme/presets.js):
+     * padrao | editorial | expressivo | comercial.
+     * O preset define tipografia, forma, espaçamento, tratamento de imagem e
+     * intensidade das animações. O que vier abaixo dele é correção pontual.
+     */
+    preset: 'comercial',
     colors: {
       primary: '#1f6feb',
-      primaryContrast: '#ffffff',
       secondary: '#0b3a7a',
       accent: '#f0a202',
     },
-    typography: {
-      fontFamily: "'Segoe UI', system-ui, -apple-system, sans-serif",
-    },
-    spacing: { sectionY: '88px' },
   },
   media: {
     hero: null,
     about: null,
+    /*
+     * Fotos da loja física. Troque pelos arquivos reais em `public/` (ou por
+     * URLs). Sem `src`, o molde desenha um placeholder e o layout não quebra.
+     */
+    gallery: [
+      { src: null, alt: 'Fachada da loja', caption: 'Nossa loja no Centro' },
+      { src: null, alt: 'Salão de atendimento' },
+      { src: null, alt: 'Vitrine' },
+      { src: null, alt: 'Equipe no balcão' },
+    ],
   },
   content: {
     hero: {
@@ -76,6 +88,8 @@ const siteConfig = {
         'Equipe própria, prazo combinado e canal aberto para você falar com a gente a qualquer momento.',
       primaryCta: { label: 'Fale conosco', href: '#contato' },
       secondaryCta: { label: 'Nossos serviços', href: '#servicos' },
+      // Usado pelas variantes de hero que têm linha de apoio (ex.: centered).
+      highlights: ['10 anos de atuação', 'Equipe própria', 'Toda a região'],
     },
     about: {
       title: 'Sobre a empresa',
@@ -138,6 +152,10 @@ const siteConfig = {
         },
       ],
     },
+    gallery: {
+      title: 'Conheça a loja',
+      subtitle: 'Onde a gente atende, todos os dias.',
+    },
     contact: {
       title: 'Fale com a gente',
       subtitle:
@@ -157,6 +175,7 @@ const siteConfig = {
         { type: 'services', variant: 'cards', id: 'servicos' },
         { type: 'differentials', variant: 'icons', id: 'diferenciais' },
         { type: 'faq', variant: 'accordion', id: 'faq' },
+        { type: 'gallery', variant: 'carousel', id: 'loja' },
         { type: 'submission', variant: 'cta', id: 'canal' },
         { type: 'contact', variant: 'cards', id: 'contato' },
       ],
@@ -165,7 +184,7 @@ const siteConfig = {
   features: {
     submissions: true,
     faq: true,
-    gallery: false,
+    gallery: true,
     testimonials: false,
     team: false,
   },

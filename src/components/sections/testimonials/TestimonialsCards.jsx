@@ -7,7 +7,7 @@ export default function TestimonialsCards({ id, content = {} }) {
   const { title, subtitle, items = [] } = content;
 
   return (
-    <Section id={id} title={title} subtitle={subtitle} align="center">
+    <Section id={id} title={title} subtitle={subtitle}>
       <div className={styles.cardsGrid}>
         {items.map((item) => (
           <blockquote key={item.author ?? item.quote} className={styles.card}>

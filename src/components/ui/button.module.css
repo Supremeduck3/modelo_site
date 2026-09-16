@@ -2,26 +2,44 @@
   display: inline-flex;
   align-items: center;
   justify-content: center;
-  gap: 8px;
+  gap: 10px;
   border: var(--border-width) solid transparent;
-  border-radius: var(--radius-sm);
+  /* Forma, peso e caixa do botão vêm da direção de arte: é um dos sinais mais
+     rápidos de identidade entre duas implantações. */
+  border-radius: var(--button-radius);
+  padding: var(--button-padding);
   font-family: inherit;
-  font-weight: 600;
+  font-weight: var(--button-weight);
+  letter-spacing: var(--button-tracking);
+  text-transform: var(--button-transform);
+  line-height: 1.1;
   cursor: pointer;
-  transition:
-    filter 0.15s ease,
-    background 0.15s ease,
-    color 0.15s ease;
   text-align: center;
+  position: relative;
+  transition:
+    background var(--motion-duration) var(--motion-easing),
+    color var(--motion-duration) var(--motion-easing),
+    border-color var(--motion-duration) var(--motion-easing),
+    transform 180ms var(--motion-easing),
+    box-shadow 180ms var(--motion-easing);
 }
 
 .button:hover {
-  filter: brightness(0.94);
+  transform: translateY(-2px);
+}
+
+.button:active {
+  transform: translateY(0);
 }
 
 .primary {
   background: var(--color-primary);
   color: var(--color-primary-contrast);
+}
+
+.primary:hover {
+  background: color-mix(in srgb, var(--color-primary) 86%, var(--color-text));
+  box-shadow: var(--shadow-medium);
 }
 
 .secondary {
@@ -30,28 +48,61 @@
   border-color: var(--color-border);
 }
 
+.secondary:hover {
+  background: var(--color-surface-alt);
+  border-color: color-mix(in srgb, var(--color-text) 30%, transparent);
+}
+
 .outline {
   background: transparent;
   color: var(--color-primary);
-  border-color: var(--color-primary);
+  border-color: currentColor;
 }
 
+.outline:hover {
+  background: color-mix(in srgb, var(--color-primary) 10%, transparent);
+}
+
+/*
+ * Ghost é o CTA discreto: um link com sublinhado que cresce no hover, para o
+ * segundo caminho da seção não competir com o botão principal.
+ */
 .ghost {
   background: transparent;
-  color: var(--color-text);
+  color: inherit;
+  padding-inline: 0;
+  gap: 8px;
+}
+
+.ghost::after {
+  content: "";
+  position: absolute;
+  left: 0;
+  right: 100%;
+  bottom: 0.15em;
+  height: 1px;
+  background: currentColor;
+  transition: right var(--motion-duration) var(--motion-easing);
+}
+
+.ghost:hover::after {
+  right: 0;
+}
+
+.ghost:hover {
+  transform: none;
 }
 
 .sm {
-  padding: 8px 14px;
-  font-size: 0.875rem;
+  font-size: 0.85rem;
+  padding: 0.7em 1.2em;
 }
 
 .md {
-  padding: 12px 22px;
   font-size: 0.95rem;
 }
 
 .lg {
-  padding: 15px 28px;
   font-size: 1rem;
+  padding: calc(1.15em) calc(2.2em);
 }

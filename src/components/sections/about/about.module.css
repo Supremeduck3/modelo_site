@@ -1,50 +1,78 @@
 .text {
-  max-width: 760px;
-  margin-inline: auto;
+  max-width: var(--measure);
   color: var(--color-text-muted);
-  font-size: 1.05rem;
+  font-size: var(--fs-lead);
 }
 
+/* Composição assimétrica: a imagem ocupa a coluna maior e o texto respira. */
 .imageTextGrid {
   display: grid;
-  grid-template-columns: 1fr 1fr;
-  gap: var(--gap);
+  grid-template-columns: minmax(0, 0.95fr) minmax(0, 1.05fr);
+  gap: var(--gap-lg);
   align-items: center;
 }
 
 .image {
-  border-radius: var(--radius);
   box-shadow: var(--shadow-soft);
 }
 
+/*
+ * Números separados por filete vertical em vez de cartões: a estatística é
+ * tipografia, não caixa. Em telas estreitas o filete vira horizontal.
+ */
 .statsGrid {
+  composes: stagger from global;
   display: grid;
-  grid-template-columns: repeat(auto-fit, minmax(140px, 1fr));
-  gap: var(--gap);
-  margin: 32px 0 0;
-  text-align: center;
+  grid-template-columns: repeat(auto-fit, minmax(180px, 1fr));
+  gap: 0;
+  margin: var(--gap-lg) 0 0;
+  border-top: var(--border-width) solid var(--color-border);
 }
 
 .statItem {
-  padding: 20px;
-  border-radius: var(--radius);
-  background: var(--color-surface);
+  padding: 32px 28px 8px;
+  border-left: var(--border-width) solid var(--color-border);
+}
+
+.statItem:first-child {
+  border-left: 0;
+  padding-left: 0;
 }
 
 .statValue {
-  font-size: clamp(1.6rem, 3vw, 2.2rem);
+  font-family: var(--font-family-heading);
+  font-size: calc(clamp(2rem, 4vw, 3rem) * var(--display-scale));
   font-weight: var(--font-weight-heading);
-  color: var(--color-primary);
+  line-height: 1;
+  letter-spacing: var(--heading-tracking);
+  color: var(--color-text);
 }
 
 .statLabel {
-  margin: 4px 0 0;
+  margin: 12px 0 0;
   color: var(--color-text-muted);
-  font-size: 0.9rem;
+  font-size: var(--fs-small);
 }
 
-@media (max-width: 768px) {
+@media (max-width: 900px) {
   .imageTextGrid {
     grid-template-columns: 1fr;
+    gap: 32px;
+  }
+}
+
+@media (max-width: 620px) {
+  .statsGrid {
+    grid-template-columns: 1fr;
+  }
+
+  .statItem {
+    padding: 24px 0 8px;
+    border-left: 0;
+    border-bottom: var(--border-width) solid var(--color-border);
+  }
+
+  .statItem:last-child {
+    border-bottom: 0;
   }
 }

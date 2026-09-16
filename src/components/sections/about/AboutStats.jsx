@@ -6,7 +6,7 @@ export default function AboutStats({ id, content = {} }) {
   const { title, subtitle, text, stats = [] } = content;
 
   return (
-    <Section id={id} title={title} subtitle={subtitle} align="center">
+    <Section id={id} title={title} subtitle={subtitle}>
       {text && <p className={styles.text}>{text}</p>}
       {stats.length > 0 && (
         <dl className={styles.statsGrid}>

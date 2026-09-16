@@ -1,9 +1,13 @@
 import Button from '@/components/ui/Button';
+import Reveal from '@/components/ui/Reveal';
 import styles from './hero.module.css';
 
 /**
  * Miolo textual do hero, compartilhado por todas as variantes.
  * Variante visual não duplica conteúdo nem regra — só muda o arranjo.
+ *
+ * A entrada em cena fica aqui, com um único observer por hero: o escalonamento
+ * entre eyebrow, título, apoio e ações é resolvido no CSS.
  */
 export default function HeroContent({
   content = {},
@@ -13,7 +17,7 @@ export default function HeroContent({
   const { eyebrow, title, subtitle, primaryCta, secondaryCta } = content;
 
   return (
-    <div
+    <Reveal
       className={`${styles.content} ${styles[align] ?? ''} ${inverted ? styles.inverted : ''}`.trim()}
     >
       {eyebrow && <p className={styles.eyebrow}>{eyebrow}</p>}
@@ -27,16 +31,18 @@ export default function HeroContent({
             </Button>
           )}
           {secondaryCta && (
+            // Em fundo tratado, o segundo caminho vira link sublinhado: dois
+            // botões sólidos disputariam a atenção do CTA principal.
             <Button
               href={secondaryCta.href}
               size="lg"
-              variant={inverted ? 'secondary' : 'outline'}
+              variant={inverted ? 'ghost' : 'outline'}
             >
               {secondaryCta.label}
             </Button>
           )}
         </div>
       )}
-    </div>
+    </Reveal>
   );
 }

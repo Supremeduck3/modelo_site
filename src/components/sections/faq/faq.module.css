@@ -1,4 +1,7 @@
+/* ───────── accordion: filetes largos, pergunta grande ───────── */
+
 .accordion {
+  composes: stagger from global;
   display: flex;
   flex-direction: column;
   border-top: var(--border-width) solid var(--color-border);
@@ -15,72 +18,95 @@
 .trigger {
   width: 100%;
   display: flex;
-  align-items: center;
+  align-items: baseline;
   justify-content: space-between;
-  gap: 16px;
-  padding: 18px 4px;
+  gap: 24px;
+  padding: 28px 0;
   background: none;
   border: none;
   text-align: left;
-  font-size: 1rem;
+  font-family: var(--font-family-heading);
+  font-size: var(--fs-h3);
   font-weight: var(--font-weight-heading);
+  letter-spacing: var(--heading-tracking);
   color: var(--color-text);
   cursor: pointer;
+  transition: color var(--motion-duration) var(--motion-easing);
+}
+
+.trigger:hover {
+  color: var(--color-primary);
 }
 
 .icon {
   flex: 0 0 auto;
   color: var(--color-primary);
-  font-size: 1.2rem;
+  font-size: 1.1rem;
+  line-height: 1;
+  transition: transform var(--motion-duration) var(--motion-easing);
+}
+
+.trigger[aria-expanded="true"] .icon {
+  transform: rotate(180deg);
 }
 
 .panel {
-  padding: 0 4px 18px;
+  padding: 0 0 28px;
   color: var(--color-text-muted);
+  max-width: var(--measure);
 }
 
 .panel p {
   margin: 0;
 }
 
+/* ───────── blocks: blocos com filete superior, sem fundo ───────── */
+
 .blocksGrid {
+  composes: stagger from global;
   display: grid;
-  grid-template-columns: repeat(auto-fit, minmax(260px, 1fr));
-  gap: var(--gap);
-  text-align: left;
+  grid-template-columns: repeat(auto-fit, minmax(280px, 1fr));
+  gap: var(--gap-lg) var(--gap);
 }
 
 .block {
-  padding: 20px;
-  border-radius: var(--radius);
-  background: var(--color-surface);
+  padding-top: 24px;
+  border-top: var(--border-width) solid var(--color-border);
 }
 
 .blockQuestion {
-  font-size: 1rem;
-  margin: 0 0 8px;
+  font-size: var(--fs-h3);
+  margin: 0 0 12px;
 }
 
 .blockAnswer {
   margin: 0;
   color: var(--color-text-muted);
-  font-size: 0.9rem;
+  font-size: var(--fs-small);
 }
+
+/* ───────── two-columns ───────── */
 
 .columns {
   display: grid;
   grid-template-columns: 1fr 1fr;
-  gap: var(--gap);
+  gap: 0 var(--gap-lg);
 }
 
 .column {
   display: flex;
   flex-direction: column;
-  gap: var(--gap);
 }
 
-@media (max-width: 768px) {
+@media (max-width: 900px) {
   .columns {
     grid-template-columns: 1fr;
+  }
+}
+
+@media (max-width: 560px) {
+  .trigger {
+    padding: 22px 0;
+    gap: 16px;
   }
 }
