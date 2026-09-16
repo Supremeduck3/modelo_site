@@ -270,3 +270,53 @@ export function submissionAnsweredForVisitor({
 
   return { subject, text, html };
 }
+
+/**
+ * Convite de acesso ao painel.
+ *
+ * Leva o link e o prazo. Não leva senha: quem aceita escolhe a própria, e
+ * senha nenhuma trafega por e-mail.
+ */
+export function memberInvited({
+  memberName,
+  companyName,
+  invitedByName,
+  inviteUrl,
+  expiresInDays,
+}) {
+  const subject = `Acesso ao painel de ${companyName}`;
+  const quem = invitedByName ? `${invitedByName} ` : '';
+
+  const text = [
+    `Olá, ${memberName}.`,
+    '',
+    `${quem}convidou você para o painel de ${companyName}, onde a equipe acompanha as manifestações recebidas pelo site.`,
+    '',
+    'Abra o endereço abaixo para definir sua senha e ativar o acesso:',
+    inviteUrl,
+    '',
+    `O convite vale por ${expiresInDays} dias e só pode ser usado uma vez.`,
+    'Se você não esperava este convite, ignore esta mensagem.',
+  ].join('\n');
+
+  const html = layout({
+    title: 'Convite para o painel',
+    body: `
+    <p>Olá, ${escapeHtml(memberName)}.</p>
+    <p>
+      ${escapeHtml(quem)}convidou você para o painel de
+      ${escapeHtml(companyName)}, onde a equipe acompanha as manifestações
+      recebidas pelo site.
+    </p>
+    <p>
+      <a href="${escapeHtml(inviteUrl)}" style="display:inline-block;padding:12px 20px;background:#1f6feb;color:#ffffff;border-radius:8px;text-decoration:none">Definir minha senha</a>
+    </p>
+    <p style="color:#5b6982;font-size:14px">
+      O convite vale por ${escapeHtml(expiresInDays)} dias e só pode ser usado
+      uma vez. Se você não esperava este convite, ignore esta mensagem.
+    </p>`,
+    footer: `Mensagem automática do painel de ${companyName}.`,
+  });
+
+  return { subject, text, html };
+}

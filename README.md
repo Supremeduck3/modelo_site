@@ -10,7 +10,7 @@ O produto tem três blocos:
 | --- | --- |
 | 1 — Site institucional | Implementado (fases 0–2) |
 | 2 — Canal de manifestações | Implementado (fase 3): formulário público, API, protocolo e histórico |
-| 3 — Painel da empresa | Em andamento: autenticação (fase 4) e atendimento das manifestações (fase 5) prontos; equipe e categorias na fase 6 |
+| 3 — Painel da empresa | Em andamento: autenticação (fase 4), atendimento das manifestações (fase 5) e equipe (fase 6) prontos; categorias e configurações a seguir |
 | E-mail transacional | Confirmação ao visitante, aviso à equipe, resposta pública e link de recuperação de senha prontos |
 
 ## Stack
@@ -41,6 +41,12 @@ npm run test                 # regras críticas (node --test)
 npm run test:e2e             # fluxos críticos no navegador (Playwright)
 npm run build                # prisma generate + next build
 ```
+
+Os testes autenticados reaproveitam uma sessão criada uma única vez pelo
+projeto de setup do Playwright. Isso não é otimização: o login limita tentativas
+por e-mail, e um login por arquivo de teste estourava essa cota e derrubava a
+suíte com 429. Os testes do próprio fluxo de login continuam entrando de
+verdade.
 
 Os e2e do painel precisam de credenciais no ambiente
 (`E2E_PANEL_EMAIL`/`E2E_PANEL_PASSWORD`, ou os `SEED_ADMIN_*` já usados no
@@ -188,6 +194,39 @@ Uma armadilha registrada no código: num Server Component, `Typography.Paragraph
 e outros subcomponentes do antd expostos como objeto chegam `undefined` pela
 referência de cliente e quebram a página em execução, não no build.
 Subcomponentes que são função simples, como `Descriptions.Item`, funcionam.
+
+## Equipe
+
+`/painel/equipe` é onde quem administra convida gente, troca perfis, corta
+acessos e transfere o posto de responsável.
+
+**Convite, nunca senha provisória.** Convidar cria a conta inativa e sem senha,
+com um token de ativação — só o hash vai para o banco. O link volta na resposta
+e aparece **uma única vez** na tela, além de ir por e-mail quando há SMTP: é o
+que permite usar a tela numa implantação sem e-mail configurado. A pessoa abre o
+link e escolhe a própria senha; senha nenhuma trafega por e-mail nem passa pelas
+mãos de quem convidou. Gerar um convite novo invalida o anterior.
+
+**Desativar, não excluir.** `SubmissionEvent.actorId` referencia o usuário com
+`onDelete: SetNull`: apagar alguém de verdade transformaria todo o histórico
+dele em "sistema" e destruiria a auditoria que o atendimento constrói.
+Desativar preserva o histórico e corta o acesso na requisição seguinte, porque a
+sessão relê `isActive` do banco.
+
+**Travas para a empresa não se trancar fora**: ninguém desativa a si mesmo nem
+muda o próprio perfil, e o responsável não pode ser desativado nem rebaixado —
+o papel sai do lugar apenas por transferência.
+
+**Transferência do responsável.** O papel é único por implantação e só o
+responsável atual transfere. As duas atualizações acontecem na mesma transação,
+para nunca existir instante com dois responsáveis ou nenhum; quem transfere vira
+administrador. É o gesto de entrega de uma implantação: quem implantou sai do
+posto e a empresa assume a conta.
+
+A situação de acesso mostrada na tela (`active`, `invited`, `invite_expired`,
+`disabled`) é derivada de senha + convite, não um campo guardado — um campo
+criaria um segundo lugar para a verdade, que sairia de sincronia na primeira
+exceção.
 
 ## E-mail transacional
 

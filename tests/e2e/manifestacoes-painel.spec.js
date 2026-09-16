@@ -1,4 +1,5 @@
 import { expect, test } from '@playwright/test';
+import { PAINEL_STORAGE_STATE } from './storage';
 
 /**
  * Fluxo crítico do bloco 3: a equipe encontra a manifestação, classifica,
@@ -21,13 +22,9 @@ test.describe('com credencial válida', () => {
     'defina E2E_PANEL_EMAIL e E2E_PANEL_PASSWORD para rodar',
   );
 
-  test.beforeEach(async ({ page }) => {
-    await page.goto('/painel/login');
-    await page.getByLabel('E-mail').fill(EMAIL);
-    await page.getByLabel('Senha').fill(PASSWORD);
-    await page.getByRole('button', { name: /entrar/i }).click();
-    await expect(page).toHaveURL(/\/painel$/);
-  });
+  // Sessão do projeto de setup: evita estourar a cota de tentativas de login,
+  // que é uma proteção real e não deve ser afrouxada por causa dos testes.
+  test.use({ storageState: PAINEL_STORAGE_STATE });
 
   test('equipe abre a fila, filtra e chega ao detalhe', async ({ page }) => {
     await page.goto('/painel/manifestacoes');

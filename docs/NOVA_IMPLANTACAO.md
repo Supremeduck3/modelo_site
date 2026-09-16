@@ -238,3 +238,24 @@ formulário público dezenas de vezes.
 São dados falsos: o script recusa `NODE_ENV=production` para não se misturarem
 às manifestações reais da empresa. Antes de entregar a implantação, apague-os —
 eles não têm marca que os distinga na tela, só o sufixo "(demo N)" no assunto.
+
+## Entregando a implantação ao cliente
+
+O papel de **responsável** (`owner`) é único por implantação e é o dono da
+conta. Um caminho que funciona bem:
+
+1. O seed cria o primeiro usuário em nome de quem implanta (`SEED_ADMIN_*`).
+2. Você configura o site, as categorias e testa os fluxos com esse acesso.
+3. Em `/painel/equipe`, convide a pessoa da empresa que vai responder pela
+   conta e espere ela ativar o acesso pelo link.
+4. Na entrega, use **Transferir o papel de responsável**: ela vira responsável e
+   você vira administrador.
+5. Se a implantação for de pagamento único, sem acompanhamento seu, o passo
+   final é a empresa desativar o seu acesso — ou você mesmo pedir para o novo
+   responsável fazer isso. O histórico das suas ações continua registrado.
+
+Em implantações com acompanhamento contínuo, faz sentido manter o seu acesso
+como administrador. Essa é a única diferença operacional entre os dois modelos
+hoje: **nada no código consulta serviço externo para decidir se o site
+funciona**, e isso é deliberado — uma implantação entregue precisa seguir
+funcionando sozinha, para sempre.

@@ -1,6 +1,7 @@
 import { NextResponse } from 'next/server';
 import { SESSION_COOKIE } from '@/lib/auth/cookie';
 import {
+  ACCEPT_INVITE_PATH,
   FORGOT_PASSWORD_PATH,
   LOGIN_PATH,
   RESET_PASSWORD_PATH,
@@ -31,15 +32,16 @@ export default function proxy(request) {
 
 export const config = {
   // Tudo sob /painel menos as telas de acesso, que não podem exigir sessão:
-  // login e as duas etapas da recuperação de senha. Mandar quem perdeu a senha
-  // para o login seria um laço — é justamente de lá que ele veio.
+  // login, as duas etapas da recuperação de senha e o aceite de convite —
+  // quem foi convidado ainda não tem conta ativa para logar. Mandar essa gente
+  // para o login seria um laço.
   //
   // O matcher precisa ser literal: o Next o lê em tempo de build e não resolve
   // variáveis. As constantes ao lado existem para que uma renomeação de rota
   // quebre o build aqui, em vez de silenciosamente deixar a página protegida.
   matcher: [
     '/painel',
-    '/painel/((?!login(?:/|$)|esqueci-senha(?:/|$)|redefinir-senha(?:/|$)).*)',
+    '/painel/((?!login(?:/|$)|esqueci-senha(?:/|$)|redefinir-senha(?:/|$)|convite(?:/|$)).*)',
   ],
 };
 
@@ -48,6 +50,7 @@ const PUBLIC_PANEL_PATHS = [
   LOGIN_PATH,
   FORGOT_PASSWORD_PATH,
   RESET_PASSWORD_PATH,
+  ACCEPT_INVITE_PATH,
 ];
 
 for (const path of PUBLIC_PANEL_PATHS) {

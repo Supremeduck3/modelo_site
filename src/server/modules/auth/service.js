@@ -100,9 +100,12 @@ export async function authenticate(
   // filtra por ele.
   const isUsable = Boolean(user) && user.companyId === company.id;
 
+  // `passwordHash` é nulo enquanto um convite não foi aceito. O decoy cobre
+  // esse caso junto com o de e-mail inexistente: sem ele, a conta convidada
+  // responderia mais rápido e o tempo diria que ela existe.
   const passwordMatches = await verifyPassword(
     data.password,
-    isUsable ? user.passwordHash : DECOY_HASH,
+    (isUsable && user.passwordHash) || DECOY_HASH,
   );
 
   if (!isUsable || !passwordMatches || !user.isActive) {

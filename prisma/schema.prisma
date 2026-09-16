@@ -51,7 +51,9 @@ model CompanyUser {
   companyId         String    @map("company_id")
   name              String
   email             String    @unique
-  passwordHash      String    @map("password_hash")
+  /// Nulo enquanto o convite nao foi aceito: o usuario existe, mas ainda nao
+  /// escolheu senha. Nunca gravamos senha provisoria — ela circularia fora.
+  passwordHash      String?   @map("password_hash")
   role              String    @default("operator")
   isActive          Boolean   @default(true) @map("is_active")
   lastLoginAt       DateTime? @map("last_login_at")
@@ -68,6 +70,8 @@ model CompanyUser {
   assigned       Submission[]      @relation("SubmissionAssignee")
   events         SubmissionEvent[]
   passwordResets PasswordReset[]
+  invitation     UserInvitation?   @relation("ConvidadoComo")
+  invitesSent    UserInvitation[]  @relation("ConvidadoPor")
 
   @@index([companyId])
   @@map("company_users")
@@ -148,6 +152,28 @@ model SubmissionEvent {
 
   @@index([submissionId, createdAt])
   @@map("submission_events")
+}
+
+/// Convite de acesso ao painel.
+///
+/// Mesmo desenho do token de recuperacao — so o hash no banco, com prazo e uso
+/// unico —, mas com prazo mais longo: quem convida depende de a pessoa abrir o
+/// e-mail, o que pode levar dias.
+model UserInvitation {
+  id            String    @id @default(uuid())
+  companyUserId String    @unique @map("company_user_id")
+  tokenHash     String    @unique @map("token_hash")
+  expiresAt     DateTime  @map("expires_at")
+  acceptedAt    DateTime? @map("accepted_at")
+  /// Quem convidou. Nulo quando o convite sobrevive a quem o enviou.
+  invitedById   String?   @map("invited_by_id")
+  createdAt     DateTime  @default(now()) @map("created_at")
+
+  user      CompanyUser  @relation("ConvidadoComo", fields: [companyUserId], references: [id], onDelete: Cascade)
+  invitedBy CompanyUser? @relation("ConvidadoPor", fields: [invitedById], references: [id], onDelete: SetNull)
+
+  @@index([expiresAt])
+  @@map("user_invitations")
 }
 
 /// Token de recuperacao de senha: com hash, expiravel e de uso unico.
