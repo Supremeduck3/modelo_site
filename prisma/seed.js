@@ -5,7 +5,8 @@
  * vêm da configuração do site, para não existir um segundo lugar com o nome e
  * os contatos do cliente.
  */
-const { PrismaClient } = require('@prisma/client');
+import { PrismaClient } from '@prisma/client';
+import { hashPassword } from '../src/server/lib/password.js';
 
 const prisma = new PrismaClient();
 
@@ -48,6 +49,47 @@ async function main() {
     where: { companyId: company.id },
   });
   console.log(`Categorias disponíveis: ${total}`);
+
+  await seedFirstUser(company);
+}
+
+/**
+ * Primeiro usuário do painel.
+ *
+ * Nunca sobrescreve um usuário existente: se a senha fosse regravada a cada
+ * seed, rodar o comando de novo em produção desfaria silenciosamente a troca de
+ * senha feita pela empresa. Sem as variáveis definidas o seed só avisa — não
+ * existe usuário padrão com senha conhecida.
+ */
+async function seedFirstUser(company) {
+  const email = (process.env.SEED_ADMIN_EMAIL ?? '').trim().toLowerCase();
+  const password = process.env.SEED_ADMIN_PASSWORD ?? '';
+  const name = (process.env.SEED_ADMIN_NAME ?? '').trim() || 'Responsável';
+
+  if (!email || !password) {
+    console.log(
+      'Nenhum usuário do painel criado: defina SEED_ADMIN_EMAIL e SEED_ADMIN_PASSWORD e rode o seed novamente.',
+    );
+    return;
+  }
+
+  const existing = await prisma.companyUser.findUnique({ where: { email } });
+  if (existing) {
+    console.log(`Usuário do painel já existe: ${email} (senha preservada)`);
+    return;
+  }
+
+  await prisma.companyUser.create({
+    data: {
+      companyId: company.id,
+      name,
+      email,
+      passwordHash: await hashPassword(password),
+      role: 'owner',
+    },
+  });
+
+  console.log(`Usuário do painel criado: ${email} (responsável)`);
 }
 
 main()

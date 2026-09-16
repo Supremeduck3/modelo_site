@@ -1,6 +1,5 @@
 import './globals.css';
 import { Toaster } from 'react-hot-toast';
-import AppShell from '@/components/layout/AppShell';
 import { siteConfig } from '@/config/site';
 import { buildThemeVariables } from '@/config/theme';
 
@@ -31,13 +30,18 @@ export const viewport = {
   themeColor: siteConfig.theme.colors.primary,
 };
 
+/**
+ * Só o documento e os tokens da implantação. A casca do site público vive em
+ * `(site)/layout.jsx` e a do painel em `painel/layout.jsx`, para que o ambiente
+ * público não carregue nada do painel nem o contrário.
+ */
 export default function RootLayout({ children }) {
   return (
     // Os tokens da implantação vão como style inline no <html>: assim vencem
     // os defaults de globals.css sem depender da ordem das folhas de estilo.
     <html lang="pt-BR" style={buildThemeVariables()}>
       <body>
-        <AppShell>{children}</AppShell>
+        {children}
         <Toaster position="top-right" />
       </body>
     </html>

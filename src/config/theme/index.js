@@ -60,3 +60,65 @@ export function buildThemeVariables(theme = siteConfig.theme) {
   }
   return vars;
 }
+
+/** Aceita apenas medidas em px, porque os tokens do antd são numéricos. */
+function pxToNumber(value) {
+  const match = /^(\d+(?:\.\d+)?)px$/.exec(String(value ?? '').trim());
+  return match ? Number(match[1]) : undefined;
+}
+
+/**
+ * Converte os mesmos tokens da implantação no tema do Ant Design, usado só pelo
+ * painel.
+ *
+ * O painel não repete as cores em outro lugar: cliente com marca verde tem
+ * painel verde sem ninguém editar nada além da configuração. O que o antd
+ * espera em número (raio, corpo da fonte) é convertido aqui; valor em outra
+ * unidade é ignorado e o antd fica com o próprio padrão.
+ */
+export function buildAntdTheme(theme = siteConfig.theme) {
+  const { colors = {}, typography = {}, shape = {} } = theme ?? {};
+
+  const token = {
+    colorPrimary: colors.primary,
+    colorInfo: colors.primary,
+    colorSuccess: colors.success,
+    colorError: colors.danger,
+    colorLink: colors.primary,
+    colorTextBase: colors.text,
+    colorBgBase: colors.background,
+    fontFamily: typography.fontFamily,
+    borderRadius: pxToNumber(shape.radius),
+    fontSize: pxToNumber(typography.baseSize),
+    wireframe: false,
+  };
+
+  /*
+   * O fundo do cabeçalho e do corpo do Layout vem por token, não por CSS
+   * Module: o antd escreve `.ant-layout-header { background }` com a mesma
+   * especificidade da nossa classe e é injetado depois, então venceria a
+   * regra local — o cabeçalho ficava escuro com texto escuro. Pelo token,
+   * quem decide continua sendo a configuração da implantação.
+   */
+  const components = {
+    Layout: {
+      headerBg: colors.background,
+      bodyBg: colors.surface,
+    },
+  };
+
+  // O antd trata `undefined` como "não definido", mas só se a chave não vier
+  // com valor vazio; limpamos para o padrão dele valer de fato.
+  for (const [key, value] of Object.entries(token)) {
+    if (value === undefined || value === null || value === '') {
+      delete token[key];
+    }
+  }
+  for (const [key, value] of Object.entries(components.Layout)) {
+    if (value === undefined || value === null || value === '') {
+      delete components.Layout[key];
+    }
+  }
+
+  return { token, components };
+}

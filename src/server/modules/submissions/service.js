@@ -124,3 +124,38 @@ export async function createSubmission(rawInput) {
     'Não foi possível gerar um protocolo único.',
   );
 }
+
+/** Status que ainda pedem ação da equipe. */
+const OPEN_STATUSES = ['new', 'in_review', 'in_progress', 'waiting_customer'];
+
+/**
+ * Resumo das manifestações para o painel.
+ *
+ * Recebe o `companyId` da sessão em vez de resolver a empresa aqui: assim a
+ * consulta só existe a partir de um usuário autenticado, e o filtro por empresa
+ * é obrigatório na assinatura da função, não uma lembrança de quem chama.
+ */
+export async function getSubmissionSummary(companyId) {
+  if (!companyId) throw new Error('Resumo exige companyId.');
+
+  const where = { companyId, archivedAt: null };
+
+  const [byStatus, total] = await Promise.all([
+    prisma.submission.groupBy({
+      by: ['status'],
+      where,
+      _count: { _all: true },
+    }),
+    prisma.submission.count({ where }),
+  ]);
+
+  const counts = Object.fromEntries(
+    byStatus.map((row) => [row.status, row._count._all]),
+  );
+
+  return {
+    total,
+    open: OPEN_STATUSES.reduce((sum, status) => sum + (counts[status] ?? 0), 0),
+    byStatus: counts,
+  };
+}

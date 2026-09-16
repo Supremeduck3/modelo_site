@@ -6,8 +6,9 @@ domínio próprios. O código do molde é reaproveitado.
 ## Passo a passo
 
 1. **Instanciar o molde** — clonar o repositório para o novo cliente.
-2. **Ambiente** — `cp .env.example .env.local` e preencher. Nenhum segredo vai
-   para o versionamento.
+2. **Ambiente** — `cp .env.example .env.local` e preencher, inclusive
+   `AUTH_SECRET` (`openssl rand -base64 48`). Nenhum segredo vai para o
+   versionamento.
 3. **Dados do negócio** — preencher `identity` e `contact` em
    `src/config/site/site.config.js`.
 4. **Design** — decidir navegação, seções e variantes (seções abaixo). Essa
@@ -122,8 +123,36 @@ npm run db:seed      # empresa da implantação + categorias iniciais
 ```
 
 O seed é idempotente: rodar de novo não duplica registros. Ele cria a empresa
-(nome via `SEED_COMPANY_NAME`) e quatro categorias iniciais, que a empresa pode
-ajustar no painel a partir da fase 6.
+(nome via `SEED_COMPANY_NAME`), quatro categorias iniciais — que a empresa pode
+ajustar no painel a partir da fase 6 — e o primeiro usuário do painel.
+
+## Primeiro acesso ao painel
+
+O molde não tem usuário padrão: sem as variáveis abaixo o seed avisa e não cria
+ninguém, e `/painel` fica inacessível.
+
+```bash
+export AUTH_SECRET="$(openssl rand -base64 48)"   # obrigatório
+export SEED_ADMIN_NAME="Maria Souza"
+export SEED_ADMIN_EMAIL="maria@empresa.com.br"
+export SEED_ADMIN_PASSWORD="…"                    # mínimo 10 caracteres
+
+npm run db:seed
+```
+
+O usuário criado recebe o papel `owner` (responsável). O seed **nunca**
+sobrescreve um usuário existente: rodá-lo de novo em produção não desfaz a troca
+de senha feita pela empresa. Para dar acesso a mais gente, o cadastro de equipe
+entra no painel na fase 6 — até lá, novos usuários saem do mesmo seed, trocando
+as variáveis.
+
+Cuidados com `AUTH_SECRET`:
+
+- Um valor por implantação, nunca versionado.
+- Trocá-lo derruba todas as sessões abertas — é o jeito de invalidar acesso em
+  massa.
+- Em produção o cookie só viaja por HTTPS; em `localhost` o molde afrouxa isso
+  sozinho, então não há nada a configurar para desenvolver.
 
 ## Categorias de manifestação
 
