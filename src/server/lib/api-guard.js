@@ -45,7 +45,17 @@ export async function requireApiPermission(permission) {
 /** Corpo JSON da requisição, ou uma resposta 400 pronta. */
 export async function readJsonBody(request) {
   try {
-    return { body: await request.json(), response: null };
+    /*
+     * Lê como texto e mede antes de parsear: o `Content-Length` pode faltar
+     * (corpo `chunked`) ou mentir, e aí o teto anunciado não protege nada. O
+     * limite real é o daqui.
+     */
+    const texto = await request.text();
+    if (texto.length > MAX_BODY_BYTES) {
+      return { body: null, response: payloadTooLarge() };
+    }
+
+    return { body: JSON.parse(texto), response: null };
   } catch {
     return {
       body: null,
@@ -121,10 +131,7 @@ export function enforceRouteCeiling(rota, opcoes, mensagem) {
  */
 export const MAX_BODY_BYTES = 64 * 1024;
 
-export function rejectOversizedBody(request) {
-  const tamanho = Number(request.headers.get('content-length') ?? 0);
-  if (!Number.isFinite(tamanho) || tamanho <= MAX_BODY_BYTES) return null;
-
+function payloadTooLarge() {
   return NextResponse.json(
     {
       error: {
@@ -134,4 +141,21 @@ export function rejectOversizedBody(request) {
     },
     { status: 413 },
   );
+}
+
+/**
+ * Recusa pelo tamanho anunciado, antes de ler qualquer byte.
+ *
+ * Cabeçalho ausente ou não numérico não libera nada: quem omite
+ * `Content-Length` (ou manda `chunked`) só escapa desta checagem, e quem lê o
+ * corpo conta os bytes de verdade em `readJsonBody`.
+ */
+export function rejectOversizedBody(request) {
+  const anunciado = request.headers.get('content-length');
+  if (anunciado === null) return null;
+
+  const tamanho = Number(anunciado);
+  if (!Number.isFinite(tamanho) || tamanho < 0) return payloadTooLarge();
+
+  return tamanho > MAX_BODY_BYTES ? payloadTooLarge() : null;
 }

@@ -18,6 +18,9 @@ const buckets = new Map();
  */
 const MAX_CHAVES = 5000;
 
+/** Prefixo dos contadores de rota inteira; nunca são despejados. */
+const PREFIXO_GLOBAL = 'global:';
+
 /** Remove janelas expiradas e, se ainda estiver grande, as mais antigas. */
 function cleanup(now) {
   for (const [key, entry] of buckets) {
@@ -26,11 +29,21 @@ function cleanup(now) {
 
   if (buckets.size <= MAX_CHAVES) return;
 
-  // O Map preserva a ordem de inserção, então as primeiras chaves são as
-  // janelas mais antigas — descartá-las só devolve cota a quem já esperou.
+  /*
+   * O Map preserva a ordem de inserção, então as primeiras chaves são as
+   * janelas mais antigas — descartá-las só devolve cota a quem já esperou.
+   *
+   * Menos as chaves de rota: elas são criadas no início da janela e ficam
+   * entre as primeiras, então o despejo apagaria justamente o teto global.
+   * Numa inundação com identificador falsificado — o cenário para o qual o
+   * teto existe — cada requisição criava uma chave nova, disparava a limpeza,
+   * apagava `global:<rota>` e o contador renascia em 1. O teto nunca era
+   * alcançado.
+   */
   const excedente = buckets.size - MAX_CHAVES;
   let removidas = 0;
   for (const key of buckets.keys()) {
+    if (key.startsWith(PREFIXO_GLOBAL)) continue;
     buckets.delete(key);
     removidas += 1;
     if (removidas >= excedente) break;

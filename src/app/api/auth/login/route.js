@@ -1,6 +1,7 @@
 import { NextResponse } from 'next/server';
 import {
   enforceRouteCeiling,
+  readJsonBody,
   rejectOversizedBody,
 } from '@/server/lib/api-guard';
 import { getClientIdentifier } from '@/server/lib/request';
@@ -30,15 +31,10 @@ export async function POST(request) {
   const grande = rejectOversizedBody(request);
   if (grande) return grande;
 
-  let payload;
-  try {
-    payload = await request.json();
-  } catch {
-    return NextResponse.json(
-      { error: { code: 'invalid_json', message: 'Requisição inválida.' } },
-      { status: 400 },
-    );
-  }
+  // `readJsonBody` conta os bytes de verdade: o tamanho anunciado acima pode
+  // faltar ou mentir.
+  const { body: payload, response: erroDeCorpo } = await readJsonBody(request);
+  if (erroDeCorpo) return erroDeCorpo;
 
   try {
     const { token, user } = await authenticate(payload, {

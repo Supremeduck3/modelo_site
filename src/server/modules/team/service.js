@@ -238,18 +238,35 @@ export async function setMemberActive({ companyId, actorId, userId, input }) {
     );
   }
 
-  // Convite pendente precisa ser cancelável. Sem isto, "desativar" alguém que
-  // ainda não ativou não fazia nada (já estava inativo) e quem tivesse o link
-  // — inclusive o dono de um e-mail digitado errado — ativava o acesso dentro
-  // da validade de sete dias.
+  /*
+   * Convite pendente precisa ser cancelável. Sem isto, "desativar" alguém que
+   * ainda não ativou não fazia nada (já estava inativo) e quem tivesse o link
+   * — inclusive o dono de um e-mail digitado errado — ativava o acesso dentro
+   * da validade de sete dias.
+   *
+   * A linha de convite tem que existir: sem ela, quem não tem senha já está
+   * `disabled` (ver `accessState`), e tratar esse caso como revogação
+   * respondia "convite revogado" sem mudar linha nenhuma — e, por sair antes
+   * do `update`, deixava `isActive` como estava.
+   */
   const convitePendente =
-    !member.passwordHash && !member.invitation?.acceptedAt;
+    !member.passwordHash &&
+    Boolean(member.invitation) &&
+    !member.invitation.acceptedAt;
 
   if (data.isActive === false && convitePendente) {
-    await prisma.userInvitation.updateMany({
-      where: { companyUserId: userId, acceptedAt: null },
-      data: { acceptedAt: new Date() },
-    });
+    // O convite e o acesso caem juntos: um dos dois de fora deixaria o
+    // integrante em estado que a tela não sabe descrever.
+    await prisma.$transaction([
+      prisma.userInvitation.updateMany({
+        where: { companyUserId: userId, acceptedAt: null },
+        data: { acceptedAt: new Date() },
+      }),
+      prisma.companyUser.update({
+        where: { id: userId },
+        data: { isActive: false },
+      }),
+    ]);
 
     const cancelado = await requireMember(companyId, userId);
     return { changed: true, member: toMember(cancelado), inviteRevoked: true };
@@ -364,6 +381,10 @@ const INVALID_INVITE =
  *
  * Devolve `null` em qualquer caso inválido — a tela não precisa saber o motivo,
  * e dizer "expirado" para um token inexistente confirmaria formatos válidos.
+ *
+ * A empresa é conferida aqui pelo mesmo motivo que em `acceptInvite`: esta
+ * função devolve nome e e-mail do convidado, então um convite vindo de outra
+ * implantação vazaria dado de alguém que não é desta empresa.
  */
 export async function peekInvite(token) {
   const invitation = await prisma.userInvitation.findUnique({
@@ -371,12 +392,19 @@ export async function peekInvite(token) {
     select: {
       expiresAt: true,
       acceptedAt: true,
-      user: { select: { name: true, email: true, isActive: true } },
+      user: {
+        select: { name: true, email: true, isActive: true, companyId: true },
+      },
     },
   });
 
+  const company = await getCurrentCompany();
+
   const usable =
-    invitation && !invitation.acceptedAt && invitation.expiresAt > new Date();
+    invitation &&
+    !invitation.acceptedAt &&
+    invitation.expiresAt > new Date() &&
+    invitation.user?.companyId === company.id;
 
   if (!usable) return null;
 
@@ -406,8 +434,8 @@ export async function acceptInvite(input) {
     },
   });
 
-  // A empresa é conferida aqui como no resto do módulo: um convite de uma base
-  // restaurada de outra implantação não pode ativar acesso nesta.
+  // Um convite de uma base restaurada de outra implantação não pode ativar
+  // acesso nesta.
   const company = await getCurrentCompany();
 
   const usable =

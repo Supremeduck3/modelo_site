@@ -46,8 +46,13 @@ const EXIGENCIAS = [
   ['text', 'surface', 4.5],
   ['textMuted', 'background', 4.5],
   ['textMuted', 'surface', 4.5],
-  // Texto sobre a cor primária: é o texto dos botões, sempre em corpo maior.
-  ['primaryContrast', 'primary', 3],
+  /*
+   * Texto sobre a cor primária a 4,5:1, não 3:1 (o mínimo de corpo grande):
+   * `--on-dark-muted` usa essa cor em parágrafo dentro dos blocos de fundo
+   * colorido (hero invertido, serviços, contato, canal). Exigir 3 aqui
+   * deixaria passar verde exatamente a regressão que motivou este teste.
+   */
+  ['primaryContrast', 'primary', 4.5],
 ];
 
 const TEMAS = {
@@ -91,5 +96,40 @@ test('etiquetas sólidas do painel têm contraste sobre o texto branco', async (
       razao >= 4.5,
       `etiqueta "${nome}" (${cor}) dá ${razao.toFixed(2)}:1 com texto branco, mínimo 4,5:1`,
     );
+  }
+});
+
+/*
+ * Percorrer só `TAG_SOLIDO` mede as cores que já foram corrigidas e ignora a
+ * que ficou de fora: `in_progress` seguia com cor nomeada do antd
+ * (`processing`, ~3,4:1) e o teste passava verde — justamente o status mais
+ * comum de um atendimento em curso. Aqui a fonte é a tela.
+ */
+test('nenhuma etiqueta do painel usa cor nomeada do Ant Design', async () => {
+  const arquivos = [
+    'src/components/painel/SubmissionsTable.jsx',
+    'src/components/painel/TeamTable.jsx',
+    'src/components/painel/SubmissionTimeline.jsx',
+    'src/components/painel/CategoriesManager.jsx',
+  ];
+
+  const { readFile } = await import('node:fs/promises');
+  const nomeada = /^\s*(\w+):\s*'(?!#)([a-z-]+)',/gm;
+
+  for (const arquivo of arquivos) {
+    const conteudo = await readFile(
+      new URL(`../${arquivo}`, import.meta.url),
+      'utf8',
+    );
+
+    for (const bloco of conteudo.matchAll(
+      /const \w*(?:COLOR|CORES)\w*\s*=\s*\{([^}]*)\}/g,
+    )) {
+      for (const achado of bloco[1].matchAll(nomeada)) {
+        assert.fail(
+          `${arquivo}: etiqueta "${achado[1]}" usa a cor nomeada "${achado[2]}" do antd, que não é medida. Use TAG_SOLIDO.`,
+        );
+      }
+    }
   }
 });
