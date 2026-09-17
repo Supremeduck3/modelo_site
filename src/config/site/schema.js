@@ -17,6 +17,35 @@ export const NAVIGATION_BEHAVIORS = ['fixed', 'static', 'shrink-on-scroll'];
 /** Posições suportadas para a navegação. */
 export const NAVIGATION_POSITIONS = ['top', 'left', 'right'];
 
+/** Modelos comerciais de contratação de uma implantação. */
+export const DEPLOYMENT_MODES = [
+  {
+    value: 'assinatura',
+    label: 'Assinatura',
+    description:
+      'Acompanhamento contínuo: quem implantou segue com acesso e administra o banco.',
+  },
+  {
+    value: 'avulso',
+    label: 'Pagamento único',
+    description:
+      'Entrega sem acompanhamento: banco e conta ficam com o cliente, e o acesso de quem implantou é encerrado.',
+  },
+];
+
+export const DEPLOYMENT_MODE_VALUES = DEPLOYMENT_MODES.map((m) => m.value);
+
+/** Rótulo e explicação de um modo, com fallback para o próprio valor. */
+export function deploymentModeInfo(value) {
+  return (
+    DEPLOYMENT_MODES.find((mode) => mode.value === value) ?? {
+      value,
+      label: value,
+      description: '',
+    }
+  );
+}
+
 /** Seções da home e as variantes visuais disponíveis para cada uma. */
 export const SECTION_VARIANTS = {
   hero: ['full-image', 'split', 'centered', 'cta-focus'],
@@ -40,7 +69,9 @@ export const DEFAULT_CONFIG = {
     description: '',
     logo: null,
     logoDark: null,
-    favicon: '/favicon.ico',
+    // Aponta para o ícone neutro que acompanha o molde; troque pelo símbolo
+    // da empresa na implantação.
+    favicon: '/favicon.svg',
     segment: '',
   },
   contact: {
@@ -199,6 +230,28 @@ export const DEFAULT_CONFIG = {
     locale: 'pt_BR',
     siteUrl: '',
     localBusiness: false,
+    /**
+     * Deixa o site fora dos buscadores.
+     *
+     * Serve para homologação: uma implantação em teste indexada antes da hora
+     * concorre com o site que vai de fato entrar no ar.
+     */
+    noindex: false,
+  },
+  /**
+   * Modelo comercial desta implantação.
+   *
+   * Não liga nem desliga nada: registra como o site foi contratado, o que muda
+   * quem administra o banco e quem responde pela conta na entrega.
+   *
+   * Regra que vale independentemente do valor: **nada no código consulta
+   * serviço externo para decidir se o site funciona**. Uma implantação entregue
+   * precisa seguir de pé sozinha, mesmo que nenhum servidor do implementador
+   * exista mais.
+   */
+  deployment: {
+    mode: 'assinatura',
+    notes: '',
   },
   legal: {
     consentText:
@@ -253,6 +306,19 @@ export function validateSiteConfig(rawConfig) {
 
   if (!config.identity.name?.trim()) {
     errors.push('identity.name é obrigatório.');
+  }
+
+  // Modo comercial desconhecido vira aviso e cai no padrão: é um registro
+  // administrativo, e um valor errado não pode derrubar o site de ninguém.
+  if (typeof config.deployment?.notes !== 'string') {
+    config.deployment = { ...config.deployment, notes: '' };
+  }
+
+  if (!DEPLOYMENT_MODE_VALUES.includes(config.deployment?.mode)) {
+    warnings.push(
+      `deployment.mode "${config.deployment?.mode}" desconhecido; usando "assinatura". Disponíveis: ${DEPLOYMENT_MODE_VALUES.join(', ')}.`,
+    );
+    config.deployment = { ...config.deployment, mode: 'assinatura' };
   }
 
   const nav = config.navigation;

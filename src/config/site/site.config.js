@@ -15,7 +15,7 @@ const siteConfig = {
     description:
       'Empresa demonstrativa usada para exercitar o molde. Substitua estes dados na implantação real.',
     logo: null,
-    favicon: '/favicon.ico',
+    favicon: '/favicon.svg',
     segment: 'Serviços locais',
   },
   contact: {

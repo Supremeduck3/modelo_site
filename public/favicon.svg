@@ -1,0 +1,18 @@
+<!--
+  Favicon neutro do molde.
+
+  Existe para nenhuma implantação nascer com 404 no ícone, e é deliberadamente
+  sem letra nem sigla: uma inicial sugeriria uma marca que não é a do cliente.
+  Substitua pelo símbolo da empresa e aponte `identity.favicon` para ele.
+-->
+<svg
+  xmlns="http://www.w3.org/2000/svg"
+  width="64"
+  height="64"
+  viewBox="0 0 64 64"
+  role="img"
+  aria-label="Ícone do site"
+>
+  <rect width="64" height="64" rx="14" fill="#1f6feb" />
+  <circle cx="32" cy="32" r="13" fill="none" stroke="#ffffff" stroke-width="5" />
+</svg>

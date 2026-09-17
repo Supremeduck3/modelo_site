@@ -1,3 +1,4 @@
+import { Toaster } from 'react-hot-toast';
 import SubmissionEmbedded from '@/components/sections/submission/SubmissionEmbedded';
 import SubmissionForm from '@/components/submissions/SubmissionForm';
 import Container from '@/components/ui/Container';
@@ -27,6 +28,13 @@ export default async function ManifestacaoPage() {
   return (
     <>
       <SubmissionEmbedded id="canal" content={content} headingLevel="h1" />
+      {/*
+        O Toaster vive aqui, e não no layout raiz: só o formulário de
+        manifestação dispara toast, e no layout ele fazia toda página do site —
+        e do painel, que tem o próprio sistema de mensagens — baixar a
+        biblioteca sem usar.
+      */}
+      <Toaster position="top-right" />
       <Container>
         <div className={styles.formWrapper}>
           <SubmissionForm

@@ -1,5 +1,4 @@
 import './globals.css';
-import { Toaster } from 'react-hot-toast';
 import { siteConfig } from '@/config/site';
 import { buildThemeVariables } from '@/config/theme';
 
@@ -13,6 +12,11 @@ export const metadata = {
   description: seo.description ?? identity.description,
   keywords: seo.keywords,
   icons: { icon: identity.favicon },
+  // Esta marca é o que de fato tira a implantação de homologação do índice. O
+  // robots.txt libera o rastreio justamente para o buscador chegar até aqui e
+  // ler isto; bloquear lá impediria a leitura e a página indexada continuaria
+  // no índice.
+  robots: seo.noindex ? { index: false, follow: false } : undefined,
   metadataBase: seo.siteUrl ? new URL(seo.siteUrl) : undefined,
   openGraph: {
     type: 'website',
@@ -66,10 +70,7 @@ export default function RootLayout({ children }) {
           </style>
         </noscript>
       </head>
-      <body>
-        {children}
-        <Toaster position="top-right" />
-      </body>
+      <body>{children}</body>
     </html>
   );
 }
