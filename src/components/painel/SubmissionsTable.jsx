@@ -9,21 +9,22 @@ import {
   SUBMISSION_STATUSES,
   SUBMISSION_TYPES,
 } from '@/lib/submissions/constants';
+import { TAG_SOLIDO } from './tag-colors';
 
 const STATUS_COLOR = {
-  new: 'blue',
-  in_review: 'gold',
+  new: TAG_SOLIDO.azul,
+  in_review: TAG_SOLIDO.laranja,
   in_progress: 'processing',
-  waiting_customer: 'orange',
-  resolved: 'green',
-  closed: 'default',
+  waiting_customer: TAG_SOLIDO.laranja,
+  resolved: TAG_SOLIDO.verde,
+  closed: TAG_SOLIDO.cinza,
 };
 
 const PRIORITY_COLOR = {
-  low: 'default',
-  normal: 'blue',
-  high: 'orange',
-  urgent: 'red',
+  low: TAG_SOLIDO.cinza,
+  normal: TAG_SOLIDO.azul,
+  high: TAG_SOLIDO.laranja,
+  urgent: TAG_SOLIDO.vermelho,
 };
 
 function formatDate(value) {
@@ -82,7 +83,7 @@ export default function SubmissionsTable({ data }) {
       dataIndex: 'status',
       key: 'status',
       render: (status) => (
-        <Tag color={STATUS_COLOR[status] ?? 'default'}>
+        <Tag color={STATUS_COLOR[status] ?? TAG_SOLIDO.cinza}>
           {labelOf(SUBMISSION_STATUSES, status)}
         </Tag>
       ),
@@ -92,7 +93,7 @@ export default function SubmissionsTable({ data }) {
       dataIndex: 'priority',
       key: 'priority',
       render: (priority) => (
-        <Tag color={PRIORITY_COLOR[priority] ?? 'default'}>
+        <Tag color={PRIORITY_COLOR[priority] ?? TAG_SOLIDO.cinza}>
           {labelOf(SUBMISSION_PRIORITIES, priority)}
         </Tag>
       ),

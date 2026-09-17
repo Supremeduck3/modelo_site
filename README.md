@@ -122,6 +122,71 @@ Limite conhecido: o rate limiting é em memória, adequado a uma implantação d
 processo único. `src/server/lib/rate-limit.js` é o ponto de troca por Redis se
 alguma implantação passar a rodar em vários processos.
 
+## Segurança
+
+**Cabeçalhos** (`next.config.mjs`): `X-Frame-Options: DENY`,
+`X-Content-Type-Options: nosniff`, `Referrer-Policy:
+strict-origin-when-cross-origin`, `Permissions-Policy` negando câmera,
+microfone, localização e pagamento, HSTS e `poweredByHeader: false`. O CSP
+declara duas exceções de propósito, em vez de escondê-las: `'unsafe-inline'`
+em `style-src`, porque o Ant Design injeta CSS-in-JS em tempo de execução no
+painel e os tokens de tema da implantação vão como style inline no `<html>`;
+e `'unsafe-eval'` em `script-src` só em desenvolvimento, para o
+recarregamento do Next — em produção não entra. Além disso, `style-src` e
+`font-src` liberam `fonts.googleapis.com` e `fonts.gstatic.com`, que é de onde
+vêm as fontes dos presets: sem isso o CSP derruba a tipografia escolhida na
+implantação e o site cai na fonte do sistema — foi o que apareceu no console do
+navegador na primeira versão dos cabeçalhos.
+
+**Rate limiting.** `X-Forwarded-For` é escrito pelo próprio cliente: quem
+manda um valor diferente a cada requisição zera qualquer cota "por cliente".
+Por isso `src/server/lib/request.js` só lê o cabeçalho como último salto
+quando a implantação declara `TRUSTED_PROXY=1` (existe proxy confiável na
+frente); sem essa variável, ele continua valendo como melhor esforço, e quem
+falsifica escapa da cota por cliente de propósito. O que não depende de
+identificar ninguém é o **teto global por rota** (`enforceRouteCeiling` em
+`src/server/lib/api-guard.js`), que conta a rota inteira e para a inundação
+mesmo sem saber de onde ela vem. Há também teto de tamanho do corpo (64 KB,
+`rejectOversizedBody`), cobrado antes de `request.json()` — parsear centenas
+de MB antes de decidir se a requisição vale seria o próprio vetor de
+consumo — e um teto de chaves no mapa de cotas
+(`src/server/lib/rate-limit.js`), para o rate limiting não virar ele mesmo
+consumo de memória sem limite.
+
+**Dependências.** Como cada empresa roda a própria instância, conferir
+dependência é item recorrente de manutenção, não só de implantação — ver
+"Verificação de prontidão" em `docs/NOVA_IMPLANTACAO.md`.
+
+## Acessibilidade
+
+`tests/e2e/acessibilidade.spec.js` audita 11 telas (as 5 públicas e 6 do
+painel) com axe-core contra WCAG 2 A e AA. Uma ferramenta automática cobre só
+uma fatia do problema — contraste, rótulo ausente, hierarquia de cabeçalho —
+e não substitui conferência humana; ela vale porque essa fatia é exatamente a
+que regride sem ninguém notar, ao trocar um token de cor ou renomear um
+campo.
+
+`tests/contraste.test.js` mede texto e texto secundário contra o fundo de
+cada tema e preset (mínimo 4,5:1) e as etiquetas sólidas do painel contra o
+texto branco (`src/components/painel/tag-colors.js`). O teste já motivou duas
+correções: `--on-dark-muted` deixou de ser branco diluído a 85%, porque
+media 3,78:1 sobre a cor primária — o branco puro já fica em 4,63:1 sobre
+ela, sem folga para diluir; e as cores nomeadas de etiqueta do Ant Design
+(`color="green"`) mediam ~3,4:1 e foram trocadas por cores sólidas medidas.
+
+## Responsividade
+
+`tests/e2e/responsividade.spec.js` abre as 4 telas públicas e as 5 do painel a
+390x844 e reprova qualquer uma que role para o lado, apontando os elementos
+que vazam. Rolagem horizontal é o defeito mais comum em site de empresa
+pequena — quase todo visitante chega pelo celular e basta um bloco de largura
+fixa para a página inteira balançar.
+
+A medição espera a página assentar antes de concluir: no HTML do servidor a
+barra lateral do painel ainda está aberta, porque o servidor não conhece a
+largura da janela, e ela se recolhe na hidratação. Medir antes disso acusava
+vazamento que o visitante não vê.
+
 ## Painel da empresa
 
 A equipe entra em `/painel`. O que está pronto na fase 4:
@@ -193,7 +258,11 @@ Regras que o código garante, não a disciplina de quem usa:
 
 Permissões (`src/lib/auth/permissions.js`): operador vê e opera manifestações;
 arquivar e as configurações ficam com responsável e administrador. Cada rota
-confere no servidor — esconder o botão é conveniência, não autorização.
+confere no servidor — esconder o botão é conveniência, não autorização. As
+páginas de manifestações também conferem `SUBMISSIONS_VIEW` antes de
+renderizar, e não só nas rotas de mutação: era defesa em profundidade
+incompleta, já que quem só consulta nunca conseguiria alterar nada mesmo sem
+essa checagem, mas a tela em si ficava aberta.
 
 Uma armadilha registrada no código: num Server Component, `Typography.Paragraph`
 e outros subcomponentes do antd expostos como objeto chegam `undefined` pela
@@ -221,6 +290,11 @@ sessão relê `isActive` do banco.
 **Travas para a empresa não se trancar fora**: ninguém desativa a si mesmo nem
 muda o próprio perfil, e o responsável não pode ser desativado nem rebaixado —
 o papel sai do lugar apenas por transferência.
+
+Quem não administra o painel (perfil operador) vê a lista sem e-mail e sem
+último acesso de cada colega. Uma lista completa era, na prática, um roteiro
+pronto para phishing interno — quem pretende enganar alguém da equipe não
+precisa mais adivinhar quem tem acesso nem qual e-mail usar.
 
 **Transferência do responsável.** O papel é único por implantação e só o
 responsável atual transfere. As duas atualizações acontecem na mesma transação,

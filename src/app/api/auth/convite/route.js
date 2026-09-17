@@ -1,4 +1,8 @@
 import { NextResponse } from 'next/server';
+import {
+  enforceRouteCeiling,
+  rejectOversizedBody,
+} from '@/server/lib/api-guard';
 import { consumeRateLimit } from '@/server/lib/rate-limit';
 import { getClientIdentifier } from '@/server/lib/request';
 import { acceptInvite, TeamError } from '@/server/modules/team/service';
@@ -15,6 +19,19 @@ const RATE_LIMIT = { limit: 10, windowMs: 30 * 60 * 1000 };
  * autorização é o próprio token, conferido por hash, prazo e uso único.
  */
 export async function POST(request) {
+  // Teto da rota e do corpo antes de qualquer trabalho: os dois protegem
+  // contra quem falsifica o identificador de cliente ou anuncia um corpo
+  // gigante. Ver src/server/lib/api-guard.js.
+  const teto = enforceRouteCeiling(
+    'convite',
+    { limit: 60, windowMs: 30 * 60 * 1000 },
+    'Muitas tentativas agora. Tente novamente em alguns minutos.',
+  );
+  if (teto) return teto;
+
+  const grande = rejectOversizedBody(request);
+  if (grande) return grande;
+
   const clientId = getClientIdentifier(request);
   const rate = consumeRateLimit(`convite:${clientId}`, RATE_LIMIT);
 

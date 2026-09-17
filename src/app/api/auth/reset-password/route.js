@@ -1,4 +1,8 @@
 import { NextResponse } from 'next/server';
+import {
+  enforceRouteCeiling,
+  rejectOversizedBody,
+} from '@/server/lib/api-guard';
 import { getClientIdentifier } from '@/server/lib/request';
 import { confirmPasswordReset } from '@/server/modules/auth/password-reset';
 import { AuthError } from '@/server/modules/auth/service';
@@ -14,6 +18,19 @@ const STATUS_BY_CODE = {
 
 /** POST /api/auth/reset-password — define a nova senha a partir do link. */
 export async function POST(request) {
+  // Teto da rota e do corpo antes de qualquer trabalho: os dois protegem
+  // contra quem falsifica o identificador de cliente ou anuncia um corpo
+  // gigante. Ver src/server/lib/api-guard.js.
+  const teto = enforceRouteCeiling(
+    'reset-password',
+    { limit: 60, windowMs: 30 * 60 * 1000 },
+    'Muitas tentativas agora. Tente novamente em alguns minutos.',
+  );
+  if (teto) return teto;
+
+  const grande = rejectOversizedBody(request);
+  if (grande) return grande;
+
   let payload;
   try {
     payload = await request.json();

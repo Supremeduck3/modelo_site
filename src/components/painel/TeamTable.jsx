@@ -15,6 +15,7 @@ import { useRouter } from 'next/navigation';
 import { useState } from 'react';
 import { roleLabel } from '@/lib/auth/constants';
 import { ASSIGNABLE_ROLES } from '@/lib/team/schema';
+import { TAG_SOLIDO } from './tag-colors';
 
 const { Paragraph } = Typography;
 
@@ -28,10 +29,10 @@ const ACCESS_LABEL = {
 };
 
 const ACCESS_COLOR = {
-  active: 'green',
-  invited: 'blue',
-  invite_expired: 'orange',
-  disabled: 'red',
+  active: TAG_SOLIDO.verde,
+  invited: TAG_SOLIDO.azul,
+  invite_expired: TAG_SOLIDO.laranja,
+  disabled: TAG_SOLIDO.vermelho,
 };
 
 const ROLE_OPTIONS = ASSIGNABLE_ROLES.map((value) => ({
@@ -205,11 +206,11 @@ export default function TeamTable({ members, currentUserId, isOwner }) {
         </>
       ),
     },
-    {
-      title: 'E-mail',
-      dataIndex: 'email',
-      key: 'email',
-    },
+    // E-mail e último acesso só vêm do servidor para quem administra o painel;
+    // sem os campos, não montamos colunas vazias.
+    ...(members.some((member) => 'email' in member)
+      ? [{ title: 'E-mail', dataIndex: 'email', key: 'email' }]
+      : []),
     {
       title: 'Perfil',
       dataIndex: 'role',
@@ -221,17 +222,21 @@ export default function TeamTable({ members, currentUserId, isOwner }) {
       dataIndex: 'access',
       key: 'access',
       render: (access) => (
-        <Tag color={ACCESS_COLOR[access] ?? 'default'}>
+        <Tag color={ACCESS_COLOR[access] ?? TAG_SOLIDO.cinza}>
           {ACCESS_LABEL[access] ?? access}
         </Tag>
       ),
     },
-    {
-      title: 'Último acesso',
-      dataIndex: 'lastLoginAt',
-      key: 'lastLoginAt',
-      render: (value) => formatDate(value),
-    },
+    ...(members.some((member) => 'lastLoginAt' in member)
+      ? [
+          {
+            title: 'Último acesso',
+            dataIndex: 'lastLoginAt',
+            key: 'lastLoginAt',
+            render: (value) => formatDate(value),
+          },
+        ]
+      : []),
     actionColumn,
   ];
 

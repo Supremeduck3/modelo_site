@@ -14,6 +14,7 @@ import {
 import { useRouter } from 'next/navigation';
 import { useId, useState } from 'react';
 import { validateCategory } from '@/lib/company/schema';
+import { TAG_SOLIDO } from './tag-colors';
 
 const GENERIC_ERROR = 'Não foi possível concluir agora. Tente novamente.';
 
@@ -213,7 +214,7 @@ export default function CategoriesManager({ categories, canManage }) {
       dataIndex: 'isActive',
       key: 'isActive',
       render: (isActive) => (
-        <Tag color={isActive ? 'green' : 'default'}>
+        <Tag color={isActive ? TAG_SOLIDO.verde : TAG_SOLIDO.cinza}>
           {isActive ? 'Ativa' : 'Inativa'}
         </Tag>
       ),

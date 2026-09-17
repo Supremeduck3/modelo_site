@@ -19,9 +19,9 @@ export const dynamic = 'force-dynamic';
  */
 export default async function EquipePage() {
   const user = await requireSessionUser('/painel/equipe');
-  const members = await listTeam(user.companyId);
-
   const canManage = can(user, PERMISSIONS.SETTINGS_MANAGE);
+  // Sem permissão de administrar, a lista vem sem e-mail e sem último acesso.
+  const members = await listTeam(user.companyId, { detalhado: canManage });
   const isOwner = user.role === 'owner';
 
   if (!canManage) {

@@ -1,4 +1,8 @@
 import { after, NextResponse } from 'next/server';
+import {
+  enforceRouteCeiling,
+  rejectOversizedBody,
+} from '@/server/lib/api-guard';
 import { consumeRateLimit } from '@/server/lib/rate-limit';
 import { getClientIdentifier } from '@/server/lib/request';
 import { notifySubmissionCreated } from '@/server/modules/mail/notifications';
@@ -19,6 +23,19 @@ const RATE_LIMIT = { limit: 5, windowMs: 10 * 60 * 1000 };
  * formulário existe para dar retorno rápido, não como controle.
  */
 export async function POST(request) {
+  // Teto da rota e do corpo antes de qualquer trabalho: os dois protegem
+  // contra quem falsifica o identificador de cliente ou anuncia um corpo
+  // gigante. Ver src/server/lib/api-guard.js.
+  const teto = enforceRouteCeiling(
+    'submissions',
+    { limit: 60, windowMs: 10 * 60 * 1000 },
+    'Muitas manifestações sendo registradas agora. Tente novamente em alguns minutos.',
+  );
+  if (teto) return teto;
+
+  const grande = rejectOversizedBody(request);
+  if (grande) return grande;
+
   const clientId = getClientIdentifier(request);
   const rate = consumeRateLimit(`submissions:${clientId}`, RATE_LIMIT);
 

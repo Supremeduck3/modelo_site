@@ -39,6 +39,11 @@ export default async function ManifestacaoDetalhePage({ params }) {
   const { id } = await params;
   const user = await requireSessionUser(`/painel/manifestacoes/${id}`);
 
+  // Defesa em profundidade: hoje os três papéis veem manifestações, mas a
+  // permissão existe e um papel futuro de menor privilégio chegaria aqui e
+  // leria descrição, contato do visitante e nota interna.
+  if (!can(user, PERMISSIONS.SUBMISSIONS_VIEW)) notFound();
+
   const submission = await getSubmissionDetail(user.companyId, id);
   if (!submission) notFound();
 

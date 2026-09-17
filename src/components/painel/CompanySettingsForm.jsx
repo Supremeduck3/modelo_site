@@ -427,7 +427,7 @@ export default function CompanySettingsForm({
 
           {errors.businessHours && <p role="alert">{errors.businessHours}</p>}
 
-          {!disabled && form.businessHours.length < MAX_HOURS && (
+          {!readOnly && form.businessHours.length < MAX_BUSINESS_HOURS && (
             <Button style={{ marginTop: 8 }} onClick={addHourRow}>
               Adicionar faixa de horário
             </Button>

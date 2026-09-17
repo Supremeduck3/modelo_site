@@ -1,4 +1,8 @@
 import { NextResponse } from 'next/server';
+import {
+  enforceRouteCeiling,
+  rejectOversizedBody,
+} from '@/server/lib/api-guard';
 import { getClientIdentifier } from '@/server/lib/request';
 import { AuthError, authenticate } from '@/server/modules/auth/service';
 import { setSessionCookie } from '@/server/modules/auth/session';
@@ -13,6 +17,19 @@ export const dynamic = 'force-dynamic';
  * de qualquer script da página.
  */
 export async function POST(request) {
+  // Teto da rota e do corpo antes de qualquer trabalho: os dois protegem
+  // contra quem falsifica o identificador de cliente ou anuncia um corpo
+  // gigante. Ver src/server/lib/api-guard.js.
+  const teto = enforceRouteCeiling(
+    'login',
+    { limit: 120, windowMs: 10 * 60 * 1000 },
+    'Muitas tentativas de acesso no momento. Tente novamente em alguns minutos.',
+  );
+  if (teto) return teto;
+
+  const grande = rejectOversizedBody(request);
+  if (grande) return grande;
+
   let payload;
   try {
     payload = await request.json();

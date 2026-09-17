@@ -8,10 +8,32 @@
  */
 const buckets = new Map();
 
-/** Remove janelas expiradas para o mapa não crescer sem limite. */
+/**
+ * Teto de chaves rastreadas.
+ *
+ * Com identificador que o cliente influencia, um atacante criaria uma chave
+ * nova por requisição e o mapa cresceria sem limite — o rate limiting viraria
+ * o próprio vetor de consumo de memória. Ao estourar o teto, descartamos as
+ * janelas mais antigas.
+ */
+const MAX_CHAVES = 5000;
+
+/** Remove janelas expiradas e, se ainda estiver grande, as mais antigas. */
 function cleanup(now) {
   for (const [key, entry] of buckets) {
     if (entry.resetAt <= now) buckets.delete(key);
+  }
+
+  if (buckets.size <= MAX_CHAVES) return;
+
+  // O Map preserva a ordem de inserção, então as primeiras chaves são as
+  // janelas mais antigas — descartá-las só devolve cota a quem já esperou.
+  const excedente = buckets.size - MAX_CHAVES;
+  let removidas = 0;
+  for (const key of buckets.keys()) {
+    buckets.delete(key);
+    removidas += 1;
+    if (removidas >= excedente) break;
   }
 }
 
@@ -21,7 +43,7 @@ function cleanup(now) {
  */
 export function consumeRateLimit(key, { limit = 5, windowMs = 600_000 } = {}) {
   const now = Date.now();
-  if (buckets.size > 1000) cleanup(now);
+  if (buckets.size > MAX_CHAVES) cleanup(now);
 
   const entry = buckets.get(key);
 
@@ -49,4 +71,21 @@ export function consumeRateLimit(key, { limit = 5, windowMs = 600_000 } = {}) {
 /** Usado pelos testes para isolar cenários. */
 export function resetRateLimit() {
   buckets.clear();
+}
+
+/**
+ * Teto global de uma rota, independente de quem chama.
+ *
+ * A cota por cliente depende de identificar o cliente, e o identificador vem
+ * de cabeçalho que o próprio cliente escreve: quem falsifica um valor diferente
+ * a cada requisição zera aquela cota. Este teto é a rede embaixo — ele conta
+ * requisições da rota inteira, então a inundação para mesmo sem saber de onde
+ * vem.
+ *
+ * O número precisa ser generoso o suficiente para nunca alcançar uso real de um
+ * negócio pequeno, e pequeno o suficiente para que a inundação não encha o
+ * banco nem a caixa de entrada da equipe.
+ */
+export function consumeGlobalRateLimit(rota, opcoes) {
+  return consumeRateLimit(`global:${rota}`, opcoes);
 }

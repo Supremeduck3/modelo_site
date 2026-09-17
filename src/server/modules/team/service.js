@@ -8,6 +8,7 @@ import {
 import { prisma } from '@/server/db/client';
 import { hashPassword, PasswordPolicyError } from '@/server/lib/password';
 import { generateResetToken, hashResetToken } from '@/server/lib/reset-token';
+import { getCurrentCompany } from '@/server/modules/company/service';
 
 /**
  * Equipe da empresa: convite, papel, desativação e transferência do
@@ -81,8 +82,15 @@ function toMember(member) {
   };
 }
 
-/** Equipe inteira, ativos e inativos: a tela precisa dos dois. */
-export async function listTeam(companyId) {
+/**
+ * Equipe inteira, ativos e inativos: a tela precisa dos dois.
+ *
+ * `detalhado` decide a projeção. Quem não administra o painel não precisa do
+ * e-mail nem do último acesso de cada colega — é uma lista pronta para phishing
+ * interno, e a tela dessa pessoa não tem nenhuma ação que dependa desses
+ * campos. Quem pode administrar recebe tudo.
+ */
+export async function listTeam(companyId, { detalhado = true } = {}) {
   if (!companyId) throw new Error('Lista da equipe exige companyId.');
 
   const members = await prisma.companyUser.findMany({
@@ -91,7 +99,13 @@ export async function listTeam(companyId) {
     orderBy: [{ isActive: 'desc' }, { name: 'asc' }],
   });
 
-  return members.map(toMember);
+  return members.map((member) => {
+    const publico = toMember(member);
+    if (detalhado) return publico;
+
+    const { email: _email, lastLoginAt: _lastLoginAt, ...reduzido } = publico;
+    return reduzido;
+  });
 }
 
 /** Carrega um integrante garantindo a empresa, ou lança 404 de domínio. */
@@ -222,6 +236,23 @@ export async function setMemberActive({ companyId, actorId, userId, input }) {
       'forbidden',
       'O responsável não pode ser desativado. Transfira o papel antes.',
     );
+  }
+
+  // Convite pendente precisa ser cancelável. Sem isto, "desativar" alguém que
+  // ainda não ativou não fazia nada (já estava inativo) e quem tivesse o link
+  // — inclusive o dono de um e-mail digitado errado — ativava o acesso dentro
+  // da validade de sete dias.
+  const convitePendente =
+    !member.passwordHash && !member.invitation?.acceptedAt;
+
+  if (data.isActive === false && convitePendente) {
+    await prisma.userInvitation.updateMany({
+      where: { companyUserId: userId, acceptedAt: null },
+      data: { acceptedAt: new Date() },
+    });
+
+    const cancelado = await requireMember(companyId, userId);
+    return { changed: true, member: toMember(cancelado), inviteRevoked: true };
   }
 
   if (member.isActive === data.isActive) {
@@ -371,11 +402,19 @@ export async function acceptInvite(input) {
       companyUserId: true,
       expiresAt: true,
       acceptedAt: true,
+      user: { select: { companyId: true } },
     },
   });
 
+  // A empresa é conferida aqui como no resto do módulo: um convite de uma base
+  // restaurada de outra implantação não pode ativar acesso nesta.
+  const company = await getCurrentCompany();
+
   const usable =
-    invitation && !invitation.acceptedAt && invitation.expiresAt > new Date();
+    invitation &&
+    !invitation.acceptedAt &&
+    invitation.expiresAt > new Date() &&
+    invitation.user?.companyId === company.id;
 
   if (!usable) {
     throw new TeamError('invalid_token', INVALID_INVITE);
