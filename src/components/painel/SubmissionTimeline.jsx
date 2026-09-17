@@ -5,6 +5,7 @@ import {
   SUBMISSION_PRIORITIES,
   SUBMISSION_STATUSES,
 } from '@/lib/submissions/constants';
+import { TAG_SOLIDO } from './tag-colors';
 
 function formatDate(value) {
   if (!value) return '—';
@@ -75,7 +76,7 @@ export default function SubmissionTimeline({ events, categories }) {
             <p>
               <strong>{describe(event, categories)}</strong>
               {event.eventType === SUBMISSION_EVENTS.INTERNAL_NOTE && (
-                <Tag color="gold" style={{ marginLeft: 8 }}>
+                <Tag color={TAG_SOLIDO.laranja} style={{ marginLeft: 8 }}>
                   interna — visível só para a equipe
                 </Tag>
               )}

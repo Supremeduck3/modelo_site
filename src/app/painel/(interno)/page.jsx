@@ -1,5 +1,7 @@
 import { Card, Col, Row, Statistic } from 'antd';
 import Link from 'next/link';
+import { notFound } from 'next/navigation';
+import { can, PERMISSIONS } from '@/lib/auth/permissions';
 import { SUBMISSION_STATUSES } from '@/lib/submissions/constants';
 import { requireSessionUser } from '@/server/modules/auth/session';
 import { getSubmissionSummary } from '@/server/modules/submissions/service';
@@ -16,6 +18,11 @@ export const dynamic = 'force-dynamic';
  */
 export default async function PanelHomePage() {
   const user = await requireSessionUser();
+
+  // Defesa em profundidade: hoje os três papéis veem manifestações, mas a
+  // permissão existe e um papel futuro de menor privilégio chegaria aqui e
+  // leria descrição, contato do visitante e nota interna.
+  if (!can(user, PERMISSIONS.SUBMISSIONS_VIEW)) notFound();
   const summary = await getSubmissionSummary(user.companyId);
 
   return (

@@ -75,11 +75,16 @@
   --overlay-scrim: color-mix(in srgb, var(--color-text) 55%, transparent);
   --overlay-hero-strong: color-mix(in srgb, var(--color-text) 78%, transparent);
   --overlay-hero-soft: color-mix(in srgb, var(--color-text) 45%, transparent);
-  --on-dark-muted: color-mix(
-    in srgb,
-    var(--color-primary-contrast) 85%,
-    transparent
-  );
+  /*
+   * Texto sobre fundo colorido NÃO é diluído.
+   *
+   * A versão anterior misturava 85% do branco com transparência: ficava bonito
+   * e media 3,78:1 sobre a cor primária, abaixo do mínimo de 4,5:1 do WCAG AA.
+   * O branco puro sobre a primária já fica em 4,63:1, então não há folga para
+   * diluir nada. Quando um texto precisa parecer secundário nesses blocos, o
+   * caminho é tamanho e peso, não opacidade.
+   */
+  --on-dark-muted: var(--color-primary-contrast);
 
   --header-height: 72px;
   --sidebar-width: 260px;

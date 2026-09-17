@@ -9,7 +9,12 @@ domínio próprios. O código do molde é reaproveitado.
 2. **Ambiente** — `cp .env.example .env.local` e preencher, inclusive
    `AUTH_SECRET` (`openssl rand -base64 48`). O banco padrão é um projeto do
    Supabase por cliente; para entrega avulsa, veja "Banco de dados" abaixo.
-   Nenhum segredo vai para o versionamento.
+   Nenhum segredo vai para o versionamento. Se a implantação for servida atrás
+   de proxy reverso ou CDN que reescreve `X-Forwarded-For` (ex.: um
+   balanceador na frente do processo Next), defina `TRUSTED_PROXY=1` — sem
+   isso o rate limiting por cliente lê o cabeçalho como melhor esforço, não
+   como fonte confiável, porque ele é escrito pelo próprio cliente. Ver
+   "Segurança" no README.
 3. **Dados do negócio** — preencher `identity` e `contact` em
    `src/config/site/site.config.js`.
 4. **Design** — decidir navegação, seções e variantes (seções abaixo). Essa
@@ -379,3 +384,12 @@ como administrador. Essa é a única diferença operacional entre os dois modelo
 hoje: **nada no código consulta serviço externo para decidir se o site
 funciona**, e isso é deliberado — uma implantação entregue precisa seguir
 funcionando sozinha, para sempre.
+
+## Manutenção depois da entrega
+
+Como cada empresa roda a própria instância, conferir dependência não é tarefa
+de implantação única — é recorrente, na mesma cadência de qualquer
+manutenção. Rode `npm audit --omit=dev` de tempos em tempos e mantenha o Next
+atualizado: a versão 16.3.5 fechou CVEs críticas (execução remota de código
+não autenticada em servidor Windows e na API de otimização de imagem), do
+tipo que não dá para esperar o próximo ciclo de trabalho para corrigir.

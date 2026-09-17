@@ -14,18 +14,30 @@ test('equipe exige sessão', async ({ page }) => {
   await expect(page).toHaveURL(/\/painel\/login\?next=/);
 });
 
+/*
+ * A recusa é procurada pelo texto, não por `getByRole('alert')` sozinho: o
+ * App Router injeta, depois da hidratação, um anunciador de rota com região
+ * viva assertiva, que também conta como alerta. Filtrar pelo texto olha o
+ * aviso que interessa ao visitante em vez de contar elementos.
+ */
+const RECUSA = /Este convite não é mais válido/;
+
 test('convite sem token mostra recusa, sem pedir senha', async ({ page }) => {
   await page.goto('/painel/convite');
 
   // A tela é pública: precisa recusar sem expor formulário nenhum.
-  await expect(page.getByRole('alert')).toBeVisible();
+  await expect(
+    page.getByRole('alert').filter({ hasText: RECUSA }),
+  ).toBeVisible();
   await expect(page.locator('input[type="password"]')).toHaveCount(0);
 });
 
 test('convite com token inventado é recusado igual', async ({ page }) => {
   await page.goto('/painel/convite?token=token-que-nunca-existiu');
 
-  await expect(page.getByRole('alert')).toBeVisible();
+  await expect(
+    page.getByRole('alert').filter({ hasText: RECUSA }),
+  ).toBeVisible();
   await expect(page.locator('input[type="password"]')).toHaveCount(0);
 });
 

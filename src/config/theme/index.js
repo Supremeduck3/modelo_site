@@ -115,6 +115,18 @@ export function buildAntdTheme(theme = siteConfig.theme) {
     fontFamily: typography.fontFamily,
     borderRadius: pxToNumber(shape.radius),
     fontSize: pxToNumber(typography.baseSize),
+    /*
+     * Cinzas de texto secundário, com contraste conferido.
+     *
+     * O padrão do antd para placeholder e campo desabilitado fica em torno de
+     * 1,7:1 sobre branco, longe do mínimo de 4,5:1 do WCAG AA — e o painel é
+     * ferramenta de trabalho, usada o dia inteiro. Usamos o cinza de texto
+     * secundário da própria implantação, que já é validado para o site
+     * público.
+     */
+    colorTextPlaceholder: colors.textMuted,
+    colorTextDisabled: colors.textMuted,
+    colorTextDescription: colors.textMuted,
     wireframe: false,
   };
 

@@ -1,6 +1,8 @@
 import { Card } from 'antd';
+import { notFound } from 'next/navigation';
 import SubmissionFilters from '@/components/painel/SubmissionFilters';
 import SubmissionsTable from '@/components/painel/SubmissionsTable';
+import { can, PERMISSIONS } from '@/lib/auth/permissions';
 import { requireSessionUser } from '@/server/modules/auth/session';
 import {
   listAllCategories,
@@ -22,6 +24,11 @@ export const dynamic = 'force-dynamic';
  */
 export default async function ManifestacoesPage({ searchParams }) {
   const user = await requireSessionUser('/painel/manifestacoes');
+
+  // Defesa em profundidade: hoje os três papéis veem manifestações, mas a
+  // permissão existe e um papel futuro de menor privilégio chegaria aqui e
+  // leria descrição, contato do visitante e nota interna.
+  if (!can(user, PERMISSIONS.SUBMISSIONS_VIEW)) notFound();
   const params = await searchParams;
 
   const [data, categories, assignees] = await Promise.all([
