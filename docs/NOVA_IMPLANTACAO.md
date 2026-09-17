@@ -252,6 +252,11 @@ As categorias ficam no banco, não na configuração do site: elas são dado
 operacional da empresa. O formulário público lista apenas as ativas e a API
 recusa qualquer categoria que não pertença à empresa da implantação.
 
+Em `/painel/configuracoes`, quem não tem permissão de administrar (perfil
+operador) vê os dados da empresa em modo somente-leitura, com aviso de que a
+alteração é de responsável ou administrador — a tela não esconde o dado, só
+impede a edição por quem não pode alterá-lo.
+
 ## Recuperação de senha e SMTP
 
 A recuperação de senha entrega o link **só por e-mail**. Sem `SMTP_*`
@@ -269,6 +274,15 @@ Nesse cenário a recuperação exige intervenção do implementador no banco —
 gravar um novo `password_hash` ou remover o usuário e recriá-lo pelo seed.
 
 Vale configurar SMTP antes de entregar o painel à empresa.
+
+## Categorias
+
+O seed cria quatro categorias iniciais. A empresa ajusta o conjunto em
+`/painel/categorias` — incluir, renomear, desativar. Categoria já usada em
+manifestação não é excluída, só desativada, para não apagar a classificação do
+que já foi atendido. A checagem de uso e a exclusão acontecem no mesmo `where`
+do banco, não em dois passos separados, para uma manifestação nova não chegar
+entre a checagem e a exclusão e ter sua categoria apagada em silêncio.
 
 ## Dados de demonstração
 

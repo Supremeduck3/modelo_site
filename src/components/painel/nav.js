@@ -2,12 +2,14 @@
  * Itens do menu do painel, na ordem em que aparecem.
  *
  * Lista única para a navegação e para o título da página atual: uma rota nova
- * (categorias e configurações) entra aqui e aparece nos dois lugares.
+ * entra aqui e aparece nos dois lugares.
  */
 export const PANEL_NAV = [
   { key: '/painel', label: 'Início' },
   { key: '/painel/manifestacoes', label: 'Manifestações' },
   { key: '/painel/equipe', label: 'Equipe' },
+  { key: '/painel/categorias', label: 'Categorias' },
+  { key: '/painel/configuracoes', label: 'Configurações' },
 ];
 
 /**

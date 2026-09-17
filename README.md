@@ -10,7 +10,7 @@ O produto tem três blocos:
 | --- | --- |
 | 1 — Site institucional | Implementado (fases 0–2) |
 | 2 — Canal de manifestações | Implementado (fase 3): formulário público, API, protocolo e histórico |
-| 3 — Painel da empresa | Em andamento: autenticação (fase 4), atendimento das manifestações (fase 5) e equipe (fase 6) prontos; categorias e configurações a seguir |
+| 3 — Painel da empresa | Implementado (fases 4–6): autenticação, atendimento das manifestações, equipe, categorias e dados da empresa |
 | E-mail transacional | Confirmação ao visitante, aviso à equipe, resposta pública e link de recuperação de senha prontos |
 
 ## Stack
@@ -230,6 +230,55 @@ A situação de acesso mostrada na tela (`active`, `invited`, `invite_expired`,
 `disabled`) é derivada de senha + convite, não um campo guardado — um campo
 criaria um segundo lugar para a verdade, que sairia de sincronia na primeira
 exceção.
+
+## Categorias e dados da empresa
+
+`/painel/categorias` administra as categorias do formulário público. Elas vivem
+no banco, e não no arquivo de configuração, porque são dado operacional da
+empresa — quem as ajusta é quem atende, não quem implantou.
+
+Uma categoria só é **excluída quando nunca foi usada**. `Submission.categoryId`
+é `onDelete: SetNull`: excluir uma categoria em uso apagaria em silêncio a
+classificação de manifestações já atendidas. Com uso registrado, o caminho é
+desativar — some do formulário público e o histórico fica intacto.
+
+A exclusão é atômica: empresa e ausência de uso vão no mesmo `where` do
+`deleteMany`, não numa contagem seguida de exclusão. Entre contar e excluir, uma
+manifestação pública poderia chegar e referenciar a categoria, e o
+`onDelete: SetNull` apagaria a classificação dela em silêncio — o banco decide
+de uma vez só.
+
+`/painel/configuracoes` guarda os dados operacionais da empresa: nome, contatos,
+horário de atendimento, segmento e local. São eles que aparecem **nos e-mails** e
+no painel.
+
+Quem não tem permissão de administrar vê a tela em modo somente-leitura, com um
+aviso explicando que a alteração é de responsável ou administrador. Os campos
+usam `readOnly`, não `disabled`: `disabled` tira o campo da ordem de tabulação e
+do modo de leitura de vários leitores de tela, então quem só consulta não
+conseguiria nem ler pelo teclado.
+
+`businessHours` é uma coluna `Json?` — o servidor normaliza o valor na fronteira
+(lista de `{ days, hours }`) para dado legado ou malformado não quebrar a tela.
+
+O que o **site público** mostra continua vindo de `src/config/site/site.config.js`,
+decidido por quem implanta — é a regra central do produto, e não muda por uma
+tela do cliente. Como o nome da empresa existe nos dois lugares, a tela avisa
+quando os dois divergem, em vez de escolher um vencedor em silêncio.
+
+### Modelo comercial da implantação
+
+`deployment.mode` na configuração registra como o site foi contratado
+(`assinatura` ou `avulso`). Ele **não liga nem desliga funcionalidade**: serve
+para deixar explícito quem administra o banco e quem responde pela conta na
+entrega. `/painel/configuracoes` mostra esse valor apenas como registro
+administrativo — a tela não decide nada a partir dele.
+
+A regra que vale nos dois casos: **nada no código consulta serviço externo para
+decidir se o site funciona**. Uma implantação entregue precisa seguir de pé
+sozinha, mesmo que nenhum servidor do implementador exista mais. Um valor
+desconhecido vira aviso e cai em `assinatura`, porque um registro administrativo
+errado não pode derrubar o site de ninguém.
 
 ## E-mail transacional
 
