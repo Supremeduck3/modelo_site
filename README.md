@@ -21,7 +21,10 @@ O produto tem três blocos:
   no layout de `/painel`, e o site público não carrega nada dele
 - Sessão e hash de senha com `node:crypto` (scrypt + HMAC), sem dependência de
   autenticação
-- PostgreSQL + Prisma (migrations versionadas)
+- PostgreSQL + Prisma (migrations versionadas). O padrão é um projeto do
+  Supabase por cliente; a entrega avulsa usa Postgres na infraestrutura do
+  próprio cliente. Nenhuma linha do código conhece o Supabase — trocar de
+  cenário é trocar duas variáveis de ambiente.
 - Zod para validação, com schema compartilhado entre formulário e API
 - Biome para lint e formatação; `node --test` e Playwright para testes
 
