@@ -69,7 +69,9 @@ export const DEFAULT_CONFIG = {
     description: '',
     logo: null,
     logoDark: null,
-    favicon: '/favicon.ico',
+    // Aponta para o ícone neutro que acompanha o molde; troque pelo símbolo
+    // da empresa na implantação.
+    favicon: '/favicon.svg',
     segment: '',
   },
   contact: {
@@ -228,6 +230,13 @@ export const DEFAULT_CONFIG = {
     locale: 'pt_BR',
     siteUrl: '',
     localBusiness: false,
+    /**
+     * Deixa o site fora dos buscadores.
+     *
+     * Serve para homologação: uma implantação em teste indexada antes da hora
+     * concorre com o site que vai de fato entrar no ar.
+     */
+    noindex: false,
   },
   /**
    * Modelo comercial desta implantação.

@@ -37,12 +37,14 @@ cp .env.example .env.local   # preencha DATABASE_URL e AUTH_SECRET
 npm run db:migrate           # aplica as migrations
 npm run db:seed              # empresa, categorias e o primeiro usuário do painel
 npm run db:seed:demo         # manifestações fictícias para exercitar o painel (nunca em produção)
+npm run db:seed:demo:limpar  # lista o que o comando acima criou; --confirmar remove
 
 npm run dev                  # http://localhost:3000
 npm run lint                 # biome check
 npm run test                 # regras críticas (node --test)
 npm run test:e2e             # fluxos críticos no navegador (Playwright)
 npm run build                # prisma generate + next build
+npm run implantacao:check    # prontidão para publicar (ver docs/NOVA_IMPLANTACAO.md)
 ```
 
 Os testes autenticados reaproveitam uma sessão criada uma única vez pelo
@@ -306,6 +308,30 @@ nota.
 Camadas, de baixo para cima: `server/lib/mailer.js` fala SMTP,
 `server/modules/mail/messages.js` monta o conteúdo (funções puras, sem import
 nenhum) e `server/modules/mail/notifications.js` decide quem recebe o quê.
+
+## SEO por implantação
+
+`robots.js` e `sitemap.js` são gerados de `siteConfig`, não escritos à mão por
+implantação. `/painel` e `/api` nunca entram no índice — não é uma decisão de
+cada site, é regra do molde. O sitemap lista apenas o que existe e é público
+naquela implantação: o canal de manifestações entra só com `features.submissions`
+ligado, e as páginas legais só quando têm texto — apontar o buscador para uma
+página que diz "texto não preenchido" é pior do que não listá-la. Sem
+`seo.siteUrl` o sitemap sai vazio, porque toda URL nele precisa ser absoluta.
+
+`seo.noindex` tira a implantação inteira dos buscadores: pensado para
+homologação, quando um site de teste indexado antes da hora passaria a competir
+com o que vai de fato entrar no ar. Ligado, ele emite a meta tag
+`noindex, nofollow` em todas as páginas e deixa o sitemap vazio.
+
+O que ele **não** faz é bloquear o rastreio no `robots.txt`, e isso é
+deliberado: bloquear impediria o buscador de buscar a página e, com isso, de ler
+a marca `noindex` que manda removê-la. Uma URL de homologação que já tenha sido
+indexada, ou que esteja linkada de algum lugar, ficaria presa no índice. O robô
+precisa entrar para ler o `noindex` e ir embora.
+
+`npm run implantacao:check` alerta quando o `noindex` está ligado, para não
+publicar assim por esquecimento.
 
 ## Configurando uma implantação
 

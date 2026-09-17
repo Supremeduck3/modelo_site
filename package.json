@@ -42,6 +42,8 @@
     "db:setup": "prisma migrate deploy && node prisma/seed.js",
     "db:seed": "node prisma/seed.js",
     "db:seed:demo": "node prisma/seed-demo.js",
+    "db:seed:demo:limpar": "node prisma/seed-demo-limpar.js",
+    "implantacao:check": "node scripts/verificar-implantacao.js",
     "db:studio": "prisma studio",
     "test:e2e": "playwright test"
   },

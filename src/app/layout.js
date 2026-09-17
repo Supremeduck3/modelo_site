@@ -13,6 +13,11 @@ export const metadata = {
   description: seo.description ?? identity.description,
   keywords: seo.keywords,
   icons: { icon: identity.favicon },
+  // Esta marca é o que de fato tira a implantação de homologação do índice. O
+  // robots.txt libera o rastreio justamente para o buscador chegar até aqui e
+  // ler isto; bloquear lá impediria a leitura e a página indexada continuaria
+  // no índice.
+  robots: seo.noindex ? { index: false, follow: false } : undefined,
   metadataBase: seo.siteUrl ? new URL(seo.siteUrl) : undefined,
   openGraph: {
     type: 'website',

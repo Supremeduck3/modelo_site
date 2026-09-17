@@ -18,17 +18,25 @@ domínio próprios. O código do molde é reaproveitado.
    referenciá-las em `identity` e no `content` das seções. O bloco `media`
    funciona como fallback por tipo de seção: `media.hero` vira o `image` do
    hero e `media.gallery` vira os `items` da galeria, sempre com precedência
-   menor que o `content` da seção.
+   menor que o `content` da seção. `public/favicon.svg` é um ícone neutro do
+   molde, só para nenhuma implantação nascer com 404 no ícone — troque pelo
+   símbolo da empresa e aponte `identity.favicon` para o arquivo novo.
 6. **Conteúdo** — preencher `content` com textos, serviços, diferenciais, FAQ.
 7. **Funcionalidades** — ligar/desligar blocos em `features`.
 8. **SEO e legais** — preencher `seo` e `legal` (textos jurídicos fornecidos e
-   revisados pelo responsável — o molde não inventa texto legal).
+   revisados pelo responsável — o molde não inventa texto legal). `robots.txt` e
+   o sitemap são gerados dessa configuração, sem nada para escrever à mão; ver
+   "SEO por implantação" no README. Em homologação, ligue `seo.noindex` para o
+   site de teste não ser indexado antes da hora — e não esqueça de desligar
+   antes de publicar de verdade.
 9. **E-mail** — preencher `SMTP_*` e `MAIL_FROM`. Use um remetente do domínio da
    empresa, com SPF e DKIM configurados; remetente de domínio alheio cai em spam.
    Sem essas variáveis a implantação funciona, apenas sem enviar e-mail — mas
    veja a ressalva sobre recuperação de senha abaixo.
 10. **Conferir** — `npm run lint` e `npm run dev`, revisando mobile e desktop.
-11. **Deploy + domínio.**
+11. **Verificar prontidão** — `npm run implantacao:check` (seção própria abaixo).
+    Corrija todo erro; para cada alerta, confirme que é intencional.
+12. **Deploy + domínio.**
 
 ## Navegação
 
@@ -293,6 +301,63 @@ formulário público dezenas de vezes.
 São dados falsos: o script recusa `NODE_ENV=production` para não se misturarem
 às manifestações reais da empresa. Antes de entregar a implantação, apague-os —
 eles não têm marca que os distinga na tela, só o sufixo "(demo N)" no assunto.
+
+`npm run db:seed:demo:limpar` é a contrapartida do seed — sem ele, a única
+saída seria apagar via SQL direto no banco. Como é um comando que apaga,
+trabalha como tal:
+
+```bash
+npm run db:seed:demo:limpar                    # lista o que seria removido
+npm run db:seed:demo:limpar -- --confirmar     # remove
+npm run db:seed:demo:limpar -- --empresa <id> --confirmar
+```
+
+Sem `--confirmar` ele só mostra os registros e não toca em nada, e recusa rodar
+com `NODE_ENV=production`.
+
+Para decidir o que é demonstração, exige as **duas** marcas que só o seed
+produz: o sufixo "(demo N)" no assunto e o contato em `@exemplo.invalid`,
+domínio reservado que nunca existe de verdade. Com apenas o sufixo, um cliente
+que escrevesse "(demo " num assunto perderia um registro real. A definição vive
+em `prisma/demo-marker.js` e é a mesma que o verificador de prontidão usa —
+duas cópias acabariam divergindo, e a que apaga não pode divergir da que
+audita.
+
+O filtro também exige a empresa: num banco com mais de uma implantação, apagar
+sem esse recorte alcançaria dados alheios.
+
+## Verificação de prontidão
+
+`npm run implantacao:check` confere, antes de publicar, se falta algo que só
+seria descoberto pelo cliente. Não altera nada e não substitui os testes
+automatizados: os testes garantem que o código funciona, o `check` garante que
+*esta* implantação foi configurada — os dois cobrem coisas que o outro não
+alcança.
+
+Confere três frentes:
+
+- **Ambiente** — `DATABASE_URL`, `AUTH_SECRET` (presente e com pelo menos 32
+  caracteres) e `NEXT_PUBLIC_SITE_URL` (presente e sem `localhost`); alerta se
+  faltar `DIRECT_URL` ou SMTP.
+- **Configuração** — resquícios do molde em `identity`/`contact` (valores como
+  "Demo Serviços" ou "exemplo.com" indicam etapa pulada), `seo.description` e
+  `seo.siteUrl` vazios, `seo.noindex` ligado, e política de privacidade sem
+  texto.
+- **Banco** — nenhuma empresa cadastrada, nome de empresa ainda do molde,
+  nenhum usuário ativo ou nenhum administrador ativo, e manifestações de
+  demonstração ainda presentes.
+
+Cada achado sai como **ERRO** ou **ALERTA**. Erro impede a publicação — o
+comando sai com código 1, para travar um pipeline; é reservado para o que
+sempre atrapalha o cliente, como AUTH_SECRET ausente ou nome do molde escapando
+para o site no ar. Alerta não impede nada sozinho, mas exige que alguém tenha
+decidido conscientemente — SMTP ausente numa entrega avulsa, por exemplo, é às
+vezes aceitável e às vezes um problema; o comando não tem como saber qual.
+
+O comando lê `.env` e `.env.local` por conta própria, com a mesma precedência
+que o Next usa: o que já está no shell nunca é sobrescrito, e entre os dois
+arquivos o `.env.local` vence o `.env` — a mesma ordem que esta documentação
+pede para preencher.
 
 ## Entregando a implantação ao cliente
 
