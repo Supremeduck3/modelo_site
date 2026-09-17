@@ -128,11 +128,20 @@ alguma implantação passar a rodar em vários processos.
 `X-Content-Type-Options: nosniff`, `Referrer-Policy:
 strict-origin-when-cross-origin`, `Permissions-Policy` negando câmera,
 microfone, localização e pagamento, HSTS e `poweredByHeader: false`. O CSP
-declara duas exceções de propósito, em vez de escondê-las: `'unsafe-inline'`
+declara as exceções de propósito, em vez de escondê-las: `'unsafe-inline'`
 em `style-src`, porque o Ant Design injeta CSS-in-JS em tempo de execução no
 painel e os tokens de tema da implantação vão como style inline no `<html>`;
-e `'unsafe-eval'` em `script-src` só em desenvolvimento, para o
-recarregamento do Next — em produção não entra. Além disso, `style-src` e
+`'unsafe-eval'` em `script-src` só em desenvolvimento, para o recarregamento
+do Next — em produção não entra; e `'unsafe-inline'` em `script-src`
+**também em produção**, porque o App Router entrega o bootstrap e os dados do
+servidor em script inline.
+
+Essa última é a que custa: com ela, `script-src` deixa de conter XSS, que é a
+razão de `script-src` existir. Os outros cabeçalhos continuam valendo, mas não
+substituem isso. A saída suportada é nonce por requisição gerado no proxy,
+com `'strict-dynamic'`, e o preço é que toda página passa a ser renderizada a
+cada requisição — inclusive as estáticas do site público. Está declarado como
+trabalho pendente, não como resolvido. Além disso, `style-src` e
 `font-src` liberam `fonts.googleapis.com` e `fonts.gstatic.com`, que é de onde
 vêm as fontes dos presets: sem isso o CSP derruba a tipografia escolhida na
 implantação e o site cai na fonte do sistema — foi o que apareceu no console do
@@ -159,7 +168,7 @@ dependência é item recorrente de manutenção, não só de implantação — v
 
 ## Acessibilidade
 
-`tests/e2e/acessibilidade.spec.js` audita 11 telas (as 5 públicas e 6 do
+`tests/e2e/acessibilidade.spec.js` audita 10 telas (5 públicas e 5 do
 painel) com axe-core contra WCAG 2 A e AA. Uma ferramenta automática cobre só
 uma fatia do problema — contraste, rótulo ausente, hierarquia de cabeçalho —
 e não substitui conferência humana; ela vale porque essa fatia é exatamente a

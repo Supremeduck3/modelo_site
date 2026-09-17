@@ -42,7 +42,11 @@ async function prepararPagina(page, caminho) {
   // deixava a home pendurada — há blocos que nunca entram na viewport do
   // tamanho usado no teste.
   await page.addStyleTag({
-    content: '[data-reveal]{opacity:1 !important;transform:none !important}',
+    content:
+      // Os dois seletores, como no <noscript> de src/app/layout.js: só o
+      // primeiro deixava os filhos de grade escalonada em opacidade 0 — e um
+      // elemento invisível esconde o problema em vez de reportá-lo.
+      '[data-reveal],[data-reveal] .stagger > *{opacity:1 !important;transform:none !important}',
   });
 }
 
@@ -85,6 +89,16 @@ for (const [nome, caminho] of PAGINAS_PUBLICAS) {
 
 test.describe('painel autenticado', () => {
   test.use({ storageState: PAINEL_STORAGE_STATE });
+
+  /*
+   * Confere que a sessão valeu. Sem isto, `storageState` vencido redireciona
+   * para o login e os cinco testes auditavam a mesma tela de login, passando
+   * verde com o nome de outra página.
+   */
+  test.beforeEach(async ({ page }) => {
+    await page.goto('/painel');
+    await expect(page).not.toHaveURL(/\/painel\/login/);
+  });
 
   for (const [nome, caminho] of [
     ['início', '/painel'],

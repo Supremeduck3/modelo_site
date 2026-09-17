@@ -24,7 +24,11 @@ async function medirVazamento(page, caminho) {
   // As seções entram com opacidade: sem forçá-las visíveis, um bloco largo
   // ainda não revelado não entraria na medição.
   await page.addStyleTag({
-    content: '[data-reveal]{opacity:1 !important;transform:none !important}',
+    content:
+      // Os dois seletores, como no <noscript> de src/app/layout.js: só o
+      // primeiro deixava os filhos de grade escalonada em opacidade 0 — e um
+      // elemento invisível esconde o problema em vez de reportá-lo.
+      '[data-reveal],[data-reveal] .stagger > *{opacity:1 !important;transform:none !important}',
   });
 
   /*
@@ -86,6 +90,13 @@ for (const [nome, caminho] of PAGINAS_PUBLICAS) {
 
 test.describe('painel autenticado', () => {
   test.use({ storageState: PAINEL_STORAGE_STATE });
+
+  // Sessão vencida redirecionaria para o login e os cinco testes mediriam a
+  // mesma tela, com o nome de outra página. Ver acessibilidade.spec.js.
+  test.beforeEach(async ({ page }) => {
+    await page.goto('/painel');
+    await expect(page).not.toHaveURL(/\/painel\/login/);
+  });
 
   for (const [nome, caminho] of [
     ['início', '/painel'],

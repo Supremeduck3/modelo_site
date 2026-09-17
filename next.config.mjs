@@ -48,11 +48,19 @@ const cabecalhosDeSeguranca = [
 /**
  * Content-Security-Policy.
  *
- * Duas exceções são inevitáveis e estão aqui declaradas em vez de escondidas:
+ * As exceções estão aqui declaradas em vez de escondidas:
  *
  * - `'unsafe-inline'` em style-src: o Ant Design injeta CSS-in-JS em tempo de
  *   execução no painel, e os tokens de tema da implantação vão como style
  *   inline no <html>.
+ * - `'unsafe-inline'` em script-src, **inclusive em produção**: o App Router
+ *   entrega o próprio bootstrap e os dados do servidor em script inline. Isto
+ *   é a exceção que mais custa — com ela, script-src deixa de conter XSS, que
+ *   é a razão de script-src existir. O molde não tem script inline próprio, e
+ *   a saída suportada é nonce por requisição (gerado no proxy, com
+ *   `'strict-dynamic'`); o preço é que toda página passa a ser renderizada a
+ *   cada requisição, inclusive as estáticas do site público. Fica como
+ *   trabalho pendente, declarado, e não como algo já resolvido.
  * - `'unsafe-eval'` em script-src apenas em desenvolvimento, que é o que o
  *   recarregamento do Next usa. Em produção não entra.
  *

@@ -14,7 +14,7 @@ import { TAG_SOLIDO } from './tag-colors';
 const STATUS_COLOR = {
   new: TAG_SOLIDO.azul,
   in_review: TAG_SOLIDO.laranja,
-  in_progress: 'processing',
+  in_progress: TAG_SOLIDO.roxo,
   waiting_customer: TAG_SOLIDO.laranja,
   resolved: TAG_SOLIDO.verde,
   closed: TAG_SOLIDO.cinza,

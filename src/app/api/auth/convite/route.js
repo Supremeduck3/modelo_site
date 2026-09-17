@@ -1,6 +1,7 @@
 import { NextResponse } from 'next/server';
 import {
   enforceRouteCeiling,
+  readJsonBody,
   rejectOversizedBody,
 } from '@/server/lib/api-guard';
 import { consumeRateLimit } from '@/server/lib/rate-limit';
@@ -51,15 +52,10 @@ export async function POST(request) {
     );
   }
 
-  let payload;
-  try {
-    payload = await request.json();
-  } catch {
-    return NextResponse.json(
-      { error: { code: 'invalid_json', message: 'Requisição inválida.' } },
-      { status: 400 },
-    );
-  }
+  // `readJsonBody` conta os bytes de verdade: o tamanho anunciado acima pode
+  // faltar ou mentir.
+  const { body: payload, response: erroDeCorpo } = await readJsonBody(request);
+  if (erroDeCorpo) return erroDeCorpo;
 
   try {
     await acceptInvite(payload);
