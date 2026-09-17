@@ -7,8 +7,9 @@ domínio próprios. O código do molde é reaproveitado.
 
 1. **Instanciar o molde** — clonar o repositório para o novo cliente.
 2. **Ambiente** — `cp .env.example .env.local` e preencher, inclusive
-   `AUTH_SECRET` (`openssl rand -base64 48`). Nenhum segredo vai para o
-   versionamento.
+   `AUTH_SECRET` (`openssl rand -base64 48`). O banco padrão é um projeto do
+   Supabase por cliente; para entrega avulsa, veja "Banco de dados" abaixo.
+   Nenhum segredo vai para o versionamento.
 3. **Dados do negócio** — preencher `identity` e `contact` em
    `src/config/site/site.config.js`.
 4. **Design** — decidir navegação, seções e variantes (seções abaixo). Essa
@@ -132,28 +133,28 @@ componente compartilhado — não para dentro da variante.
 
 ## Banco de dados
 
-A implantação usa PostgreSQL próprio. Nenhuma instância é compartilhada entre
-clientes.
+Cada implantação tem o seu banco. Nenhuma instância é compartilhada entre
+clientes — é o que a especificação chama de implantação independente, e é o que
+garante que um problema num cliente não alcance outro.
 
-São duas variáveis porque o Prisma usa conexões diferentes para consultar e para
-migrar: `DATABASE_URL` nas consultas e `DIRECT_URL` nas migrations. Em banco
-próprio as duas são iguais.
+São duas variáveis de conexão porque o Prisma usa caminhos diferentes para
+consultar e para migrar: `DATABASE_URL` nas consultas, `DIRECT_URL` nas
+migrations.
 
-```bash
-createdb site_modelo                 # ou o banco provisionado no seu host
-export DATABASE_URL="postgresql://usuario:senha@host:5432/site_modelo"
-export DIRECT_URL="$DATABASE_URL"    # sem pooler, é a mesma conexão
+Há dois cenários, e a escolha costuma acompanhar o modelo comercial.
 
-npm run db:migrate   # desenvolvimento: cria/aplica migrations
-npm run db:deploy    # produção: aplica as migrations já versionadas
-npm run db:seed      # empresa, categorias e primeiro usuário do painel
-```
+### Padrão: Supabase (um projeto por cliente)
 
-### Hospedando no Supabase
+É o caminho recomendado quando você mantém vários sites ao mesmo tempo: o banco
+é gerenciado, com backup e painel próprios, e você administra todos de um lugar
+só sem manter servidor.
 
-O Supabase **é** PostgreSQL: não é outro banco nem outra forma de acessar, e
-nada no código muda. O que muda são as strings de conexão, em
-_Project Settings → Database_.
+**Um projeto do Supabase por cliente.** Não divida clientes por schema dentro de
+um projeto: credencial, backup, limite de uso e restauração passam a ser
+compartilhados, e um engano numa restauração alcança todo mundo. Um nome de
+projeto previsível (`sitemodelo-<cliente>`) poupa tempo quando forem muitos.
+
+As duas strings saem de _Project Settings → Database_:
 
 ```bash
 # Consultas: pooler, porta 6543, em transaction mode
@@ -169,13 +170,53 @@ com erro que não explica a causa. O `?pgbouncer=true` avisa o Prisma para não
 usar prepared statements nas consultas, e `connection_limit=1` evita estourar o
 pool do plano gratuito.
 
+Confira no painel do Supabase qual host usar (as opções de conexão e os limites
+mudam conforme o plano e a região) antes de fechar o `.env` da implantação.
+
 Não use o `supabase-js` junto do Prisma. Seriam dois clientes com duas formas de
 expressar as mesmas regras, e o Supabase Auth duplicaria a sessão que o painel já
-tem. O molde trata o Supabase como o Postgres que ele é.
+tem. O molde trata o Supabase como o Postgres que ele é — **nenhuma linha do
+código conhece o Supabase**, e é por isso que trocar de cenário é trocar duas
+variáveis.
+
+### Entrega avulsa: PostgreSQL na infraestrutura do cliente
+
+Quando o cliente paga uma vez e segue sem acompanhamento, faz sentido que nada
+fique em conta sua: o banco vai para a infraestrutura dele, e a implantação
+deixa de depender de qualquer coisa que você mantenha.
+
+```bash
+createdb site_modelo
+export DATABASE_URL="postgresql://usuario:senha@localhost:5432/site_modelo"
+export DIRECT_URL="$DATABASE_URL"    # sem pooler, é a mesma conexão
+```
+
+**Onde esse banco mora importa.** Um site público precisa responder a qualquer
+hora, de qualquer lugar: quem serve o site tem que alcançar o banco pela rede, e
+a máquina precisa estar ligada. Em ordem de preferência:
+
+| Onde | Serve para |
+| --- | --- |
+| VPS ou hospedagem do próprio cliente | Site público entregue de vez. É o caminho normal aqui. |
+| Projeto do Supabase na conta do cliente | Mesma comodidade do padrão, mas quem paga e administra é ele. |
+| Máquina na empresa (desktop/servidor local) | Uso interno, rede local, demonstração. **Não serve para site público**: quando a máquina desliga ou o IP muda, o site cai. |
+
+A terceira linha é a que costuma decepcionar depois da entrega, então combine
+isso antes de prometer. Se a intenção é sair de cena e o site é público, o
+destino é a hospedagem do cliente — não o computador dele.
+
+### Preparando o banco (vale nos dois cenários)
+
+```bash
+npm run db:setup     # aplica as migrations versionadas e roda o seed
+```
+
+Em desenvolvimento, use `npm run db:migrate` para criar migrations novas.
+`npm run db:deploy` aplica sem semear, quando o banco já tem dados.
 
 O seed é idempotente: rodar de novo não duplica registros. Ele cria a empresa
-(nome via `SEED_COMPANY_NAME`), quatro categorias iniciais — que a empresa pode
-ajustar no painel a partir da fase 6 — e o primeiro usuário do painel.
+(nome via `SEED_COMPANY_NAME`), quatro categorias iniciais — que a empresa poderá
+ajustar no painel quando a tela de categorias entrar — e o primeiro usuário do painel.
 
 ## Primeiro acesso ao painel
 
