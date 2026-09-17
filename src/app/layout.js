@@ -1,5 +1,4 @@
 import './globals.css';
-import { Toaster } from 'react-hot-toast';
 import { siteConfig } from '@/config/site';
 import { buildThemeVariables } from '@/config/theme';
 
@@ -71,10 +70,7 @@ export default function RootLayout({ children }) {
           </style>
         </noscript>
       </head>
-      <body>
-        {children}
-        <Toaster position="top-right" />
-      </body>
+      <body>{children}</body>
     </html>
   );
 }

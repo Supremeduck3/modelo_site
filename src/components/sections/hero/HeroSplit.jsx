@@ -15,6 +15,7 @@ export default function HeroSplit({ id, content = {} }) {
         <HeroContent content={content} />
         <Reveal delay={180}>
           <Media
+            priority
             src={content.image}
             alt={content.imageAlt ?? ''}
             className={styles.splitMedia}
