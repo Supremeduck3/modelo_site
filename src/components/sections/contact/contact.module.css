@@ -48,6 +48,32 @@ a.cardValue:hover {
 }
 
 .hours {
+  margin: 0;
+}
+
+/*
+ * O horário ocupa a linha inteira. Como quinto item da grade de quatro, ele
+ * ficava sozinho numa segunda linha com um filete de 1/4 de largura — lia como
+ * layout quebrado. Em faixa, os turnos vão lado a lado e a grade fecha.
+ */
+.cardHours {
+  grid-column: 1 / -1;
+  display: flex;
+  flex-wrap: wrap;
+  align-items: baseline;
+  gap: 8px 32px;
+}
+
+.cardHours .cardLabel,
+.cardHours .infoCompact .cardHours {
+  display: block;
+}
+
+.infoCompact .cardHours .cardLabel {
+  margin: 0 0 10px;
+}
+
+.hours {
   margin: 0 0 6px;
   color: var(--color-text-muted);
   font-size: var(--fs-small);
