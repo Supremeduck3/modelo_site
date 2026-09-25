@@ -3,8 +3,12 @@
   align-items: center;
   height: 64px;
   padding: 0 24px;
-  color: #fff;
+  /* A barra usa a cor escura da marca (Layout.siderBg); o nome, o contraste dela. */
+  color: var(--color-primary-contrast);
+  border-bottom: var(--border-width) solid
+    color-mix(in srgb, var(--color-primary-contrast) 14%, transparent);
   font-family: var(--font-family-heading);
+  letter-spacing: var(--heading-tracking);
   font-weight: var(--font-weight-heading);
   overflow: hidden;
   white-space: nowrap;
@@ -23,7 +27,8 @@
 
 .pageTitle {
   margin: 0;
-  font-size: 1.125rem;
+  font-size: 1.25rem;
+  line-height: 1.2;
 }
 
 .content {

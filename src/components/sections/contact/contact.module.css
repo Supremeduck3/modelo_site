@@ -110,6 +110,8 @@ a.cardValue:hover {
 .callout {
   background: var(--color-secondary);
   color: var(--color-primary-contrast);
+  /* Fundo escuro: o anel de foco inverte para continuar visível. */
+  --color-focus: var(--color-primary-contrast);
   border-radius: var(--radius-lg);
   padding: 40px;
   display: flex;

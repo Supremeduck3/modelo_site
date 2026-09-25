@@ -14,11 +14,18 @@
   --color-border: #dde3ec;
   --color-text: #16202e;
   --color-text-muted: #5b6982;
-  --color-success: #1f9254;
-  --color-danger: #c62828;
+  --color-success: #1c6b3c;
+  --color-danger: #b3261e;
+  --color-warning: #8a5000;
+  /* Borda de controle (campo, caixa, rádio): 3:1 sobre o fundo. O filete
+     decorativo continua sendo --color-border. */
+  --color-border-strong: #7d8699;
+  --color-focus: var(--color-primary);
 
   --font-family: system-ui, -apple-system, sans-serif;
   --font-family-heading: var(--font-family);
+  --font-family-mono:
+    ui-monospace, "SFMono-Regular", Menlo, Consolas, monospace;
   --font-size-base: 16px;
   --font-weight-heading: 700;
   --font-weight-body: 400;
@@ -85,6 +92,10 @@
    * caminho é tamanho e peso, não opacidade.
    */
   --on-dark-muted: var(--color-primary-contrast);
+
+  /* Alvo de toque e altura de controle: nenhum campo ou botão abaixo disso. */
+  --control-height: 48px;
+  --control-height-sm: 40px;
 
   --header-height: 72px;
   --sidebar-width: 260px;
@@ -158,8 +169,19 @@ img {
 }
 
 :focus-visible {
-  outline: 2px solid var(--color-primary);
+  outline: 2px solid var(--color-focus);
   outline-offset: 3px;
+}
+
+/*
+ * DADOS. Protocolo, horário, data e contagem usam a monoespaçada com
+ * algarismos tabulares: alinham em coluna e são lidos em voz alta sem
+ * ambiguidade (0/O, 1/l). É o detalhe que liga site, canal e painel.
+ */
+.data {
+  font-family: var(--font-family-mono);
+  font-variant-numeric: tabular-nums;
+  letter-spacing: 0.02em;
 }
 
 /*

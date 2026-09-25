@@ -63,7 +63,9 @@ export default function SubmissionsTable({ data }) {
       dataIndex: 'protocol',
       key: 'protocol',
       render: (protocol, record) => (
-        <Link href={`/painel/manifestacoes/${record.id}`}>{protocol}</Link>
+        <Link className="data" href={`/painel/manifestacoes/${record.id}`}>
+          {protocol}
+        </Link>
       ),
     },
     {

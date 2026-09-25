@@ -27,7 +27,19 @@ export default async function ManifestacaoPage() {
 
   return (
     <>
-      <SubmissionEmbedded id="canal" content={content} headingLevel="h1" />
+      {/*
+        Nesta página o CTA do bloco apontava para ela mesma. Aqui ele leva ao
+        formulário logo abaixo — útil no celular, onde os passos ocupam a dobra.
+      */}
+      <SubmissionEmbedded
+        id="canal"
+        content={{
+          ...content,
+          ctaHref: '#formulario',
+          ctaLabel: 'Preencher o formulário',
+        }}
+        headingLevel="h1"
+      />
       {/*
         O Toaster vive aqui, e não no layout raiz: só o formulário de
         manifestação dispara toast, e no layout ele fazia toda página do site —
@@ -36,7 +48,14 @@ export default async function ManifestacaoPage() {
       */}
       <Toaster position="top-right" />
       <Container>
-        <div className={styles.formWrapper}>
+        <div id="formulario" className={styles.formWrapper}>
+          <header className={styles.formHeader}>
+            <h2 className={styles.formTitle}>Registrar manifestação</h2>
+            <p className={styles.privacy}>
+              Seus dados são usados apenas para responder a esta manifestação e
+              ficam visíveis só para a equipe responsável.
+            </p>
+          </header>
           <SubmissionForm
             categories={categories}
             consentText={siteConfig.legal.consentText}

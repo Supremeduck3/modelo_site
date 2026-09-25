@@ -39,7 +39,7 @@ export default function SubmissionSuccess({ submission }) {
   return (
     <div className={styles.wrapper} role="status">
       <p className={styles.badge}>Manifestação registrada</p>
-      <h3 className={styles.heading}>Recebemos sua manifestação</h3>
+      <h2 className={styles.heading}>Recebemos sua manifestação</h2>
       <p className={styles.text}>
         Guarde o protocolo abaixo para acompanhar o andamento. Ele também é o
         código que a nossa equipe usa para localizar seu registro.
@@ -47,7 +47,9 @@ export default function SubmissionSuccess({ submission }) {
 
       <div className={styles.protocolBox}>
         <span className={styles.protocolLabel}>Protocolo</span>
-        <span className={styles.protocolValue}>{protocol}</span>
+        <span className={styles.protocolValue} translate="no">
+          {protocol}
+        </span>
         <button
           type="button"
           className={styles.copyButton}
@@ -79,7 +81,7 @@ export default function SubmissionSuccess({ submission }) {
       </dl>
 
       <div className={styles.nextSteps}>
-        <h4 className={styles.nextStepsTitle}>Próximos passos</h4>
+        <h3 className={styles.nextStepsTitle}>Próximos passos</h3>
         <ol className={styles.nextStepsList}>
           <li>Anote ou copie o protocolo acima.</li>
           <li>

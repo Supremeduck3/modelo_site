@@ -1,15 +1,38 @@
+/*
+ * Formulário do canal de manifestações.
+ *
+ * Leve de propósito: sem caixa em volta de cada grupo, sem sombra. A ordem de
+ * leitura é "o quê → sobre o quê → como falamos com você → consentimento", e
+ * cada grupo é separado por espaço, não por moldura. Os controles usam a borda
+ * de controle (--color-border-strong, 3:1), e não o filete decorativo.
+ */
+
 .form {
   display: flex;
   flex-direction: column;
-  gap: var(--gap);
+  gap: 32px;
   max-width: 720px;
 }
 
+/* ───────── resumo de erros ───────── */
+
+/*
+ * Aparece no topo e recebe o foco: quem usa leitor de tela ouve a lista, quem
+ * enxerga vê o mesmo texto que aparece embaixo de cada campo.
+ */
 .errorSummary {
   border: var(--border-width) solid var(--color-danger);
-  background: var(--color-surface);
-  border-radius: var(--radius);
-  padding: 16px;
+  background: color-mix(
+    in srgb,
+    var(--color-danger) 6%,
+    var(--color-background)
+  );
+  border-radius: var(--radius-sm);
+  padding: 16px 20px;
+}
+
+.errorSummary:focus-visible {
+  outline-offset: 4px;
 }
 
 .errorSummaryTitle {
@@ -21,48 +44,106 @@
 .errorSummaryList {
   margin: 0;
   padding-left: 20px;
-  color: var(--color-danger);
+  color: var(--color-text);
 }
 
+/* ───────── grupo "tipo de manifestação" ───────── */
+
 .fieldset {
-  border: var(--border-width) solid var(--color-border);
-  border-radius: var(--radius);
-  padding: 16px;
+  border: 0;
+  padding: 0;
   margin: 0;
+  min-width: 0;
 }
 
 .legend {
-  padding: 0 8px;
-  font-weight: 700;
+  padding: 0;
+  margin-bottom: 12px;
+  font-weight: 600;
+  color: var(--color-text);
 }
 
+/*
+ * Os seis tipos viram uma grade de opções grandes, não uma fileira de
+ * bolinhas: cada opção é um alvo de toque inteiro (48px) e o rótulo é lido
+ * de uma vez só. Três colunas no desktop, duas no celular — nunca uma coluna
+ * de seis, que empurraria o resto do formulário para fora da tela.
+ */
 .radioGroup {
-  display: flex;
-  flex-wrap: wrap;
-  gap: 12px;
-  margin-top: 8px;
+  display: grid;
+  grid-template-columns: repeat(3, minmax(0, 1fr));
+  gap: 8px;
 }
 
 .radioOption {
-  display: inline-flex;
+  display: flex;
   align-items: center;
-  gap: 8px;
-  border: var(--border-width) solid var(--color-border);
+  gap: 10px;
+  min-height: var(--control-height);
+  padding: 10px 14px;
+  border: var(--border-width) solid var(--color-border-strong);
   border-radius: var(--radius-sm);
-  padding: 8px 14px;
+  background: var(--color-background);
   cursor: pointer;
+  transition:
+    border-color 160ms var(--motion-easing),
+    background 160ms var(--motion-easing);
 }
+
+.radioOption input {
+  flex: none;
+  width: 18px;
+  height: 18px;
+  margin: 0;
+  accent-color: var(--color-primary);
+}
+
+.radioOption:hover {
+  border-color: var(--color-text);
+}
+
+/*
+ * Selecionado: borda de 2px na primária, fundo levemente tingido e rótulo em
+ * negrito — três sinais, nenhum dependente só de cor.
+ */
+.radioOption:has(input:checked) {
+  border-color: var(--color-primary);
+  box-shadow: inset 0 0 0 1px var(--color-primary);
+  background: color-mix(
+    in srgb,
+    var(--color-primary) 7%,
+    var(--color-background)
+  );
+  font-weight: 600;
+}
+
+/* O foco do rádio é desenhado na opção inteira, que é o que o olho procura. */
+.radioOption:has(input:focus-visible) {
+  outline: 2px solid var(--color-focus);
+  outline-offset: 2px;
+}
+
+.radioOption input:focus-visible {
+  outline: none;
+}
+
+.fieldset:has([aria-invalid="true"]) .radioOption:not(:has(input:checked)) {
+  border-color: var(--color-danger);
+}
+
+/* ───────── campos ───────── */
 
 .field {
   display: flex;
   flex-direction: column;
-  gap: 6px;
+  gap: 8px;
+  min-width: 0;
 }
 
 .row {
-  display: flex;
-  flex-wrap: wrap;
-  gap: var(--gap);
+  display: grid;
+  grid-template-columns: repeat(3, minmax(0, 1fr));
+  gap: 16px 20px;
 }
 
 /*
@@ -83,29 +164,76 @@
 .input,
 .select,
 .textarea {
-  border: var(--border-width) solid var(--color-border);
+  width: 100%;
+  min-height: var(--control-height);
+  border: var(--border-width) solid var(--color-border-strong);
   border-radius: var(--radius-sm);
-  /* 12px + corpo de 16px dá ~46px: alvo de toque confortável. */
   padding: 12px 14px;
   font: inherit;
+  /* 16px no mínimo: abaixo disso o iOS aproxima a tela ao focar o campo. */
+  font-size: max(1rem, 16px);
   color: var(--color-text);
   background: var(--color-background);
+  transition: border-color 160ms var(--motion-easing);
+}
+
+.input:hover,
+.select:hover,
+.textarea:hover {
+  border-color: var(--color-text);
+}
+
+.input:focus-visible,
+.select:focus-visible,
+.textarea:focus-visible {
+  outline: 2px solid var(--color-focus);
+  outline-offset: 1px;
+  border-color: var(--color-focus);
+}
+
+/* Erro: borda na cor de perigo + mensagem escrita logo abaixo do campo. */
+.input[aria-invalid="true"],
+.select[aria-invalid="true"],
+.textarea[aria-invalid="true"] {
+  border-color: var(--color-danger);
+  box-shadow: inset 0 0 0 1px var(--color-danger);
+}
+
+/*
+ * Select com seta própria desenhada por gradiente: segue a cor do texto do
+ * tema (inclusive no preset escuro), o que um SVG embutido não faria.
+ */
+.select {
+  appearance: none;
+  padding-right: 44px;
+  background-image:
+    linear-gradient(45deg, transparent 50%, var(--color-text) 50%),
+    linear-gradient(135deg, var(--color-text) 50%, transparent 50%);
+  background-position:
+    calc(100% - 22px) 50%,
+    calc(100% - 16px) 50%;
+  background-size: 6px 6px;
+  background-repeat: no-repeat;
 }
 
 .textarea {
   resize: vertical;
-  min-height: 140px;
+  min-height: 176px;
+  line-height: 1.55;
 }
 
+/* Contador em monoespaçada tabular: os dígitos não "dançam" enquanto digita. */
 .counter {
   margin: 0;
-  font-size: 0.85rem;
+  font-family: var(--font-family-mono);
+  font-variant-numeric: tabular-nums;
+  font-size: 0.8125rem;
   color: var(--color-text-muted);
   text-align: right;
 }
 
 .hint {
-  margin: 0;
+  margin: -16px 0 0;
   font-size: 0.9rem;
   color: var(--color-text-muted);
 }
@@ -113,20 +241,42 @@
 .checkboxOption {
   display: flex;
   align-items: flex-start;
-  gap: 10px;
+  gap: 12px;
+  padding: 16px 0;
+  border-top: var(--border-width) solid var(--color-border);
   font-size: 0.95rem;
   color: var(--color-text);
+  cursor: pointer;
+}
+
+.checkboxOption input {
+  flex: none;
+  width: 20px;
+  height: 20px;
+  margin: 2px 0 0;
+  accent-color: var(--color-primary);
 }
 
 .fieldError {
   margin: 0;
-  font-size: 0.85rem;
+  font-size: 0.875rem;
+  font-weight: 500;
   color: var(--color-danger);
 }
 
+/* O envio fica alinhado ao texto no desktop e ocupa a largura no celular. */
+.form > button[type="submit"] {
+  align-self: flex-start;
+  min-width: 240px;
+}
+
 @media (max-width: 768px) {
+  .form {
+    gap: 28px;
+  }
+
   .row {
-    flex-direction: column;
+    grid-template-columns: 1fr;
   }
 
   .row > .field {
@@ -138,12 +288,11 @@
    * seis botões ocuparem uma tela de celular antes do primeiro campo.
    */
   .radioGroup {
-    display: grid;
     grid-template-columns: repeat(2, minmax(0, 1fr));
-    gap: 8px;
   }
 
-  .radioOption {
-    min-height: 44px;
+  .form > button[type="submit"] {
+    align-self: stretch;
+    min-width: 0;
   }
 }

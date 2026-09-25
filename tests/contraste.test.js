@@ -53,6 +53,12 @@ const EXIGENCIAS = [
    * deixaria passar verde exatamente a regressão que motivou este teste.
    */
   ['primaryContrast', 'primary', 4.5],
+  // Estados aparecem como texto (mensagem de erro, rótulo de etiqueta).
+  ['success', 'background', 4.5],
+  ['danger', 'background', 4.5],
+  ['warning', 'background', 4.5],
+  // Borda de campo é componente de interface: 3:1 (WCAG 1.4.11).
+  ['borderStrong', 'background', 3],
 ];
 
 const TEMAS = {

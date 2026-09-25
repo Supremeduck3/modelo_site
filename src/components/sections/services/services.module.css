@@ -144,6 +144,8 @@
   padding: 40px;
   background: var(--color-secondary);
   color: var(--color-primary-contrast);
+  /* Fundo escuro: o anel de foco inverte para continuar visível. */
+  --color-focus: var(--color-primary-contrast);
   border-radius: var(--radius-lg);
   min-height: 340px;
 }

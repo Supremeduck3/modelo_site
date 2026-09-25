@@ -116,7 +116,7 @@ Comece pelo `preset` (a direção de arte) e só depois ajuste tokens soltos:
 
 ```js
 theme: {
-    preset: 'editorial', // padrao | editorial | expressivo | comercial
+    preset: 'editorial', // padrao | registro | editorial | expressivo | comercial
     colors: { primary: '#1f6feb', secondary: '#0b3a7a', accent: '#f0a202' },
     typography: { fontFamily: "'Inter', system-ui, sans-serif" },
     shape: { radius: '4px' },      // um cliente mais "duro"

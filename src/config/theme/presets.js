@@ -66,6 +66,95 @@ const padrao = {
 };
 
 /**
+ * Registro: a direção de arte de referência do molde.
+ *
+ * Parte do que o produto tem de mais próprio — o canal de manifestações e o
+ * protocolo — e leva essa linguagem de "registro bem feito" para o site todo:
+ * papel quente em vez de branco de tela, tinta quase preta, uma cor de marca
+ * profunda (petróleo) e o cobre só como marca gráfica, nunca como texto
+ * pequeno (4,15:1 sobre o papel). Separação por filete e espaço, não por
+ * caixa com sombra. Dados (protocolo, horário, data, contagem) em monoespaçada
+ * com algarismos tabulares: é o detalhe que liga site, canal e painel.
+ *
+ * Serve para serviços locais, clínicas, escritórios e comércio de bairro —
+ * quem precisa parecer organizado e confiável antes de parecer "moderno".
+ */
+const registro = {
+  colors: {
+    primary: '#0e4a45',
+    primaryContrast: '#f6f4ee',
+    secondary: '#14201c',
+    accent: '#b45f24',
+    background: '#f6f4ee',
+    surface: '#eeebe2',
+    surfaceAlt: '#e4e0d4',
+    border: '#d3cdbd',
+    borderStrong: '#8a8578',
+    text: '#171a17',
+    textMuted: '#575b53',
+    success: '#1c6b3c',
+    danger: '#b3261e',
+    warning: '#8a5000',
+  },
+  typography: {
+    fontImport: null,
+    fontFamily: 'var(--font-schibsted), system-ui, sans-serif',
+    headingFamily: 'var(--font-schibsted), system-ui, sans-serif',
+    monoFamily: 'var(--font-plex-mono), ui-monospace, Menlo, monospace',
+    headingWeight: 650,
+    displayScale: 1.12,
+    headingTracking: '-0.028em',
+    headingTransform: 'none',
+    headingLineHeight: 1.04,
+    eyebrowTracking: '0.16em',
+    lineHeight: 1.6,
+  },
+  /*
+   * Raio pequeno e deliberado: 2px em superfície, 6px em controle. Canto
+   * arredondado em tudo é o que faz um site parecer tema pronto.
+   */
+  shape: {
+    radius: '6px',
+    radiusSmall: '4px',
+    radiusLarge: '10px',
+    borderWidth: '1px',
+  },
+  spacing: {
+    sectionY: '128px',
+    sectionYMobile: '64px',
+    containerWidth: '1200px',
+    gap: '24px',
+    gapLarge: '80px',
+    measure: '60ch',
+  },
+  // Uma sombra só, para o que flutua (menu aberto, modal). Nada de card elevado.
+  shadows: {
+    soft: 'none',
+    medium:
+      '0 1px 2px rgba(23, 26, 23, 0.06), 0 18px 40px -24px rgba(23, 26, 23, 0.35)',
+  },
+  buttons: {
+    style: 'solid',
+    radius: '4px',
+    padding: '0.95em 1.6em',
+    weight: 600,
+    tracking: '0',
+    transform: 'none',
+  },
+  images: {
+    ratio: '4 / 5',
+    radius: '2px',
+    filter: 'none',
+    hoverFilter: 'none',
+  },
+  motion: {
+    duration: '480ms',
+    easing: 'cubic-bezier(0.2, 0.7, 0.2, 1)',
+    revealShift: '14px',
+  },
+};
+
+/**
  * Editorial: escritórios, consultorias, clínicas, advocacia.
  * Serifada de display, muito espaço negativo, nada de raio nem sombra —
  * a hierarquia vem do tamanho e do respiro, não de caixas.
@@ -80,6 +169,7 @@ const editorial = {
     surface: '#efe9dd',
     surfaceAlt: '#e6dece',
     border: '#d8cfbd',
+    borderStrong: '#8f846f',
     text: '#15130f',
     textMuted: '#6b6152',
   },
@@ -145,8 +235,13 @@ const expressivo = {
     surface: '#1c1613',
     surfaceAlt: '#261e19',
     border: '#3a2f27',
+    borderStrong: '#7a6b5f',
     text: '#f4ece1',
     textMuted: '#a2958a',
+    // Fundo escuro: os estados padrão (escuros) sumiriam; estes medem >6:1.
+    success: '#4cb782',
+    danger: '#ef6a5a',
+    warning: '#e8b04b',
   },
   typography: {
     fontImport: null,
@@ -202,14 +297,19 @@ const expressivo = {
  */
 const comercial = {
   colors: {
-    primary: '#2f43ff',
+    /*
+     * Framboesa, não azul: azul/roxo era a cor "automática" de qualquer
+     * template SaaS. 7,27:1 com texto branco.
+     */
+    primary: '#a3214f',
     primaryContrast: '#ffffff',
     secondary: '#0c1424',
-    accent: '#00b37e',
+    accent: '#f2a93b',
     background: '#ffffff',
     surface: '#f3f5f9',
     surfaceAlt: '#e9edf5',
     border: '#dfe4ee',
+    borderStrong: '#7d8699',
     text: '#0c1424',
     textMuted: '#5c6b84',
   },
@@ -266,7 +366,13 @@ const comercial = {
 };
 
 /** Presets disponíveis para `theme.preset` na configuração da implantação. */
-export const THEME_PRESETS = { padrao, editorial, expressivo, comercial };
+export const THEME_PRESETS = {
+  padrao,
+  registro,
+  editorial,
+  expressivo,
+  comercial,
+};
 
 /** Nomes válidos de preset, usados pela validação da configuração. */
 export const THEME_PRESET_NAMES = Object.keys(THEME_PRESETS);

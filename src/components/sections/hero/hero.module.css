@@ -178,6 +178,8 @@
   align-items: flex-end;
   min-height: min(92vh, 860px);
   background-color: var(--color-secondary);
+  /* Fundo escuro: o anel de foco inverte para continuar visível. */
+  --color-focus: var(--color-primary-contrast);
   background-size: cover;
   background-position: center;
   padding-block: calc(var(--section-y) * 1.1);
@@ -214,6 +216,8 @@
   padding-block: var(--section-y);
   background: var(--color-primary);
   color: var(--color-primary-contrast);
+  /* Fundo escuro: o anel de foco inverte para continuar visível. */
+  --color-focus: var(--color-primary-contrast);
 }
 
 .ctaFocusInner {

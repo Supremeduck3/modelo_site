@@ -121,14 +121,25 @@ export const DEFAULT_CONFIG = {
       border: '#dde3ec',
       text: '#16202e',
       textMuted: '#5b6982',
-      success: '#1f9254',
-      danger: '#c62828',
+      /*
+       * Estados. O verde anterior (#1f9254) media 3,96:1 sobre branco e era
+       * usado como texto e como fundo de etiqueta com texto branco.
+       */
+      success: '#1c6b3c',
+      danger: '#b3261e',
+      warning: '#8a5000',
+      // Borda de controle (campo, caixa de seleção): 3:1 sobre o fundo.
+      borderStrong: '#7d8699',
+      // Anel de foco. Vazio usa a primária; blocos escuros invertem sozinhos.
+      focus: null,
     },
     typography: {
       // URL de webfont da direção de arte; null mantém as fontes do sistema.
       fontImport: null,
       fontFamily: "'Segoe UI', system-ui, -apple-system, sans-serif",
       headingFamily: null,
+      // Dados: protocolo, datas, horários e contagens (algarismos tabulares).
+      monoFamily: "ui-monospace, 'SFMono-Regular', Menlo, Consolas, monospace",
       baseSize: '16px',
       headingWeight: 700,
       bodyWeight: 400,
