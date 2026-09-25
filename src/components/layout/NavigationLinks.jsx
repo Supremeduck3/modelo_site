@@ -10,8 +10,12 @@ export default function NavigationLinks({
   return (
     <ul className={`${styles.list} ${styles[direction]}`}>
       {items.map((item) => {
+        // Âncora da home ("/#precos") vai como <a> comum: o navegador cuida da
+        // rolagem até a seção, inclusive vindo de outra página.
         const isAnchor =
-          item.href?.startsWith('#') || /^https?:/.test(item.href);
+          item.href?.startsWith('#') ||
+          item.href?.startsWith('/#') ||
+          /^https?:/.test(item.href);
         return (
           <li key={`${item.label}-${item.href}`}>
             {isAnchor ? (

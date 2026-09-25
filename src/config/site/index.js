@@ -1,3 +1,4 @@
+import { resolveNavigation } from './navigation.js';
 import { SECTION_VARIANTS, validateSiteConfig } from './schema.js';
 import rawSiteConfig from './site.config.js';
 
@@ -34,12 +35,16 @@ const SECTION_FEATURE_FLAG = {
  * Uma seção desligada por flag não deve chegar ao renderer; desligar por
  * engano é um erro comum de implantação, então avisamos em desenvolvimento.
  */
-export function getHomeSections() {
+export function getHomeSections({ silencioso = false } = {}) {
   return config.pages.home.sections.filter((section) => {
     const flagName = SECTION_FEATURE_FLAG[section.type] ?? section.type;
     const flag = features[flagName];
 
-    if (flag === false && process.env.NODE_ENV !== 'production') {
+    if (
+      flag === false &&
+      !silencioso &&
+      process.env.NODE_ENV !== 'production'
+    ) {
       console.warn(
         `[site-config] Seção "${section.type}" está declarada na home, mas features.${flagName} é false; ela não será renderizada.`,
       );
@@ -47,6 +52,25 @@ export function getHomeSections() {
 
     return flag === undefined || flag === true;
   });
+}
+
+/*
+ * O menu é conferido contra o que a implantação mostra de fato: item de seção
+ * desligada ou de página de funcionalidade desligada sai, e âncora vira
+ * `/#id` para funcionar fora da home. Ver navigation.js.
+ */
+{
+  const { navigation, removidos } = resolveNavigation(config.navigation, {
+    features,
+    sections: getHomeSections({ silencioso: true }),
+  });
+  config.navigation = navigation;
+
+  if (removidos.length > 0 && process.env.NODE_ENV !== 'production') {
+    console.warn(
+      `[site-config] Fora do menu por apontarem para seção ou funcionalidade desligada: ${removidos.join(', ')}.`,
+    );
+  }
 }
 
 /** Conteúdo de uma seção, sempre um objeto. */
