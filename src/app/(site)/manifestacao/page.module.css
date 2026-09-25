@@ -1,10 +1,16 @@
+/*
+ * Respiro em cima também: sem ele o formulário encostava na faixa de
+ * apresentação e a legenda "Tipo de manifestação" ficava montada na borda
+ * entre as duas.
+ */
 .formWrapper {
   max-width: 760px;
-  margin: 0 auto var(--section-y);
+  margin: 0 auto;
+  padding-block: calc(var(--section-y) * 0.6) var(--section-y);
 }
 
 @media (max-width: 768px) {
   .formWrapper {
-    margin-bottom: var(--section-y-mobile);
+    padding-block: 32px var(--section-y-mobile);
   }
 }

@@ -75,3 +75,22 @@
     padding-right: 0;
   }
 }
+
+/*
+ * No celular o número vai à esquerda e o texto ao lado, como nos diferenciais:
+ * empilhados, os três passos tomavam uma tela inteira antes do formulário, que
+ * é o que o visitante veio usar.
+ */
+@media (max-width: 620px) {
+  .step {
+    display: grid;
+    grid-template-columns: 36px 1fr;
+    column-gap: 12px;
+    align-items: baseline;
+    padding: 20px 0;
+  }
+
+  .stepTitle {
+    margin-bottom: 4px;
+  }
+}

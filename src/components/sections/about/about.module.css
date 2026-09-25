@@ -61,18 +61,29 @@
   }
 }
 
+/*
+ * No celular os números ficam lado a lado, menores, em vez de um por linha:
+ * empilhados, três números curtos com filete cada ocupavam quase uma tela
+ * inteira de rolagem. Três colunas de ~110px cabem folgadas em 390px; com mais
+ * itens a grade quebra sozinha.
+ */
 @media (max-width: 620px) {
   .statsGrid {
-    grid-template-columns: 1fr;
+    grid-template-columns: repeat(auto-fit, minmax(96px, 1fr));
+    margin-top: 32px;
   }
 
   .statItem {
-    padding: 24px 0 8px;
-    border-left: 0;
-    border-bottom: var(--border-width) solid var(--color-border);
+    padding: 20px 12px 4px;
   }
 
-  .statItem:last-child {
-    border-bottom: 0;
+  .statValue {
+    font-size: calc(1.75rem * var(--display-scale));
+  }
+
+  .statLabel {
+    margin-top: 8px;
+    font-size: 0.8125rem;
+    line-height: 1.35;
   }
 }
