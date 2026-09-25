@@ -74,13 +74,13 @@ function contentSecurityPolicy(desenvolvimento) {
   return [
     "default-src 'self'",
     `script-src ${script.join(' ')}`,
-    // As fontes do molde vêm do Google Fonts (ver src/config/theme/presets.js):
-    // sem liberar a folha de estilo e o arquivo da fonte, o CSP derruba a
-    // tipografia escolhida na implantação e o site cai na fonte do sistema.
-    // Conferido no navegador: o console recusava a folha.
-    "style-src 'self' 'unsafe-inline' https://fonts.googleapis.com",
+    // As fontes são servidas pelo próprio domínio (config/theme/fonts.js), por
+    // isso nenhuma origem de fonte é liberada aqui. A implantação que usar
+    // `typography.fontImport` para apontar uma folha externa precisa
+    // acrescentar a origem dela em style-src e font-src.
+    "style-src 'self' 'unsafe-inline'",
     "img-src 'self' data: blob: https:",
-    "font-src 'self' data: https://fonts.gstatic.com",
+    "font-src 'self' data:",
     // Sem origem externa a chamar: o molde fala só com a própria API.
     "connect-src 'self'",
     // Mapa de contato é o único iframe legítimo, e vem de um provedor de mapas.

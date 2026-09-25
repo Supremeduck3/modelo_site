@@ -26,7 +26,7 @@ test('credencial errada não revela se o e-mail existe', async ({ page }) => {
   await page.goto('/painel/login');
 
   await page.getByLabel('E-mail').fill('ninguem@exemplo.invalid');
-  await page.getByLabel('Senha').fill('senha-errada-qualquer');
+  await page.getByLabel('Senha', { exact: true }).fill('senha-errada-qualquer');
   await page.getByRole('button', { name: /entrar/i }).click();
 
   // `getByRole('alert')` também pega o anunciador de rota do Next, que é vazio.
@@ -47,7 +47,7 @@ test.describe('com credencial válida', () => {
     await expect(page).toHaveURL(/\/painel\/login/);
 
     await page.getByLabel('E-mail').fill(EMAIL);
-    await page.getByLabel('Senha').fill(PASSWORD);
+    await page.getByLabel('Senha', { exact: true }).fill(PASSWORD);
     await page.getByRole('button', { name: /entrar/i }).click();
 
     // Voltou ao destino guardado no next, já autenticado.
@@ -72,7 +72,7 @@ test.describe('com credencial válida', () => {
     await page.goto('/painel/login?next=https://golpe.example/pwned');
 
     await page.getByLabel('E-mail').fill(EMAIL);
-    await page.getByLabel('Senha').fill(PASSWORD);
+    await page.getByLabel('Senha', { exact: true }).fill(PASSWORD);
     await page.getByRole('button', { name: /entrar/i }).click();
 
     await expect(page).toHaveURL(/\/painel$/);

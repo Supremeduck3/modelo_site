@@ -1,8 +1,8 @@
 'use client';
 
-import { Alert, Button, Input } from 'antd';
 import Link from 'next/link';
 import { useId, useState } from 'react';
+import { Aviso, Botao, Campo } from '@/components/auth/AuthUI';
 import { LOGIN_PATH } from '@/lib/auth/next-path';
 import { validateForgotPasswordInput } from '@/lib/auth/schema';
 import styles from './forgot-password-form.module.css';
@@ -81,7 +81,9 @@ export default function ForgotPasswordForm() {
   if (successMessage) {
     return (
       <div className={styles.confirmation}>
-        <Alert type="success" message={successMessage} showIcon role="status" />
+        <Aviso tipo="success" role="status">
+          {successMessage}
+        </Aviso>
         <Link href={LOGIN_PATH} className={styles.backLink}>
           Voltar para o login
         </Link>
@@ -91,42 +93,21 @@ export default function ForgotPasswordForm() {
 
   return (
     <form className={styles.form} onSubmit={handleSubmit} noValidate>
-      {formError && (
-        <Alert type="error" message={formError} showIcon role="alert" />
-      )}
+      {formError && <Aviso>{formError}</Aviso>}
 
-      <div className={styles.field}>
-        <label htmlFor={fieldId('email')} className={styles.label}>
-          E-mail
-        </label>
-        <Input
-          id={fieldId('email')}
-          type="email"
-          size="large"
-          autoComplete="username"
-          autoFocus
-          value={form.email}
-          status={errors.email ? 'error' : undefined}
-          onChange={(event) => updateField('email', event.target.value)}
-          aria-describedby={errors.email ? errorId('email') : undefined}
-          aria-invalid={errors.email ? 'true' : undefined}
-        />
-        {errors.email && (
-          <p id={errorId('email')} className={styles.fieldError}>
-            {errors.email}
-          </p>
-        )}
-      </div>
+      <Campo
+        id={fieldId('email')}
+        label="E-mail"
+        type="email"
+        autoComplete="username"
+        autoFocus
+        value={form.email}
+        error={errors.email}
+        errorId={errorId('email')}
+        onChange={(event) => updateField('email', event.target.value)}
+      />
 
-      <Button
-        type="primary"
-        size="large"
-        htmlType="submit"
-        loading={submitting}
-        block
-      >
-        Enviar link de recuperação
-      </Button>
+      <Botao carregando={submitting}>Enviar link de recuperação</Botao>
 
       <Link href={LOGIN_PATH} className={styles.backLink}>
         Voltar para o login

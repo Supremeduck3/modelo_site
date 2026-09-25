@@ -1,8 +1,9 @@
 'use client';
 
-import { Alert, Button, Input } from 'antd';
 import Link from 'next/link';
 import { useId, useState } from 'react';
+import { Aviso, Botao, Campo, CampoSenha } from '@/components/auth/AuthUI';
+import styles from '@/components/auth/auth-ui.module.css';
 import { LOGIN_PATH } from '@/lib/auth/next-path';
 import { PASSWORD_MIN_LENGTH } from '@/lib/auth/password-rules';
 import { validateAcceptInvite } from '@/lib/team/schema';
@@ -84,106 +85,66 @@ export default function AcceptInviteForm({ token, invite }) {
   }
 
   if (inviteInvalid) {
-    return (
-      <Alert
-        type="error"
-        message={INVALID_INVITE_ERROR}
-        showIcon
-        role="alert"
-      />
-    );
+    return <Aviso>{INVALID_INVITE_ERROR}</Aviso>;
   }
 
   if (success) {
     return (
-      <div>
-        <Alert
-          type="success"
-          message="Sua conta foi ativada."
-          showIcon
-          role="status"
-          style={{ marginBottom: 16 }}
-        />
+      <div className={styles.confirmation}>
+        <Aviso tipo="success" role="status">
+          Sua conta foi ativada.
+        </Aviso>
         <Link href={LOGIN_PATH}>Entrar no painel</Link>
       </div>
     );
   }
 
   return (
-    <form onSubmit={handleSubmit} noValidate>
-      <p>Olá, {invite.name}. Defina sua senha para ativar o acesso.</p>
+    <form className={styles.form} onSubmit={handleSubmit} noValidate>
+      <p className={styles.intro}>
+        Olá, {invite.name}. Defina sua senha para ativar o acesso.
+      </p>
 
-      {formError && (
-        <Alert
-          type="error"
-          message={formError}
-          showIcon
-          role="alert"
-          style={{ marginBottom: 16 }}
-        />
-      )}
+      {formError && <Aviso>{formError}</Aviso>}
 
-      <div style={{ display: 'grid', gap: 16 }}>
-        <div>
-          <label htmlFor={fieldId('email')}>E-mail</label>
-          <Input id={fieldId('email')} value={invite.email} readOnly disabled />
-        </div>
+      {/*
+        O e-mail vem do convite e não se edita: é ele que identifica a conta
+        sendo ativada. Aparece porque quem recebeu o link precisa conferir que
+        é o próprio endereço.
+      */}
+      <Campo
+        id={fieldId('email')}
+        label="E-mail"
+        value={invite.email}
+        readOnly
+        disabled
+      />
 
-        <div>
-          <label htmlFor={fieldId('password')}>Senha</label>
-          <Input.Password
-            id={fieldId('password')}
-            autoComplete="new-password"
-            value={passwords.password}
-            onChange={(event) => updateField('password', event.target.value)}
-            status={errors.password ? 'error' : undefined}
-            aria-describedby={
-              errors.password
-                ? `${fieldId('password')}-hint ${fieldId('password')}-error`
-                : `${fieldId('password')}-hint`
-            }
-            aria-invalid={errors.password ? 'true' : undefined}
-          />
-          <p id={`${fieldId('password')}-hint`}>
-            Use ao menos {PASSWORD_MIN_LENGTH} caracteres.
-          </p>
-          {errors.password && (
-            <p id={`${fieldId('password')}-error`} role="alert">
-              {errors.password}
-            </p>
-          )}
-        </div>
+      <CampoSenha
+        id={fieldId('password')}
+        label="Senha"
+        autoComplete="new-password"
+        value={passwords.password}
+        error={errors.password}
+        errorId={`${fieldId('password')}-error`}
+        dica={`Use ao menos ${PASSWORD_MIN_LENGTH} caracteres.`}
+        dicaId={`${fieldId('password')}-hint`}
+        onChange={(event) => updateField('password', event.target.value)}
+      />
 
-        <div>
-          <label htmlFor={fieldId('passwordConfirmation')}>
-            Confirme a senha
-          </label>
-          <Input.Password
-            id={fieldId('passwordConfirmation')}
-            autoComplete="new-password"
-            value={passwords.passwordConfirmation}
-            onChange={(event) =>
-              updateField('passwordConfirmation', event.target.value)
-            }
-            status={errors.passwordConfirmation ? 'error' : undefined}
-            aria-describedby={
-              errors.passwordConfirmation
-                ? `${fieldId('passwordConfirmation')}-error`
-                : undefined
-            }
-            aria-invalid={errors.passwordConfirmation ? 'true' : undefined}
-          />
-          {errors.passwordConfirmation && (
-            <p id={`${fieldId('passwordConfirmation')}-error`} role="alert">
-              {errors.passwordConfirmation}
-            </p>
-          )}
-        </div>
+      <CampoSenha
+        id={fieldId('passwordConfirmation')}
+        label="Confirme a senha"
+        autoComplete="new-password"
+        value={passwords.passwordConfirmation}
+        error={errors.passwordConfirmation}
+        errorId={`${fieldId('passwordConfirmation')}-error`}
+        onChange={(event) =>
+          updateField('passwordConfirmation', event.target.value)
+        }
+      />
 
-        <Button type="primary" htmlType="submit" loading={submitting}>
-          Ativar acesso
-        </Button>
-      </div>
+      <Botao carregando={submitting}>Ativar acesso</Botao>
     </form>
   );
 }

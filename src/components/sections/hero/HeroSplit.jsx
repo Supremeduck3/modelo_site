@@ -13,7 +13,7 @@ export default function HeroSplit({ id, content = {} }) {
     <section id={id} className={styles.split}>
       <Container className={styles.splitInner}>
         <HeroContent content={content} />
-        <Reveal delay={180}>
+        <Reveal imediato>
           <Media
             priority
             src={content.image}
