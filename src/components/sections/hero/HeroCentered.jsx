@@ -17,7 +17,7 @@ export default function HeroCentered({ id, content = {} }) {
     <section id={id} className={styles.centeredSection}>
       <Container>
         <HeroContent content={content} align="center" />
-        <Reveal delay={260}>
+        <Reveal imediato>
           <div className={styles.centeredRule} />
           {highlights.length > 0 && (
             <ul className={styles.centeredMeta}>

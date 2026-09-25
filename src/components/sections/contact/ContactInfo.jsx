@@ -49,7 +49,7 @@ export default function ContactInfo({ compact = false }) {
       ))}
 
       {contact.businessHours?.length > 0 && (
-        <div className={styles.card}>
+        <div className={`${styles.card} ${styles.cardHours}`}>
           <p className={styles.cardLabel}>Horário de atendimento</p>
           {contact.businessHours.map((slot, index) => (
             // biome-ignore lint/suspicious/noArrayIndexKey: itens de conteúdo não têm id estável; o índice apenas desempata títulos repetidos.

@@ -28,7 +28,9 @@ setup('autentica no painel', async ({ page }) => {
 
   await page.goto('/painel/login');
   await page.getByLabel('E-mail').fill(EMAIL);
-  await page.getByLabel('Senha').fill(PASSWORD);
+  // `exact` porque o botão de revelar a senha tem rótulo "Mostrar senha": sem
+  // isso o seletor pega os dois.
+  await page.getByLabel('Senha', { exact: true }).fill(PASSWORD);
   await page.getByRole('button', { name: /entrar/i }).click();
 
   await expect(page).toHaveURL(/\/painel$/);

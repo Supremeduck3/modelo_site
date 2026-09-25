@@ -8,6 +8,9 @@ import styles from './hero.module.css';
  *
  * A entrada em cena fica aqui, com um único observer por hero: o escalonamento
  * entre eyebrow, título, apoio e ações é resolvido no CSS.
+ *
+ * O hero entra como `imediato`: ele já está na dobra, e esperar hidratação para
+ * aparecer atrasava o maior elemento da página. Ver `Reveal`.
  */
 export default function HeroContent({
   content = {},
@@ -18,6 +21,7 @@ export default function HeroContent({
 
   return (
     <Reveal
+      imediato
       className={`${styles.content} ${styles[align] ?? ''} ${inverted ? styles.inverted : ''}`.trim()}
     >
       {eyebrow && <p className={styles.eyebrow}>{eyebrow}</p>}

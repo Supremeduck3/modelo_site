@@ -15,6 +15,31 @@
   border-top: var(--border-width) solid var(--color-border);
 }
 
+.ordinal {
+  font-family: var(--font-family-heading);
+  font-weight: var(--font-weight-heading);
+  font-size: 1.5rem;
+  line-height: 1;
+  letter-spacing: var(--heading-tracking);
+  color: var(--color-primary);
+  font-variant-numeric: tabular-nums;
+}
+
+/* O filete do item acende na cor da marca no trecho sobre o número. */
+.iconItem {
+  position: relative;
+}
+
+.iconItem::before {
+  content: "";
+  position: absolute;
+  top: calc(var(--border-width) * -1);
+  left: 0;
+  width: 48px;
+  height: 2px;
+  background: var(--color-primary);
+}
+
 .itemTitle {
   font-size: var(--fs-h3);
   margin: 20px 0 8px;

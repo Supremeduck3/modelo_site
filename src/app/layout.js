@@ -1,6 +1,7 @@
 import './globals.css';
 import { siteConfig } from '@/config/site';
 import { buildThemeVariables } from '@/config/theme';
+import { fontVariablesClassName } from '@/config/theme/fonts';
 
 const { identity, seo } = siteConfig;
 
@@ -40,23 +41,33 @@ export const viewport = {
  * público não carregue nada do painel nem o contrário.
  */
 export default function RootLayout({ children }) {
-  // A direção de arte pode pedir webfont; sem ela, seguimos com fonte de
-  // sistema e nenhuma requisição extra.
+  /*
+   * As famílias dos presets são servidas pelo próprio domínio
+   * (config/theme/fonts.js). `fontImport` é a saída para a implantação que
+   * precise de uma folha externa própria — uma fonte licenciada, por exemplo.
+   * Nesse caso vale o `preconnect`, porque aí existe um terceiro no caminho.
+   */
   const fontImport = siteConfig.theme.typography.fontImport;
+  const origemDaFonte = fontImport
+    ? (URL.parse(fontImport)?.origin ?? null)
+    : null;
 
   return (
     // Os tokens da implantação vão como style inline no <html>: assim vencem
     // os defaults de globals.css sem depender da ordem das folhas de estilo.
-    <html lang="pt-BR" style={buildThemeVariables()}>
+    <html
+      lang="pt-BR"
+      className={fontVariablesClassName}
+      style={buildThemeVariables()}
+    >
       <head>
         {fontImport && (
           <>
-            <link rel="preconnect" href="https://fonts.googleapis.com" />
-            <link
-              rel="preconnect"
-              href="https://fonts.gstatic.com"
-              crossOrigin=""
-            />
+            {/* A origem sai do próprio URL: fixar os domínios do Google aqui
+                não ajudaria quem aponta outro provedor. */}
+            {origemDaFonte && (
+              <link rel="preconnect" href={origemDaFonte} crossOrigin="" />
+            )}
             <link rel="stylesheet" href={fontImport} />
           </>
         )}

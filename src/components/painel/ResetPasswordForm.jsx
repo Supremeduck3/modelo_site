@@ -1,8 +1,8 @@
 'use client';
 
-import { Alert, Button, Input } from 'antd';
 import Link from 'next/link';
 import { useId, useState } from 'react';
+import { Aviso, Botao, CampoSenha } from '@/components/auth/AuthUI';
 import { LOGIN_PATH } from '@/lib/auth/next-path';
 import { PASSWORD_MIN_LENGTH } from '@/lib/auth/password-rules';
 import { validateResetPasswordInput } from '@/lib/auth/schema';
@@ -92,12 +92,7 @@ export default function ResetPasswordForm({ token }) {
   if (tokenInvalid) {
     return (
       <div className={styles.confirmation}>
-        <Alert
-          type="error"
-          message={INVALID_TOKEN_ERROR}
-          showIcon
-          role="alert"
-        />
+        <Aviso>{INVALID_TOKEN_ERROR}</Aviso>
         <Link href="/painel/esqueci-senha" className={styles.backLink}>
           Pedir um novo link
         </Link>
@@ -108,12 +103,9 @@ export default function ResetPasswordForm({ token }) {
   if (success) {
     return (
       <div className={styles.confirmation}>
-        <Alert
-          type="success"
-          message="Sua senha foi redefinida."
-          showIcon
-          role="status"
-        />
+        <Aviso tipo="success" role="status">
+          Sua senha foi redefinida.
+        </Aviso>
         <Link href={LOGIN_PATH} className={styles.backLink}>
           Entrar
         </Link>
@@ -123,75 +115,33 @@ export default function ResetPasswordForm({ token }) {
 
   return (
     <form className={styles.form} onSubmit={handleSubmit} noValidate>
-      {formError && (
-        <Alert type="error" message={formError} showIcon role="alert" />
-      )}
+      {formError && <Aviso>{formError}</Aviso>}
 
-      <div className={styles.field}>
-        <label htmlFor={fieldId('password')} className={styles.label}>
-          Nova senha
-        </label>
-        <Input.Password
-          id={fieldId('password')}
-          size="large"
-          autoComplete="new-password"
-          value={passwords.password}
-          status={errors.password ? 'error' : undefined}
-          onChange={(event) => updateField('password', event.target.value)}
-          aria-describedby={
-            errors.password ? `${hintId} ${errorId('password')}` : hintId
-          }
-          aria-invalid={errors.password ? 'true' : undefined}
-        />
-        <p id={hintId} className={styles.fieldHint}>
-          Use ao menos {PASSWORD_MIN_LENGTH} caracteres.
-        </p>
-        {errors.password && (
-          <p id={errorId('password')} className={styles.fieldError}>
-            {errors.password}
-          </p>
-        )}
-      </div>
+      <CampoSenha
+        id={fieldId('password')}
+        label="Nova senha"
+        autoComplete="new-password"
+        value={passwords.password}
+        error={errors.password}
+        errorId={errorId('password')}
+        dica={`Use ao menos ${PASSWORD_MIN_LENGTH} caracteres.`}
+        dicaId={hintId}
+        onChange={(event) => updateField('password', event.target.value)}
+      />
 
-      <div className={styles.field}>
-        <label
-          htmlFor={fieldId('passwordConfirmation')}
-          className={styles.label}
-        >
-          Confirme a nova senha
-        </label>
-        <Input.Password
-          id={fieldId('passwordConfirmation')}
-          size="large"
-          autoComplete="new-password"
-          value={passwords.passwordConfirmation}
-          status={errors.passwordConfirmation ? 'error' : undefined}
-          onChange={(event) =>
-            updateField('passwordConfirmation', event.target.value)
-          }
-          aria-describedby={
-            errors.passwordConfirmation
-              ? errorId('passwordConfirmation')
-              : undefined
-          }
-          aria-invalid={errors.passwordConfirmation ? 'true' : undefined}
-        />
-        {errors.passwordConfirmation && (
-          <p id={errorId('passwordConfirmation')} className={styles.fieldError}>
-            {errors.passwordConfirmation}
-          </p>
-        )}
-      </div>
+      <CampoSenha
+        id={fieldId('passwordConfirmation')}
+        label="Confirme a nova senha"
+        autoComplete="new-password"
+        value={passwords.passwordConfirmation}
+        error={errors.passwordConfirmation}
+        errorId={errorId('passwordConfirmation')}
+        onChange={(event) =>
+          updateField('passwordConfirmation', event.target.value)
+        }
+      />
 
-      <Button
-        type="primary"
-        size="large"
-        htmlType="submit"
-        loading={submitting}
-        block
-      >
-        Redefinir senha
-      </Button>
+      <Botao carregando={submitting}>Redefinir senha</Botao>
     </form>
   );
 }

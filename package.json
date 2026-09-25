@@ -37,6 +37,7 @@
     "lint": "biome check",
     "format": "biome format --write",
     "test": "node --test \"tests/**/*.test.js\"",
+    "perf": "node scripts/medir-performance.mjs",
     "db:migrate": "prisma migrate dev",
     "db:deploy": "prisma migrate deploy",
     "db:setup": "prisma migrate deploy && node prisma/seed.js",

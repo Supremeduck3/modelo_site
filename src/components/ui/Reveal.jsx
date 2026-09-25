@@ -9,16 +9,24 @@ import { useEffect, useRef, useState } from 'react';
  * que querem entrar em cena, sem cada uma repetir observer e estado. O estado
  * inicial está em globals.css e a preferência por menos movimento vence lá,
  * então aqui não há verificação de mídia duplicada.
+ *
+ * `imediato` é para o que já está na dobra, e existe por medição: o conteúdo
+ * nasce em opacidade 0 e só aparece depois de hidratar, observar e animar.
+ * Enquanto o hero passava por isso, o título da home — o maior elemento da
+ * página, que é o que o LCP mede — pintava em 772 ms, contra 164 ms do
+ * primeiro texto. Animar o que o visitante já está olhando não premia
+ * rolagem nenhuma; só atrasa a leitura.
  */
 export default function Reveal({
   as: Tag = 'div',
   className = '',
   delay = 0,
+  imediato = false,
   children,
   ...rest
 }) {
   const ref = useRef(null);
-  const [visible, setVisible] = useState(false);
+  const [visible, setVisible] = useState(imediato);
 
   useEffect(() => {
     const node = ref.current;

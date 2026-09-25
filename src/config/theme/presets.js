@@ -12,9 +12,13 @@
  * Nenhum componente conhece preset: tudo vira variável CSS em config/theme.
  */
 
-/** URL única do Google Fonts com as famílias usadas pelos presets. */
-const FONT_IMPORT =
-  'https://fonts.googleapis.com/css2?family=Fraunces:opsz,wght@9..144,300..700&family=Inter:wght@300..700&family=Archivo:wght@400..800&family=Space+Grotesk:wght@400..700&display=swap';
+/*
+ * As famílias vêm de `config/theme/fonts.js`, servidas pelo próprio domínio, e
+ * chegam aqui como variável CSS. `fontImport` continua existindo para a
+ * implantação que quiser apontar uma folha externa própria, mas nenhum preset
+ * do molde usa: fonte de terceiro no caminho crítico custava ~300 ms no maior
+ * elemento da dobra.
+ */
 
 /**
  * Padrão do molde: neutro, legível, sem personalidade forte.
@@ -80,9 +84,9 @@ const editorial = {
     textMuted: '#6b6152',
   },
   typography: {
-    fontImport: FONT_IMPORT,
-    fontFamily: "'Inter', system-ui, sans-serif",
-    headingFamily: "'Fraunces', Georgia, 'Times New Roman', serif",
+    fontImport: null,
+    fontFamily: 'var(--font-inter), system-ui, sans-serif',
+    headingFamily: "var(--font-fraunces), Georgia, 'Times New Roman', serif",
     headingWeight: 400,
     displayScale: 1.22,
     headingTracking: '-0.015em',
@@ -145,9 +149,9 @@ const expressivo = {
     textMuted: '#a2958a',
   },
   typography: {
-    fontImport: FONT_IMPORT,
-    fontFamily: "'Inter', system-ui, sans-serif",
-    headingFamily: "'Archivo', 'Inter', sans-serif",
+    fontImport: null,
+    fontFamily: 'var(--font-inter), system-ui, sans-serif',
+    headingFamily: 'var(--font-archivo), var(--font-inter), sans-serif',
     headingWeight: 800,
     displayScale: 1.32,
     headingTracking: '-0.03em',
@@ -210,9 +214,9 @@ const comercial = {
     textMuted: '#5c6b84',
   },
   typography: {
-    fontImport: FONT_IMPORT,
-    fontFamily: "'Inter', system-ui, sans-serif",
-    headingFamily: "'Space Grotesk', 'Inter', sans-serif",
+    fontImport: null,
+    fontFamily: 'var(--font-inter), system-ui, sans-serif',
+    headingFamily: 'var(--font-space-grotesk), var(--font-inter), sans-serif',
     headingWeight: 700,
     displayScale: 1,
     headingTracking: '-0.035em',

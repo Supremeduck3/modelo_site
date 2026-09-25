@@ -1,9 +1,9 @@
 'use client';
 
-import { Alert, Button, Input } from 'antd';
 import Link from 'next/link';
 import { useRouter } from 'next/navigation';
 import { useId, useState } from 'react';
+import { Aviso, Botao, Campo, CampoSenha } from '@/components/auth/AuthUI';
 import { FORGOT_PASSWORD_PATH } from '@/lib/auth/next-path';
 import { validateLoginInput } from '@/lib/auth/schema';
 import styles from './login-form.module.css';
@@ -87,63 +87,31 @@ export default function LoginForm({ nextPath }) {
 
   return (
     <form className={styles.form} onSubmit={handleSubmit} noValidate>
-      {formError && (
-        <Alert type="error" message={formError} showIcon role="alert" />
-      )}
+      {formError && <Aviso>{formError}</Aviso>}
 
-      <div className={styles.field}>
-        <label htmlFor={fieldId('email')} className={styles.label}>
-          E-mail
-        </label>
-        <Input
-          id={fieldId('email')}
-          type="email"
-          size="large"
-          autoComplete="username"
-          autoFocus
-          value={form.email}
-          status={errors.email ? 'error' : undefined}
-          onChange={(event) => updateField('email', event.target.value)}
-          aria-describedby={errors.email ? errorId('email') : undefined}
-          aria-invalid={errors.email ? 'true' : undefined}
-        />
-        {errors.email && (
-          <p id={errorId('email')} className={styles.fieldError}>
-            {errors.email}
-          </p>
-        )}
-      </div>
+      <Campo
+        id={fieldId('email')}
+        label="E-mail"
+        type="email"
+        autoComplete="username"
+        autoFocus
+        value={form.email}
+        error={errors.email}
+        errorId={errorId('email')}
+        onChange={(event) => updateField('email', event.target.value)}
+      />
 
-      <div className={styles.field}>
-        <label htmlFor={fieldId('password')} className={styles.label}>
-          Senha
-        </label>
-        <Input.Password
-          id={fieldId('password')}
-          size="large"
-          autoComplete="current-password"
-          value={form.password}
-          status={errors.password ? 'error' : undefined}
-          onChange={(event) => updateField('password', event.target.value)}
-          aria-describedby={errors.password ? errorId('password') : undefined}
-          aria-invalid={errors.password ? 'true' : undefined}
-        />
-        {errors.password && (
-          <p id={errorId('password')} className={styles.fieldError}>
-            {errors.password}
-          </p>
-        )}
-      </div>
+      <CampoSenha
+        id={fieldId('password')}
+        label="Senha"
+        autoComplete="current-password"
+        value={form.password}
+        error={errors.password}
+        errorId={errorId('password')}
+        onChange={(event) => updateField('password', event.target.value)}
+      />
 
-      <Button
-        type="primary"
-        size="large"
-        htmlType="submit"
-        loading={submitting}
-        block
-      >
-        Entrar
-      </Button>
+      <Botao carregando={submitting}>Entrar</Botao>
 
       <p className={styles.helper}>
         <Link href={FORGOT_PASSWORD_PATH}>Esqueci minha senha</Link>

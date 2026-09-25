@@ -34,6 +34,11 @@
   margin: 24px 0 10px;
 }
 
+/* Sem ícone, o título abre o card: a margem de cima era espaço do ícone. */
+.card > .cardTitle:first-child {
+  margin-top: 0;
+}
+
 .cardDescription {
   margin: 0;
   color: var(--color-text-muted);

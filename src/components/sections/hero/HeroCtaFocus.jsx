@@ -18,7 +18,7 @@ export default function HeroCtaFocus({ id, content = {} }) {
       <Container className={styles.ctaFocusInner}>
         <HeroContent content={text} inverted />
         {(primaryCta || secondaryCta) && (
-          <Reveal className={styles.ctaFocusAside} delay={160}>
+          <Reveal imediato className={styles.ctaFocusAside}>
             <div className={styles.actions}>
               {primaryCta && (
                 <Button href={primaryCta.href} size="lg" variant="secondary">

@@ -1,0 +1,262 @@
+/*
+ * Campos, avisos e botão das telas públicas de acesso.
+ *
+ * Existem em CSS próprio em vez de usar o Ant Design porque estas quatro telas
+ * (entrar, esqueci a senha, redefinir, ativar convite) são públicas: carregar
+ * a biblioteca do painel nelas custava ~220 KB de JavaScript para desenhar
+ * três controles. Tudo aqui sai dos mesmos tokens da implantação, então o
+ * cliente de marca verde continua com tela de acesso verde.
+ */
+
+.form {
+  display: grid;
+  gap: 20px;
+}
+
+.intro {
+  margin: 0;
+  color: var(--color-text-muted);
+  font-size: 0.9375rem;
+}
+
+/* Tela que terminou em aviso: o aviso e a saída, nada mais. */
+.confirmation {
+  display: grid;
+  gap: 16px;
+  justify-items: center;
+}
+
+.field {
+  display: grid;
+  gap: 6px;
+}
+
+.label {
+  font-weight: 600;
+  font-size: 0.9375rem;
+}
+
+.control {
+  position: relative;
+  display: flex;
+}
+
+.input {
+  width: 100%;
+  /* Mínimo de 16px: abaixo disso o iOS dá zoom ao focar o campo. */
+  font-size: 1rem;
+  font-family: inherit;
+  color: var(--color-text);
+  padding: 12px 14px;
+  background: var(--color-background);
+  border: var(--border-width) solid var(--color-border);
+  border-radius: var(--radius-sm);
+  transition:
+    border-color var(--motion-duration) var(--motion-easing),
+    box-shadow var(--motion-duration) var(--motion-easing);
+}
+
+.input::placeholder {
+  color: var(--color-text-muted);
+}
+
+.input:hover:not(:disabled) {
+  border-color: var(--color-primary);
+}
+
+/*
+ * O anel de foco é desenhado com box-shadow em vez de outline para acompanhar
+ * o raio do campo. `:focus-visible` mantém o anel para teclado sem pintá-lo a
+ * cada clique de mouse.
+ */
+.input:focus-visible {
+  outline: none;
+  border-color: var(--color-primary);
+  box-shadow: 0 0 0 3px
+    color-mix(in srgb, var(--color-primary) 25%, transparent);
+}
+
+.input:disabled {
+  background: var(--color-surface-alt);
+  color: var(--color-text-muted);
+  cursor: not-allowed;
+}
+
+/* Erro nunca é comunicado só por cor: há texto abaixo do campo e aria-invalid. */
+.inputError {
+  border-color: var(--color-danger);
+}
+
+.inputError:focus-visible {
+  border-color: var(--color-danger);
+  box-shadow: 0 0 0 3px color-mix(in srgb, var(--color-danger) 25%, transparent);
+}
+
+/* Espaço à direita para o botão de revelar a senha não cobrir o texto. */
+.inputWithAction {
+  padding-right: 48px;
+}
+
+.reveal {
+  position: absolute;
+  top: 50%;
+  right: 4px;
+  transform: translateY(-50%);
+  display: grid;
+  place-items: center;
+  /* 40px de alvo: o mínimo confortável para o dedo. */
+  width: 40px;
+  height: 40px;
+  padding: 0;
+  border: 0;
+  border-radius: var(--radius-sm);
+  background: none;
+  color: var(--color-text-muted);
+  cursor: pointer;
+}
+
+.reveal:hover {
+  color: var(--color-text);
+}
+
+.reveal:focus-visible {
+  outline: 2px solid var(--color-primary);
+  outline-offset: -2px;
+  color: var(--color-text);
+}
+
+.fieldHint {
+  margin: 0;
+  color: var(--color-text-muted);
+  font-size: 0.875rem;
+}
+
+.fieldError {
+  margin: 0;
+  color: var(--color-danger);
+  font-size: 0.875rem;
+}
+
+/* ───────── avisos ───────── */
+
+.notice {
+  display: flex;
+  gap: 10px;
+  align-items: flex-start;
+  margin: 0;
+  padding: 12px 14px;
+  border: var(--border-width) solid;
+  border-radius: var(--radius-sm);
+  font-size: 0.9375rem;
+  text-align: left;
+}
+
+/*
+ * Fundo com 8% da cor sobre a superfície, não a cor pura: o texto continua
+ * sendo o de corpo, cujo contraste já é medido em tests/contraste.test.js.
+ */
+.noticeError {
+  color: var(--color-text);
+  border-color: color-mix(in srgb, var(--color-danger) 45%, transparent);
+  background: color-mix(
+    in srgb,
+    var(--color-danger) 8%,
+    var(--color-background)
+  );
+}
+
+.noticeSuccess {
+  color: var(--color-text);
+  border-color: color-mix(in srgb, var(--color-success) 45%, transparent);
+  background: color-mix(
+    in srgb,
+    var(--color-success) 8%,
+    var(--color-background)
+  );
+}
+
+.noticeIcon {
+  flex: none;
+  margin-top: 2px;
+}
+
+.noticeErrorIcon {
+  color: var(--color-danger);
+}
+
+.noticeSuccessIcon {
+  color: var(--color-success);
+}
+
+/* ───────── botão ───────── */
+
+.button {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  gap: 8px;
+  width: 100%;
+  min-height: 46px;
+  padding: var(--button-padding);
+  font-family: inherit;
+  font-size: 1rem;
+  font-weight: var(--button-weight);
+  letter-spacing: var(--button-tracking);
+  text-transform: var(--button-transform);
+  color: var(--color-primary-contrast);
+  background: var(--color-primary);
+  border: var(--border-width) solid var(--color-primary);
+  border-radius: var(--button-radius);
+  cursor: pointer;
+  transition:
+    filter var(--motion-duration) var(--motion-easing),
+    box-shadow var(--motion-duration) var(--motion-easing);
+}
+
+.button:hover:not(:disabled) {
+  filter: brightness(0.93);
+}
+
+.button:focus-visible {
+  outline: none;
+  box-shadow: 0 0 0 3px
+    color-mix(in srgb, var(--color-primary) 35%, transparent);
+}
+
+.button:active:not(:disabled) {
+  filter: brightness(0.88);
+}
+
+.button:disabled {
+  cursor: progress;
+  opacity: 0.75;
+}
+
+.spinner {
+  width: 16px;
+  height: 16px;
+  border: 2px solid
+    color-mix(in srgb, var(--color-primary-contrast) 35%, transparent);
+  border-top-color: var(--color-primary-contrast);
+  border-radius: 50%;
+  animation: girar 0.7s linear infinite;
+}
+
+@keyframes girar {
+  to {
+    transform: rotate(360deg);
+  }
+}
+
+/* Quem pede menos movimento recebe um indicador que não gira. */
+@media (prefers-reduced-motion: reduce) {
+  .spinner {
+    animation: none;
+    border-top-color: transparent;
+  }
+
+  .input,
+  .button {
+    transition: none;
+  }
+}
