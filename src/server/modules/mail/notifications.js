@@ -1,10 +1,19 @@
+import {
+  BOOKING_PERIODS,
+  labelOf as bookingLabel,
+} from '@/lib/booking/constants';
+import { formatDateLong } from '@/lib/booking/dates';
+import { customerMessage, customerSubject } from '@/lib/booking/messages';
 import { labelOf, SUBMISSION_TYPES } from '@/lib/submissions/constants';
+import { formatPhone } from '@/lib/whatsapp';
 import { prisma } from '@/server/db/client';
 import { isMailConfigured, sendMail } from '@/server/lib/mailer';
 import { RESET_TTL_MS } from '@/server/modules/auth/password-reset';
 import { getCurrentCompany } from '@/server/modules/company/service';
 import { INVITE_TTL_MS } from '@/server/modules/team/service';
 import {
+  appointmentRequestedForTeam,
+  appointmentUpdateForCustomer,
   memberInvited,
   passwordResetRequested,
   submissionAnsweredForVisitor,
@@ -185,5 +194,78 @@ export async function notifyMemberInvited({ member, link, invitedByName }) {
     // Roda depois da resposta: não há a quem devolver erro, e o admin já tem o
     // link na tela.
     console.error('[mail] falha ao enviar convite', error);
+  }
+}
+
+/** Link público de acompanhamento de um pedido de agendamento. */
+export function appointmentTrackingUrl(code) {
+  const base = process.env.NEXT_PUBLIC_SITE_URL?.trim().replace(/\/$/, '');
+  return base ? `${base}/agendar/pedido/${encodeURIComponent(code)}` : null;
+}
+
+/**
+ * Avisa a equipe de um pedido de agendamento novo.
+ *
+ * Só a equipe: o cliente já viu o código e o link de acompanhamento na tela, e
+ * receber "recebemos seu pedido" por e-mail antes da confirmação de verdade só
+ * cria a dúvida de qual das duas mensagens vale.
+ */
+export async function notifyAppointmentRequested({ appointment }) {
+  if (!isMailConfigured()) return;
+
+  try {
+    const company = await getCurrentCompany();
+    const recipients = await teamRecipients(company.id);
+    const url = panelUrl();
+
+    await sendMail({
+      to: recipients,
+      ...appointmentRequestedForTeam({
+        appointment,
+        companyName: company.name,
+        when: `${formatDateLong(appointment.requestedDate)}, ${bookingLabel(BOOKING_PERIODS, appointment.requestedPeriod).toLowerCase()}`,
+        phone: formatPhone(appointment.customerPhone),
+        panelUrl: url ? `${url}/agenda` : null,
+      }),
+    });
+  } catch (error) {
+    // Roda depois da resposta ao cliente: não há a quem devolver erro.
+    console.error('[mail] falha ao avisar sobre pedido de agendamento', error);
+  }
+}
+
+/**
+ * Avisa o cliente de uma decisão sobre o pedido, se ele deixou e-mail.
+ *
+ * O texto é o mesmo que o painel oferece para mandar no WhatsApp.
+ */
+export async function notifyAppointmentUpdated({ appointment }) {
+  if (!isMailConfigured()) return;
+  if (!appointment?.customerEmail) return;
+
+  try {
+    const company = await getCurrentCompany();
+    const message = customerMessage({
+      appointment,
+      status: appointment.status,
+      companyName: company.name,
+      trackingUrl: appointmentTrackingUrl(appointment.code),
+    });
+    const subject = customerSubject({
+      status: appointment.status,
+      companyName: company.name,
+    });
+    if (!message || !subject) return;
+
+    await sendMail({
+      to: appointment.customerEmail,
+      ...appointmentUpdateForCustomer({
+        subject,
+        message,
+        code: appointment.code,
+      }),
+    });
+  } catch (error) {
+    console.error('[mail] falha ao avisar cliente sobre agendamento', error);
   }
 }

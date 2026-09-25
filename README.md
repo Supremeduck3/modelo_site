@@ -392,6 +392,32 @@ Camadas, de baixo para cima: `server/lib/mailer.js` fala SMTP,
 `server/modules/mail/messages.js` monta o conteúdo (funções puras, sem import
 nenhum) e `server/modules/mail/notifications.js` decide quem recebe o quê.
 
+## Funcionalidades para negócios com hora marcada
+
+Para salão, barbearia, esmalteria, estética e negócios parecidos, o molde tem
+três blocos que ligam juntos (guia completo em
+[`docs/SALAO.md`](docs/SALAO.md), com um exemplo pronto em
+`src/config/site/exemplos/salao.config.js`):
+
+- **Tabela de preços** (`features.pricing`) — serviços com preço, editados no
+  painel (`/painel/servicos`), não na configuração do site.
+- **Agendamento por pedido** (`features.booking`) — o cliente pede um dia e um
+  período em `/agendar`; a empresa confirma, propõe outro horário ou recusa em
+  `/painel/agenda`. Não é reserva automática de horário livre nem bloqueio de
+  conflito de agenda — é a empresa quem decide o horário final.
+- **Botão de WhatsApp** (`contact.whatsappButton`) — link `wa.me` fixo, sem
+  API paga nem conta comercial.
+
+Duas permissões novas (`src/lib/auth/permissions.js`) acompanham esses blocos:
+`APPOINTMENTS_VIEW`/`APPOINTMENTS_MANAGE` (operador já tem, para tocar a
+agenda no dia a dia) e `CATALOG_MANAGE` (fora do operador: mexer em preço é
+decisão comercial, não operacional).
+
+A home continua estática: revalida a cada 5 minutos e também na hora, quando
+um preço muda no painel (`revalidatePublicCatalog`,
+`src/server/modules/catalog/revalidate.js`) — renderizar a cada visita
+custaria o LCP que a home já otimiza.
+
 ## SEO por implantação
 
 `robots.js` e `sitemap.js` são gerados de `siteConfig`, não escritos à mão por

@@ -1,0 +1,94 @@
+/*
+ * Verde escuro em vez do verde da marca (#25D366): com ícone branco, o verde
+ * oficial dá 1,98:1, abaixo até do mínimo de 3:1 para elemento gráfico. Este
+ * dá 5,43:1 e continua lendo como WhatsApp. Medido em tests/contraste.test.js.
+ */
+.button {
+  --whatsapp: #0a7a3e;
+
+  position: fixed;
+  right: max(16px, env(safe-area-inset-right));
+  /* Acima da barra de gestos do iPhone, não embaixo dela. */
+  bottom: max(16px, calc(env(safe-area-inset-bottom) + 8px));
+  /* Abaixo do menu do celular (z-index 100), que precisa cobrir tudo. */
+  z-index: 90;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  gap: 10px;
+  width: 56px;
+  height: 56px;
+  border-radius: 999px;
+  background: var(--whatsapp);
+  color: #fff;
+  box-shadow:
+    0 6px 16px rgb(0 0 0 / 0.18),
+    0 2px 4px rgb(0 0 0 / 0.12);
+  text-decoration: none;
+  transition:
+    transform var(--motion-duration) var(--motion-easing),
+    box-shadow var(--motion-duration) var(--motion-easing);
+}
+
+.button:hover {
+  transform: translateY(-2px);
+  box-shadow:
+    0 10px 22px rgb(0 0 0 / 0.2),
+    0 3px 6px rgb(0 0 0 / 0.14);
+}
+
+.button:focus-visible {
+  outline: 3px solid var(--color-primary);
+  outline-offset: 3px;
+}
+
+.icon {
+  width: 28px;
+  height: 28px;
+  flex: none;
+}
+
+.label {
+  display: none;
+  font-weight: 600;
+  font-size: 0.9375rem;
+}
+
+.spacer {
+  height: 88px;
+}
+
+/* Em tela larga vira pílula com o nome: lá sobra espaço e o texto ajuda. */
+@media (min-width: 768px) {
+  .button {
+    width: auto;
+    padding: 0 20px 0 16px;
+    right: 24px;
+    bottom: 24px;
+  }
+
+  .label {
+    display: inline;
+  }
+
+  .spacer {
+    height: 0;
+  }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .button {
+    transition: none;
+  }
+
+  .button:hover {
+    transform: none;
+  }
+}
+
+@media print {
+  .button,
+  .spacer {
+    display: none;
+  }
+}

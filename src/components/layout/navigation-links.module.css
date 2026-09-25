@@ -6,10 +6,16 @@
   padding: 0;
 }
 
+/*
+ * Sem quebra de linha: menu de cabeçalho em duas linhas lê como defeito, e com
+ * itens a mais (Preços, Agendar) ele quebrava a 1000px. O ponto em que o menu
+ * vira hambúrguer (header-navigation.module.css) é quem garante que cabe.
+ */
 .row {
   flex-direction: row;
   align-items: center;
-  flex-wrap: wrap;
+  flex-wrap: nowrap;
+  white-space: nowrap;
 }
 
 .column {

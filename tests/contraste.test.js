@@ -133,3 +133,24 @@ test('nenhuma etiqueta do painel usa cor nomeada do Ant Design', async () => {
     }
   }
 });
+
+test('botão de WhatsApp tem contraste com o ícone branco', async () => {
+  const { readFile } = await import('node:fs/promises');
+  const css = await readFile(
+    new URL(
+      '../src/components/layout/whatsapp-button.module.css',
+      import.meta.url,
+    ),
+    'utf8',
+  );
+  const cor = /--whatsapp:\s*(#[0-9a-f]{6})/i.exec(css)?.[1];
+  assert.ok(cor, 'a cor do botão precisa estar em --whatsapp');
+
+  // Ícone é elemento gráfico (mínimo 3:1), mas o rótulo em tela larga é texto:
+  // exigimos o mínimo de texto, 4,5:1.
+  const razao = contraste('#ffffff', cor);
+  assert.ok(
+    razao >= 4.5,
+    `botão de WhatsApp (${cor}) dá ${razao.toFixed(2)}:1 com branco, mínimo 4,5:1`,
+  );
+});

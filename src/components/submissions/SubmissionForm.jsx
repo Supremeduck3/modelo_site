@@ -4,9 +4,17 @@ import { useId, useRef, useState } from 'react';
 import toast from 'react-hot-toast';
 import Button from '@/components/ui/Button';
 import { SUBMISSION_TYPES } from '@/lib/submissions/constants';
-import { validateSubmissionInput } from '@/lib/submissions/schema';
 import SubmissionSuccess from './SubmissionSuccess';
 import styles from './submission-form.module.css';
+
+/*
+ * A validação é baixada sob demanda: ela só roda no envio, e importada no topo
+ * ia para o carregamento da página — o zod/mini virou pedaço compartilhado
+ * entre os formulários públicos e custava ~24 KB antes da primeira pintura (a
+ * tela de convite chegava a levar o zod completo). O download começa quando a
+ * pessoa toca no primeiro campo, então no envio ele já chegou.
+ */
+const carregarValidacao = () => import('@/lib/submissions/schema');
 
 const DESCRIPTION_MAX = 5000;
 
@@ -68,6 +76,8 @@ export default function SubmissionForm({ categories = [], consentText }) {
       contactPhone: form.contactPhone,
       consent: form.consent,
     };
+
+    const { validateSubmissionInput } = await carregarValidacao();
 
     const result = validateSubmissionInput(payload);
     if (!result.success) {
@@ -140,7 +150,12 @@ export default function SubmissionForm({ categories = [], consentText }) {
   const descriptionLength = form.description.length;
 
   return (
-    <form className={styles.form} onSubmit={handleSubmit} noValidate>
+    <form
+      onFocusCapture={carregarValidacao}
+      className={styles.form}
+      onSubmit={handleSubmit}
+      noValidate
+    >
       {(formError || errorEntries.length > 0) && (
         <div
           ref={errorSummaryRef}

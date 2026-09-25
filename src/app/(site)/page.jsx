@@ -2,6 +2,15 @@ import SectionRenderer from '@/components/sections/SectionRenderer';
 import { getHomeSections, siteConfig } from '@/config/site';
 
 /**
+ * Estática, refeita no máximo a cada 5 minutos.
+ *
+ * A tabela de preços vem do banco; quando ela muda, o painel pede a
+ * revalidação na hora, e este período é só a rede de segurança. A home não
+ * vira dinâmica por causa disso — renderizar a cada visita custaria o LCP.
+ */
+export const revalidate = 300;
+
+/**
  * Home institucional. A página não conhece seções específicas: ela apenas
  * entrega ao renderer o que a configuração da implantação declarou.
  */

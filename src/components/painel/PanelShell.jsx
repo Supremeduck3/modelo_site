@@ -4,7 +4,7 @@ import { Layout, Menu } from 'antd';
 import Link from 'next/link';
 import { usePathname } from 'next/navigation';
 import { useState } from 'react';
-import { activeNavItem, PANEL_NAV } from './nav';
+import { activeNavItem, visibleNavItems } from './nav';
 import PanelUserMenu from './PanelUserMenu';
 import styles from './panel-shell.module.css';
 
@@ -17,12 +17,25 @@ const { Header, Sider, Content } = Layout;
  * próprio antd — o painel é ferramenta de trabalho, não precisa da mesma
  * liberdade de variantes do site público.
  */
-export default function PanelShell({ user, companyName, children }) {
+export default function PanelShell({
+  user,
+  companyName,
+  enabledFeatures,
+  children,
+}) {
   const pathname = usePathname();
   const [collapsed, setCollapsed] = useState(false);
+  // Abaixo do ponto de quebra o menu sobrepõe o conteúdo em vez de empurrá-lo.
+  const [estreito, setEstreito] = useState(false);
   const current = activeNavItem(pathname);
 
-  const items = PANEL_NAV.map((item) => ({
+  // No celular, escolher um item fecha o menu: aberto por cima da página, ele
+  // continuaria cobrindo a tela que a pessoa acabou de pedir.
+  const fecharSeEstreito = () => {
+    if (estreito) setCollapsed(true);
+  };
+
+  const items = visibleNavItems(enabledFeatures).map((item) => ({
     key: item.key,
     label: <Link href={item.key}>{item.label}</Link>,
   }));
@@ -32,10 +45,12 @@ export default function PanelShell({ user, companyName, children }) {
     // injetado depois do CSS Module — uma classe local não venceria.
     <Layout style={{ minHeight: '100vh' }}>
       <Sider
+        className={styles.sider}
         breakpoint="lg"
         collapsedWidth="0"
         collapsed={collapsed}
         onCollapse={setCollapsed}
+        onBreakpoint={setEstreito}
         width={240}
       >
         <div className={styles.brand}>{companyName}</div>
@@ -44,8 +59,20 @@ export default function PanelShell({ user, companyName, children }) {
           theme="dark"
           items={items}
           selectedKeys={current ? [current.key] : []}
+          onClick={fecharSeEstreito}
         />
       </Sider>
+
+      {estreito && !collapsed && (
+        // Toque fora fecha. Botão de verdade (e não div) para o toque valer
+        // também por teclado; o menu em si já é alcançável pelo gatilho.
+        <button
+          type="button"
+          className={styles.backdrop}
+          aria-label="Fechar menu"
+          onClick={() => setCollapsed(true)}
+        />
+      )}
 
       <Layout>
         <Header className={styles.header}>

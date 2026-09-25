@@ -6,11 +6,24 @@
  */
 export const PANEL_NAV = [
   { key: '/painel', label: 'Início' },
+  // `feature`: o item só aparece com a funcionalidade ligada na implantação.
+  { key: '/painel/agenda', label: 'Agenda', feature: 'booking' },
   { key: '/painel/manifestacoes', label: 'Manifestações' },
+  { key: '/painel/servicos', label: 'Serviços e preços', feature: 'pricing' },
   { key: '/painel/equipe', label: 'Equipe' },
   { key: '/painel/categorias', label: 'Categorias' },
   { key: '/painel/configuracoes', label: 'Configurações' },
 ];
+
+/**
+ * Itens visíveis para as funcionalidades ligadas.
+ *
+ * Recebe o mapa de flags em vez de importar a configuração: o menu é
+ * componente de cliente, e a configuração inteira não precisa ir ao navegador.
+ */
+export function visibleNavItems(enabled = {}) {
+  return PANEL_NAV.filter((item) => !item.feature || enabled[item.feature]);
+}
 
 /**
  * Item correspondente ao caminho atual.

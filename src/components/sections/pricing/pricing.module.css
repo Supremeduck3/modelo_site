@@ -1,0 +1,172 @@
+/*
+ * Tabela de preços no jeito de cardápio: nome à esquerda, preço à direita,
+ * ligados por pontilhado. É o formato que o cliente de salão já conhece da
+ * parede do estabelecimento, e o que lê mais rápido no celular.
+ */
+
+.groups {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(min(100%, 420px), 1fr));
+  gap: var(--gap-lg) var(--gap-lg);
+}
+
+.groupsCards {
+  display: grid;
+  gap: var(--gap-lg);
+}
+
+.group {
+  min-width: 0;
+}
+
+/*
+ * Título de grupo em cor de texto, com a marca num filete ao lado. Na cor da
+ * marca, texto deste tamanho sobre o fundo cinza da seção media 4,24:1 —
+ * abaixo do mínimo de 4,5 (a auditoria de acessibilidade pegou). O filete é
+ * decorativo e não tem essa exigência.
+ */
+.groupTitle {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  margin: 0 0 8px;
+  font-size: var(--fs-eyebrow);
+  text-transform: uppercase;
+  letter-spacing: var(--eyebrow-tracking);
+  font-weight: 700;
+  color: var(--color-text);
+}
+
+.groupTitle::before {
+  content: "";
+  width: 20px;
+  height: 2px;
+  background: var(--color-primary);
+}
+
+.rows {
+  list-style: none;
+  margin: 0;
+  padding: 0;
+}
+
+.row {
+  padding: 14px 0;
+  border-bottom: var(--border-width) solid var(--color-border);
+}
+
+.row:last-child {
+  border-bottom: 0;
+}
+
+.line {
+  display: flex;
+  align-items: baseline;
+  gap: 10px;
+}
+
+.name {
+  margin: 0;
+  font-size: 1.0625rem;
+  font-weight: 600;
+  font-family: var(--font-family);
+  letter-spacing: 0;
+  text-transform: none;
+  min-width: 0;
+}
+
+.leader {
+  flex: 1 1 24px;
+  min-width: 24px;
+  border-bottom: 2px dotted var(--color-border);
+  transform: translateY(-4px);
+}
+
+.price {
+  flex: none;
+  margin-left: auto;
+  font-weight: 700;
+  font-variant-numeric: tabular-nums;
+  white-space: nowrap;
+  color: var(--color-text);
+}
+
+.details {
+  margin: 4px 0 0;
+  color: var(--color-text-muted);
+  font-size: var(--fs-small);
+  max-width: 60ch;
+}
+
+.duration {
+  font-variant-numeric: tabular-nums;
+}
+
+.cards {
+  list-style: none;
+  margin: 0;
+  padding: 0;
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(min(100%, 240px), 1fr));
+  gap: var(--gap);
+}
+
+.card {
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+  padding: 20px;
+  border: var(--border-width) solid var(--color-border);
+  border-radius: var(--radius);
+  background: var(--color-background);
+}
+
+.card .line {
+  flex-direction: column;
+  gap: 6px;
+}
+
+.card .price {
+  margin-left: 0;
+  font-size: 1.25rem;
+  color: var(--color-primary);
+}
+
+.footer {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  justify-content: space-between;
+  gap: 16px 32px;
+  margin-top: var(--gap-lg);
+  padding-top: var(--gap);
+  border-top: var(--border-width) solid var(--color-border);
+}
+
+.note {
+  margin: 0;
+  max-width: 52ch;
+  color: var(--color-text-muted);
+  font-size: var(--fs-small);
+}
+
+@media (max-width: 480px) {
+  .groups,
+  .groupsCards {
+    gap: 36px;
+  }
+
+  /* No celular o pontilhado some: numa linha estreita ele vira ruído. */
+  .leader {
+    display: none;
+  }
+
+  .line {
+    justify-content: space-between;
+  }
+
+  .footer > a {
+    width: 100%;
+    justify-content: center;
+  }
+}

@@ -75,6 +75,9 @@ const PAGINAS_PUBLICAS = [
   ['canal de manifestações', '/manifestacao'],
   ['política de privacidade', '/privacidade'],
   ['login do painel', '/painel/login'],
+  // O trilho de dias do agendamento já esticou a página para 1400px num
+  // celular de 390px: rolagem horizontal dentro de grade é armadilha comum.
+  ['agendamento', '/agendar'],
 ];
 
 for (const [nome, caminho] of PAGINAS_PUBLICAS) {
@@ -104,6 +107,8 @@ test.describe('painel autenticado', () => {
     ['equipe', '/painel/equipe'],
     ['categorias', '/painel/categorias'],
     ['configurações', '/painel/configuracoes'],
+    ['agenda', '/painel/agenda'],
+    ['serviços e preços', '/painel/servicos'],
   ]) {
     test(`${nome} não rola para o lado no celular`, async ({ page }) => {
       const { largura, janela, culpados } = await medirVazamento(page, caminho);
