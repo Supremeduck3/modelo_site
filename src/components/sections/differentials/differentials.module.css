@@ -124,3 +124,31 @@
     border-top: var(--border-width) solid var(--color-border);
   }
 }
+
+/*
+ * No celular o marcador (número ou ícone) vai para a esquerda e o texto ao
+ * lado. Empilhados, com 64px entre itens de duas linhas, três diferenciais
+ * pediam uma tela e meia de rolagem para pouco conteúdo.
+ */
+@media (max-width: 620px) {
+  .iconsGrid {
+    grid-template-columns: 1fr;
+    gap: 0;
+  }
+
+  .iconItem {
+    display: grid;
+    grid-template-columns: 48px 1fr;
+    column-gap: 12px;
+    align-items: baseline;
+    padding: 20px 0;
+  }
+
+  .iconItem > :first-child {
+    grid-row: span 2;
+  }
+
+  .iconItem .itemTitle {
+    margin: 0 0 4px;
+  }
+}

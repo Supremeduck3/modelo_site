@@ -57,13 +57,22 @@
   display: flex;
   flex-direction: column;
   gap: 6px;
-  flex: 1 1 200px;
 }
 
 .row {
   display: flex;
   flex-wrap: wrap;
   gap: var(--gap);
+}
+
+/*
+ * A base de 200px só vale lado a lado, dentro de `.row`. Aplicada em todo
+ * campo, ela virava *altura* mínima sempre que o eixo era vertical — no
+ * formulário, e em `.row` no celular — e cada campo reservava ~200px: o
+ * "Assunto" e os contatos ficavam com um vão vazio de ~130px embaixo.
+ */
+.row > .field {
+  flex: 1 1 200px;
 }
 
 .label {
@@ -76,7 +85,8 @@
 .textarea {
   border: var(--border-width) solid var(--color-border);
   border-radius: var(--radius-sm);
-  padding: 10px 12px;
+  /* 12px + corpo de 16px dá ~46px: alvo de toque confortável. */
+  padding: 12px 14px;
   font: inherit;
   color: var(--color-text);
   background: var(--color-background);
@@ -119,7 +129,21 @@
     flex-direction: column;
   }
 
+  .row > .field {
+    flex: 0 0 auto;
+  }
+
+  /*
+   * Os tipos em duas colunas: são rótulos curtos, e uma opção por linha fazia
+   * seis botões ocuparem uma tela de celular antes do primeiro campo.
+   */
   .radioGroup {
-    flex-direction: column;
+    display: grid;
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+    gap: 8px;
+  }
+
+  .radioOption {
+    min-height: 44px;
   }
 }

@@ -130,20 +130,27 @@
 .dots {
   display: flex;
   gap: 10px;
-  margin-top: 28px;
+  margin-top: 16px;
 }
 
+/*
+ * O traço continua com 2px, mas o botão tem 24px de altura: com o alvo do
+ * tamanho do traço, acertar um ponto com o dedo era sorte. O traço é desenhado
+ * pelo fundo, recortado no meio da área clicável.
+ */
 .dot {
   width: 28px;
-  height: 2px;
+  height: 24px;
   border: none;
-  background: var(--color-border);
+  background:
+    linear-gradient(var(--color-border), var(--color-border)) center / 100% 2px
+    no-repeat;
   cursor: pointer;
   padding: 0;
 }
 
 .dotActive {
-  background: var(--color-primary);
+  background-image: linear-gradient(var(--color-primary), var(--color-primary));
 }
 
 @media (max-width: 768px) {
@@ -161,5 +168,16 @@
 @media (max-width: 480px) {
   .masonry {
     columns: 1;
+  }
+}
+
+/*
+ * Tela só de toque: o gesto de arrastar já é o controle, e as setas ocupavam
+ * uma linha inteira sob o título sem servir para nada. Teclado segue com as
+ * setas no trilho e os pontos continuam como botões.
+ */
+@media (hover: none) and (pointer: coarse) {
+  .carouselControls {
+    display: none;
   }
 }

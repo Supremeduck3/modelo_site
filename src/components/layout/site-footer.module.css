@@ -74,8 +74,39 @@
   }
 }
 
+/*
+ * No celular a assinatura ocupa a linha e os links vão em duas colunas: em uma
+ * coluna só, três listas empilhadas faziam o rodapé mais alto que a tela.
+ *
+ * Os links ganham altura de toque (~32px) em vez de 20px de texto com 10px de
+ * vão — no dedo, errar o link vizinho era fácil.
+ */
 @media (max-width: 560px) {
   .inner {
-    grid-template-columns: 1fr;
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+    grid-auto-flow: dense;
+    gap: 32px 16px;
+  }
+
+  .about {
+    grid-column: 1 / -1;
+  }
+
+  /*
+   * O contato ocupa a linha toda: em meia coluna o e-mail quebrava no meio
+   * ("contato@exemplo.com." / "br"). Com `dense`, o institucional sobe para o
+   * lado da navegação e não sobra buraco.
+   */
+  .contactColumn {
+    grid-column: 1 / -1;
+  }
+
+  .list {
+    gap: 0;
+  }
+
+  .link {
+    display: inline-block;
+    padding-block: 6px;
   }
 }
