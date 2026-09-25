@@ -55,16 +55,11 @@ const siteConfig = {
   theme: {
     /*
      * Direção de arte da implantação (src/config/theme/presets.js):
-     * padrao | editorial | expressivo | comercial.
+     * padrao | registro | editorial | expressivo | comercial.
      * O preset define tipografia, forma, espaçamento, tratamento de imagem e
      * intensidade das animações. O que vier abaixo dele é correção pontual.
      */
-    preset: 'comercial',
-    colors: {
-      primary: '#1f6feb',
-      secondary: '#0b3a7a',
-      accent: '#f0a202',
-    },
+    preset: 'registro',
   },
   media: {
     hero: null,

@@ -1,10 +1,38 @@
 .formWrapper {
   max-width: 760px;
   margin: 0 auto var(--section-y);
+  padding-top: var(--gap-lg);
+}
+
+/*
+ * Cabeçalho do formulário: título curto e a promessa de privacidade logo
+ * abaixo, antes do primeiro campo — é quando a pessoa decide se confia.
+ */
+.formHeader {
+  margin-bottom: 40px;
+  padding-bottom: 24px;
+  border-bottom: var(--border-width) solid var(--color-border);
+}
+
+.formTitle {
+  margin: 0 0 8px;
+  font-size: var(--fs-h3);
+}
+
+.privacy {
+  margin: 0;
+  max-width: 58ch;
+  color: var(--color-text-muted);
+  font-size: var(--fs-small);
 }
 
 @media (max-width: 768px) {
   .formWrapper {
     margin-bottom: var(--section-y-mobile);
+    padding-top: 40px;
+  }
+
+  .formHeader {
+    margin-bottom: 28px;
   }
 }

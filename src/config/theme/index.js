@@ -14,10 +14,14 @@ const CSS_VAR_MAP = {
     textMuted: '--color-text-muted',
     success: '--color-success',
     danger: '--color-danger',
+    warning: '--color-warning',
+    borderStrong: '--color-border-strong',
+    focus: '--color-focus',
   },
   typography: {
     fontFamily: '--font-family',
     headingFamily: '--font-family-heading',
+    monoFamily: '--font-family-mono',
     baseSize: '--font-size-base',
     headingWeight: '--font-weight-heading',
     bodyWeight: '--font-weight-body',
@@ -109,6 +113,7 @@ export function buildAntdTheme(theme = siteConfig.theme) {
     colorInfo: colors.primary,
     colorSuccess: colors.success,
     colorError: colors.danger,
+    colorWarning: colors.warning,
     colorLink: colors.primary,
     colorTextBase: colors.text,
     colorBgBase: colors.background,
@@ -141,6 +146,22 @@ export function buildAntdTheme(theme = siteConfig.theme) {
     Layout: {
       headerBg: colors.background,
       bodyBg: colors.surface,
+      // Barra lateral na cor escura da marca, não no azul-marinho do antd.
+      siderBg: colors.secondary,
+      triggerBg: colors.secondary,
+      triggerColor: colors.primaryContrast,
+    },
+    /*
+     * Menu "dark" da barra lateral. Item ativo na primária com o texto de
+     * contraste já medido (primaryContrast sobre primary, 4,5:1 no teste).
+     */
+    Menu: {
+      darkItemBg: colors.secondary,
+      darkSubMenuItemBg: colors.secondary,
+      darkItemSelectedBg: colors.primary,
+      darkItemSelectedColor: colors.primaryContrast,
+      darkItemColor: colors.primaryContrast,
+      darkItemHoverColor: colors.primaryContrast,
     },
   };
 
@@ -151,9 +172,11 @@ export function buildAntdTheme(theme = siteConfig.theme) {
       delete token[key];
     }
   }
-  for (const [key, value] of Object.entries(components.Layout)) {
-    if (value === undefined || value === null || value === '') {
-      delete components.Layout[key];
+  for (const group of Object.values(components)) {
+    for (const [key, value] of Object.entries(group)) {
+      if (value === undefined || value === null || value === '') {
+        delete group[key];
+      }
     }
   }
 

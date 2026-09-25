@@ -14,11 +14,15 @@
 .accent {
   background: var(--color-primary);
   color: var(--color-primary-contrast);
+  /* Fundo escuro: o anel de foco inverte para continuar visível. */
+  --color-focus: var(--color-primary-contrast);
 }
 
 .contrast {
   background: var(--color-secondary);
   color: var(--color-primary-contrast);
+  /* Fundo escuro: o anel de foco inverte para continuar visível. */
+  --color-focus: var(--color-primary-contrast);
 }
 
 .header {

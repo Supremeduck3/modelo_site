@@ -360,7 +360,12 @@ export default function SubmissionForm({ categories = [], consentText }) {
         </p>
       )}
 
-      <Button type="submit" size="lg" disabled={submitting}>
+      <Button
+        type="submit"
+        size="lg"
+        disabled={submitting}
+        aria-busy={submitting || undefined}
+      >
         {submitting ? 'Enviando…' : 'Enviar manifestação'}
       </Button>
     </form>

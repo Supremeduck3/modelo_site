@@ -58,7 +58,10 @@ export default async function ManifestacaoDetalhePage({ params }) {
   return (
     <Row gutter={[16, 16]}>
       <Col xs={24} lg={14}>
-        <Card title={submission.title} extra={<Tag>{submission.protocol}</Tag>}>
+        <Card
+          title={submission.title}
+          extra={<Tag className="data">{submission.protocol}</Tag>}
+        >
           <Descriptions column={{ xs: 1, sm: 2 }} size="small" bordered>
             <Descriptions.Item label="Tipo">
               {labelOf(SUBMISSION_TYPES, submission.type)}

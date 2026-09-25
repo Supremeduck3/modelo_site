@@ -1,126 +1,199 @@
+/*
+ * Confirmação do envio.
+ *
+ * O protocolo é o protagonista: é a única coisa que a pessoa precisa levar
+ * desta tela. Por isso ele aparece grande, em monoespaçada tabular, dentro de
+ * um "canhoto" de borda tracejada — a mesma forma que o painel e o e-mail
+ * usam para o protocolo, para a pessoa reconhecer o número onde o encontrar.
+ */
 .wrapper {
   max-width: 720px;
-  border: var(--border-width) solid var(--color-border);
-  border-radius: var(--radius);
-  background: var(--color-surface);
-  box-shadow: var(--shadow-soft);
-  padding: 32px;
   display: flex;
   flex-direction: column;
-  gap: 16px;
+  gap: 20px;
+  padding: 40px;
+  border: var(--border-width) solid var(--color-border);
+  border-radius: var(--radius);
+  background: var(--color-background);
 }
 
+/* Selo de estado: ícone + palavra, não só cor. */
 .badge {
   align-self: flex-start;
+  display: inline-flex;
+  align-items: center;
+  gap: 8px;
   margin: 0;
-  padding: 4px 12px;
-  border-radius: var(--radius-lg);
-  background: var(--color-success);
-  color: var(--color-primary-contrast);
-  font-size: 0.8rem;
+  padding: 6px 12px 6px 10px;
+  border-radius: var(--radius-sm);
+  background: color-mix(
+    in srgb,
+    var(--color-success) 10%,
+    var(--color-background)
+  );
+  color: var(--color-success);
+  font-size: 0.8125rem;
   font-weight: 700;
-  text-transform: uppercase;
-  letter-spacing: 0.04em;
+  letter-spacing: 0.02em;
+}
+
+.badge::before {
+  content: "✓";
+  display: inline-grid;
+  place-items: center;
+  width: 18px;
+  height: 18px;
+  border-radius: 50%;
+  background: var(--color-success);
+  color: var(--color-background);
+  font-size: 0.7rem;
+  line-height: 1;
 }
 
 .heading {
   margin: 0;
+  font-size: var(--fs-h2);
 }
 
 .text {
   margin: 0;
   color: var(--color-text-muted);
+  max-width: 56ch;
 }
 
 .protocolBox {
-  display: flex;
-  flex-wrap: wrap;
+  display: grid;
+  grid-template-columns: minmax(0, 1fr) auto;
+  grid-template-areas:
+    "label  action"
+    "value  action";
   align-items: center;
-  gap: 12px;
-  padding: 16px;
-  border: var(--border-width) solid var(--color-border);
-  border-radius: var(--radius);
-  background: var(--color-background);
+  gap: 4px 20px;
+  margin-block: 8px;
+  padding: 20px 24px;
+  border: 1.5px dashed var(--color-border-strong);
+  border-radius: var(--radius-sm);
+  background: var(--color-surface);
 }
 
 .protocolLabel {
-  font-size: 0.8rem;
+  grid-area: label;
+  font-family: var(--font-family-mono);
+  font-size: 0.75rem;
   color: var(--color-text-muted);
   text-transform: uppercase;
-  letter-spacing: 0.04em;
+  letter-spacing: 0.14em;
 }
 
 .protocolValue {
-  font-size: 1.4rem;
-  font-weight: 700;
-  letter-spacing: 0.06em;
-  color: var(--color-primary);
+  grid-area: value;
+  font-family: var(--font-family-mono);
+  font-variant-numeric: tabular-nums;
+  font-size: clamp(1.5rem, 4.6vw, 2.25rem);
+  font-weight: 600;
+  line-height: 1.15;
+  letter-spacing: 0.04em;
+  color: var(--color-text);
+  overflow-wrap: anywhere;
 }
 
 .copyButton {
-  margin-left: auto;
-  border: var(--border-width) solid var(--color-primary);
+  grid-area: action;
+  min-height: var(--control-height);
+  border: var(--border-width) solid var(--color-border-strong);
   background: var(--color-background);
-  color: var(--color-primary);
-  border-radius: var(--radius-sm);
-  padding: 8px 14px;
+  color: var(--color-text);
+  border-radius: var(--button-radius);
+  padding: 10px 16px;
   font: inherit;
   font-weight: 600;
   cursor: pointer;
 }
 
 .copyButton:hover {
-  background: var(--color-surface-alt);
+  border-color: var(--color-text);
 }
 
 .details {
   display: grid;
   grid-template-columns: repeat(auto-fit, minmax(160px, 1fr));
-  gap: 12px;
+  gap: 16px 24px;
   margin: 0;
+  padding-block: 20px;
+  border-block: var(--border-width) solid var(--color-border);
 }
 
 .detailRow {
   display: flex;
   flex-direction: column;
   gap: 4px;
+  min-width: 0;
 }
 
 .detailRow dt {
-  font-size: 0.8rem;
+  font-size: 0.8125rem;
   color: var(--color-text-muted);
-  text-transform: uppercase;
-  letter-spacing: 0.03em;
 }
 
 .detailRow dd {
   margin: 0;
   font-weight: 600;
   color: var(--color-text);
+  overflow-wrap: anywhere;
 }
 
 .nextSteps {
-  border-top: var(--border-width) solid var(--color-border);
-  padding-top: 16px;
+  padding-top: 4px;
 }
 
 .nextStepsTitle {
-  margin: 0 0 8px;
+  margin: 0 0 12px;
   font-size: 1rem;
+  letter-spacing: 0;
 }
 
+/* Passos numerados com o número na mono: leitura de "roteiro", não de bullet. */
 .nextStepsList {
   margin: 0;
-  padding-left: 20px;
+  padding: 0;
+  list-style: none;
+  counter-reset: passo;
+  display: grid;
+  gap: 10px;
+  color: var(--color-text);
+}
+
+.nextStepsList li {
+  counter-increment: passo;
+  display: grid;
+  grid-template-columns: 28px minmax(0, 1fr);
+}
+
+.nextStepsList li::before {
+  content: counter(passo, decimal-leading-zero);
+  font-family: var(--font-family-mono);
+  font-size: 0.8125rem;
   color: var(--color-text-muted);
+  padding-top: 0.2em;
 }
 
 @media (max-width: 768px) {
   .wrapper {
-    padding: 20px;
+    padding: 24px 20px;
+    gap: 16px;
+  }
+
+  .protocolBox {
+    grid-template-columns: 1fr;
+    grid-template-areas:
+      "label"
+      "value"
+      "action";
+    padding: 16px;
   }
 
   .copyButton {
-    margin-left: 0;
+    margin-top: 8px;
+    width: 100%;
   }
 }

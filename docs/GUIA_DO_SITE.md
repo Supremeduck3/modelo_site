@@ -111,6 +111,7 @@ espaçamento das seções, tratamento das imagens e intensidade das animações.
 | `padrao` | quem ainda não decidiu | neutro, fonte de sistema, sem webfont |
 | `editorial` | escritórios, consultorias, clínicas | serifada, muito espaço negativo, sem raio nem sombra, imagem dessaturada |
 | `expressivo` | restaurantes, hospitalidade | fundo escuro, display em caixa alta, imagem quadrada e grande, botão pílula |
+| `registro` | serviços locais, clínicas, escritórios, comércio de bairro | papel quente, tinta quase preta, petróleo + cobre, filetes em vez de caixas, dados em monoespaçada |
 | `comercial` | lojas, catálogos, produtos | claro e denso, cartões com elevação, raio generoso, leitura rápida |
 
 ```js
