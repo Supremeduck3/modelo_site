@@ -1,0 +1,142 @@
+.wrapper {
+  max-width: 560px;
+  margin: 0 auto;
+  padding-block: calc(var(--section-y) * 0.6) var(--section-y);
+  display: grid;
+  gap: 12px;
+}
+
+.eyebrow {
+  margin: 0;
+  font-family: ui-monospace, "SFMono-Regular", Menlo, monospace;
+  color: var(--color-text-muted);
+  font-size: 0.875rem;
+  letter-spacing: 0.04em;
+}
+
+.title {
+  margin: 0;
+  font-size: var(--fs-h2);
+}
+
+/*
+ * A situação vai em texto, com um ponto colorido antes: a cor ajuda quem bate
+ * o olho, o texto é o que informa.
+ */
+.status {
+  display: inline-flex;
+  align-items: center;
+  gap: 8px;
+  justify-self: start;
+  margin: 4px 0 0;
+  padding: 6px 12px;
+  border-radius: 999px;
+  background: var(--color-surface);
+  font-weight: 600;
+  font-size: 0.9375rem;
+}
+
+.status::before {
+  content: "";
+  width: 8px;
+  height: 8px;
+  border-radius: 50%;
+  background: var(--color-text-muted);
+}
+
+.toneWait::before {
+  background: var(--color-accent);
+}
+
+.toneAttention::before {
+  background: var(--color-primary);
+}
+
+.toneOk::before {
+  background: var(--color-success);
+}
+
+.next {
+  margin: 0;
+  color: var(--color-text-muted);
+}
+
+.list {
+  margin: 8px 0 0;
+  padding: 0;
+  border-top: var(--border-width) solid var(--color-border);
+}
+
+.list > div {
+  display: grid;
+  gap: 2px;
+  padding: 12px 0;
+  border-bottom: var(--border-width) solid var(--color-border);
+}
+
+.list dt {
+  color: var(--color-text-muted);
+  font-size: 0.875rem;
+}
+
+.list dd {
+  margin: 0;
+  font-weight: 600;
+}
+
+.highlight dd {
+  font-size: 1.125rem;
+  color: var(--color-primary);
+}
+
+.message {
+  margin: 8px 0 0;
+  padding: 14px 16px;
+  border-left: 3px solid var(--color-primary);
+  border-radius: var(--radius-sm);
+  background: var(--color-surface);
+}
+
+.message p {
+  margin: 0 0 6px;
+  white-space: pre-line;
+}
+
+.message footer {
+  color: var(--color-text-muted);
+  font-size: 0.875rem;
+}
+
+.actions {
+  display: grid;
+  gap: 10px;
+  margin-top: 12px;
+}
+
+.primary,
+.secondary {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  min-height: 48px;
+  padding: 0 20px;
+  border-radius: var(--button-radius);
+  font-weight: 600;
+  text-decoration: none;
+}
+
+.primary {
+  background: var(--color-primary);
+  color: var(--color-primary-contrast);
+}
+
+.secondary {
+  border: var(--border-width) solid var(--color-border);
+  color: var(--color-text);
+}
+
+@media (max-width: 768px) {
+  .wrapper {
+    padding-block: 32px var(--section-y-mobile);
+  }
+}

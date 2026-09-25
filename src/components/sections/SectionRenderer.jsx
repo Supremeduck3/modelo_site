@@ -5,6 +5,7 @@ import DifferentialsSection from './differentials/DifferentialsSection';
 import FaqSection from './faq/FaqSection';
 import GallerySection from './gallery/GallerySection';
 import HeroSection from './hero/HeroSection';
+import PricingSection from './pricing/PricingSection';
 import ServicesSection from './services/ServicesSection';
 import SubmissionSection from './submission/SubmissionSection';
 import TeamSection from './team/TeamSection';
@@ -25,6 +26,7 @@ const SECTION_COMPONENTS = {
   faq: FaqSection,
   contact: ContactSection,
   submission: SubmissionSection,
+  pricing: PricingSection,
 };
 
 /**

@@ -1,0 +1,375 @@
+.form {
+  display: grid;
+  gap: 28px;
+}
+
+.group {
+  margin: 0;
+  padding: 0;
+  border: 0;
+  min-width: 0;
+  display: grid;
+  /*
+   * `minmax(0, 1fr)` e não o `auto` implícito: item de grade não encolhe
+   * abaixo do próprio conteúdo, e o trilho de dias tem 18 dias lado a lado.
+   * Sem isto a página ficava com 1400px de largura num celular de 390px — o
+   * navegador reduzia o zoom de tudo e a rolagem horizontal dos dias nunca
+   * chegava a existir.
+   */
+  grid-template-columns: minmax(0, 1fr);
+  gap: 12px;
+}
+
+.legend {
+  padding: 0;
+  margin-bottom: 12px;
+  font-family: var(--font-family-heading);
+  font-weight: var(--font-weight-heading);
+  font-size: 1.125rem;
+  letter-spacing: var(--heading-tracking);
+}
+
+.groupError {
+  margin: 0;
+  color: var(--color-danger);
+  font-size: 0.875rem;
+}
+
+.hint {
+  margin: 0;
+  color: var(--color-text-muted);
+  font-size: 0.875rem;
+}
+
+/*
+ * O rádio nativo fica por cima do cartão, invisível mas presente: o toque em
+ * qualquer ponto do cartão é o toque no rádio, e teclado e leitor de tela
+ * continuam vendo um grupo de rádios comum.
+ */
+.radio {
+  position: absolute;
+  inset: 0;
+  width: 100%;
+  height: 100%;
+  margin: 0;
+  opacity: 0;
+  cursor: pointer;
+}
+
+/* ───────── serviços ───────── */
+
+.serviceGroup {
+  display: grid;
+  gap: 8px;
+}
+
+.serviceGroup + .serviceGroup {
+  margin-top: 8px;
+}
+
+.category {
+  margin: 0;
+  font-size: var(--fs-eyebrow);
+  text-transform: uppercase;
+  letter-spacing: var(--eyebrow-tracking);
+  font-weight: 600;
+  color: var(--color-text-muted);
+}
+
+.services {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(min(100%, 240px), 1fr));
+  gap: 8px;
+}
+
+.service,
+.chip,
+.day {
+  position: relative;
+  border: var(--border-width) solid var(--color-border);
+  border-radius: var(--radius-sm);
+  background: var(--color-background);
+  transition:
+    border-color var(--motion-duration) var(--motion-easing),
+    background var(--motion-duration) var(--motion-easing),
+    box-shadow var(--motion-duration) var(--motion-easing);
+}
+
+.service {
+  display: grid;
+  gap: 2px;
+  padding: 14px 16px;
+  min-height: 56px;
+}
+
+.serviceName {
+  font-weight: 600;
+}
+
+.serviceMeta {
+  color: var(--color-text-muted);
+  font-size: 0.875rem;
+  font-variant-numeric: tabular-nums;
+}
+
+/*
+ * Selecionado: borda da marca mais grossa e um fundo levemente tingido. Nunca
+ * só cor — a borda muda de espessura, e o rádio marcado é anunciado pelo
+ * leitor de tela.
+ */
+.service:has(.radio:checked),
+.chip:has(.radio:checked),
+.day:has(.radio:checked) {
+  border-color: var(--color-primary);
+  box-shadow: inset 0 0 0 1px var(--color-primary);
+  background: color-mix(
+    in srgb,
+    var(--color-primary) 7%,
+    var(--color-background)
+  );
+}
+
+.service:has(.radio:focus-visible),
+.chip:has(.radio:focus-visible),
+.day:has(.radio:focus-visible) {
+  outline: 3px solid color-mix(in srgb, var(--color-primary) 45%, transparent);
+  outline-offset: 2px;
+}
+
+@media (hover: hover) {
+  .service:hover,
+  .chip:hover,
+  .day:hover {
+    border-color: var(--color-primary);
+  }
+}
+
+/* ───────── chips (profissional, período) ───────── */
+
+.chips {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 8px;
+}
+
+.chip {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  min-height: 48px;
+  padding: 10px 18px;
+  font-weight: 500;
+}
+
+/* Período são 2 ou 3 opções: dividem a linha em partes iguais no celular. */
+.chipWide {
+  flex: 1 1 0;
+  min-width: 96px;
+}
+
+/* ───────── dias ───────── */
+
+.daysWrap {
+  position: relative;
+  min-width: 0;
+}
+
+.daysWrap::after {
+  content: "";
+  position: absolute;
+  top: 0;
+  right: 0;
+  bottom: 8px;
+  width: 32px;
+  pointer-events: none;
+  background: linear-gradient(to right, transparent, var(--color-background));
+}
+
+.days {
+  display: flex;
+  gap: 8px;
+  overflow-x: auto;
+  scroll-snap-type: x proximity;
+  padding: 2px 0 8px;
+  scrollbar-width: thin;
+}
+
+/*
+ * No celular o trilho sangra até a borda da tela (o recuo do Container é 20px
+ * nessa largura): o dia cortado na borda é o que avisa que dá para arrastar.
+ */
+@media (max-width: 640px) {
+  .daysWrap {
+    margin-inline: -20px;
+  }
+
+  .days {
+    padding-inline: 20px;
+    scroll-padding-inline: 20px;
+  }
+}
+
+.day {
+  flex: 0 0 68px;
+  display: grid;
+  justify-items: center;
+  gap: 2px;
+  padding: 10px 4px;
+  scroll-snap-align: start;
+}
+
+.dayWeek,
+.dayMonth {
+  color: var(--color-text-muted);
+  font-size: 0.8125rem;
+  text-transform: capitalize;
+}
+
+.dayNumber {
+  font-family: var(--font-family-heading);
+  font-weight: var(--font-weight-heading);
+  font-size: 1.375rem;
+  line-height: 1.1;
+  font-variant-numeric: tabular-nums;
+}
+
+/* ───────── dados ───────── */
+
+.fields {
+  display: grid;
+  gap: 16px;
+}
+
+.textarea {
+  resize: vertical;
+  min-height: 88px;
+}
+
+/* ───────── resumo e rodapé ───────── */
+
+.summary {
+  display: grid;
+  gap: 2px;
+  margin: 0;
+  padding: 14px 16px;
+  border-left: 3px solid var(--color-primary);
+  border-radius: var(--radius-sm);
+  background: var(--color-surface);
+}
+
+.summary span {
+  color: var(--color-text-muted);
+  font-size: 0.9375rem;
+}
+
+.privacy {
+  margin: 0;
+  color: var(--color-text-muted);
+  font-size: 0.8125rem;
+  text-align: center;
+}
+
+/* ───────── sucesso ───────── */
+
+.success {
+  display: grid;
+  justify-items: center;
+  gap: 12px;
+  text-align: center;
+}
+
+.successIcon {
+  width: 56px;
+  height: 56px;
+  color: var(--color-success);
+}
+
+.successTitle {
+  margin: 0;
+  font-size: var(--fs-h2);
+}
+
+.successText {
+  margin: 0;
+  max-width: 44ch;
+  color: var(--color-text-muted);
+}
+
+.successList {
+  width: 100%;
+  margin: 12px 0 4px;
+  padding: 0;
+  display: grid;
+  border-top: var(--border-width) solid var(--color-border);
+  text-align: left;
+}
+
+.successList > div {
+  display: flex;
+  flex-wrap: wrap;
+  justify-content: space-between;
+  gap: 4px 16px;
+  padding: 12px 0;
+  border-bottom: var(--border-width) solid var(--color-border);
+}
+
+.successList dt {
+  color: var(--color-text-muted);
+}
+
+.successList dd {
+  margin: 0;
+  font-weight: 600;
+  text-align: right;
+}
+
+.code {
+  font-family: ui-monospace, "SFMono-Regular", Menlo, monospace;
+  letter-spacing: 0.04em;
+}
+
+.successActions {
+  width: 100%;
+  display: grid;
+  gap: 10px;
+}
+
+.primaryLink,
+.secondaryLink {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  min-height: 48px;
+  padding: 0 20px;
+  border-radius: var(--button-radius);
+  font-weight: 600;
+  text-decoration: none;
+}
+
+.primaryLink {
+  background: var(--color-primary);
+  color: var(--color-primary-contrast);
+}
+
+.secondaryLink {
+  border: var(--border-width) solid var(--color-primary);
+  color: var(--color-primary);
+}
+
+.textButton {
+  min-height: 44px;
+  border: 0;
+  background: none;
+  color: var(--color-text-muted);
+  font: inherit;
+  text-decoration: underline;
+  cursor: pointer;
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .service,
+  .chip,
+  .day {
+    transition: none;
+  }
+}

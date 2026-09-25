@@ -91,7 +91,12 @@
   transform: translateY(4.5px);
 }
 
-@media (max-width: 960px) {
+/*
+ * 1080px, não 960px: com oito itens o menu de linha não cabia entre 960 e
+ * 1080 e quebrava em duas linhas. Tablet deitado recebe o menu de gaveta, que
+ * funciona igual.
+ */
+@media (max-width: 1080px) {
   .desktopNav {
     display: none;
   }

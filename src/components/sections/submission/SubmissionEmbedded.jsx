@@ -16,6 +16,11 @@ export default function SubmissionEmbedded({ id, content = {}, headingLevel }) {
       id={id}
       title={content.title}
       headingLevel={headingLevel}
+      // Como `h1`, é o topo da página do canal — já está na dobra. Entrar com
+      // animação ali fazia o texto esperar a hidratação para aparecer: o
+      // subtítulo, maior elemento da tela, pintava em 744 ms contra 196 ms do
+      // primeiro texto. Mesma regra do hero (ver Reveal `imediato`).
+      reveal={headingLevel !== 'h1'}
       subtitle={content.text}
       tone="surface"
     >

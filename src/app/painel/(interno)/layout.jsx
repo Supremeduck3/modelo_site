@@ -1,6 +1,6 @@
 import PanelShell from '@/components/painel/PanelShell';
 import PanelThemeProvider from '@/components/painel/PanelThemeProvider';
-import { siteConfig } from '@/config/site';
+import { features, siteConfig } from '@/config/site';
 import { buildAntdTheme } from '@/config/theme';
 import { requireSessionUser } from '@/server/modules/auth/session';
 
@@ -22,7 +22,14 @@ export default async function PanelInternalLayout({ children }) {
 
   return (
     <PanelThemeProvider theme={buildAntdTheme()}>
-      <PanelShell user={user} companyName={siteConfig.identity.name}>
+      <PanelShell
+        user={user}
+        companyName={siteConfig.identity.name}
+        enabledFeatures={{
+          booking: features.booking,
+          pricing: features.pricing,
+        }}
+      >
         {children}
       </PanelShell>
     </PanelThemeProvider>

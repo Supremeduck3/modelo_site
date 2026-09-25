@@ -5,7 +5,7 @@ import { publicBaseUrl } from '@/config/site/base-url';
  * sitemap.xml gerado da configuração.
  *
  * Lista só o que é público e existe nesta implantação: o canal de
- * manifestações entra apenas quando o bloco está ativo, e as páginas legais
+ * manifestações e o agendamento entram apenas quando estão ativos, e as páginas legais
  * apenas quando têm texto — apontar o buscador para uma página que só diz
  * "texto não preenchido" é pior do que não listá-la.
  */
@@ -21,6 +21,9 @@ export default function sitemap() {
   const rotas = [
     { path: '', priority: 1 },
     features.submissions ? { path: '/manifestacao', priority: 0.8 } : null,
+    // A página de pedido (/agendar/pedido/…) fica de fora: é link privado, com
+    // `noindex` na própria página.
+    features.booking ? { path: '/agendar', priority: 0.9 } : null,
     siteConfig.legal.privacyPolicy
       ? { path: '/privacidade', priority: 0.3 }
       : null,
