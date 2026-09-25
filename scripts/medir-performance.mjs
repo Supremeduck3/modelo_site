@@ -16,6 +16,7 @@ const PAGINAS = [
   ['manifestação', '/manifestacao'],
   ['privacidade', '/privacidade'],
   ['login', '/painel/login'],
+  ['agendar', '/agendar'],
 ];
 
 function kb(bytes) {

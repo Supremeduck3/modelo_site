@@ -38,9 +38,11 @@ model Company {
   createdAt     DateTime @default(now()) @map("created_at")
   updatedAt     DateTime @updatedAt @map("updated_at")
 
-  users       CompanyUser[]
-  categories  Category[]
-  submissions Submission[]
+  users        CompanyUser[]
+  categories   Category[]
+  submissions  Submission[]
+  offerings    ServiceOffering[]
+  appointments Appointment[]
 
   @@map("companies")
 }
@@ -66,12 +68,13 @@ model CompanyUser {
   createdAt         DateTime  @default(now()) @map("created_at")
   updatedAt         DateTime  @updatedAt @map("updated_at")
 
-  company        Company           @relation(fields: [companyId], references: [id], onDelete: Cascade)
-  assigned       Submission[]      @relation("SubmissionAssignee")
-  events         SubmissionEvent[]
-  passwordResets PasswordReset[]
-  invitation     UserInvitation?   @relation("ConvidadoComo")
-  invitesSent    UserInvitation[]  @relation("ConvidadoPor")
+  company           Company            @relation(fields: [companyId], references: [id], onDelete: Cascade)
+  assigned          Submission[]       @relation("SubmissionAssignee")
+  events            SubmissionEvent[]
+  passwordResets    PasswordReset[]
+  invitation        UserInvitation?    @relation("ConvidadoComo")
+  invitesSent       UserInvitation[]   @relation("ConvidadoPor")
+  appointmentEvents AppointmentEvent[]
 
   @@index([companyId])
   @@map("company_users")
@@ -189,4 +192,105 @@ model PasswordReset {
 
   @@index([companyUserId])
   @@map("password_resets")
+}
+
+/// Item da tabela de servicos com preco (corte, escova, manicure...).
+///
+/// Editado pela empresa no painel e mostrado no site publico. Preco em
+/// centavos, inteiro: dinheiro em ponto flutuante arredonda errado.
+model ServiceOffering {
+  id              String   @id @default(uuid())
+  companyId       String   @map("company_id")
+  name            String
+  description     String?
+  /// Agrupamento livre na tabela publica ("Cabelo", "Unhas").
+  category        String?
+  /// Nulo = "sob consulta".
+  priceCents      Int?     @map("price_cents")
+  /// Mostra "a partir de" antes do preco (servico que varia com o cabelo).
+  priceFrom       Boolean  @default(false) @map("price_from")
+  durationMinutes Int?     @map("duration_minutes")
+  /// Pode ser escolhido no pedido de agendamento.
+  bookable        Boolean  @default(true)
+  isActive        Boolean  @default(true) @map("is_active")
+  sortOrder       Int      @default(0) @map("sort_order")
+  createdAt       DateTime @default(now()) @map("created_at")
+  updatedAt       DateTime @updatedAt @map("updated_at")
+
+  company      Company       @relation(fields: [companyId], references: [id], onDelete: Cascade)
+  appointments Appointment[]
+
+  @@unique([companyId, name])
+  @@index([companyId, isActive, sortOrder])
+  @@map("service_offerings")
+}
+
+/// Pedido de agendamento feito pelo cliente no site.
+///
+/// Modelo de pedido + confirmacao: o cliente sugere dia e periodo, a empresa
+/// confirma um horario (ou propoe outro). Nada aqui promete horario livre.
+///
+/// Data e hora confirmadas ficam como data local + "HH:MM", sem fuso: e um
+/// compromisso de relogio de parede num endereco so, e converter para UTC so
+/// criaria o erro de horario de verao que nao existe no mundo real do salao.
+model Appointment {
+  id        String @id @default(uuid())
+  companyId String @map("company_id")
+  /// Codigo publico, aleatorio: e o que o cliente usa para acompanhar.
+  code      String @unique
+
+  serviceId    String? @map("service_id")
+  /// Copia do nome no momento do pedido: editar a tabela nao reescreve o
+  /// historico do que o cliente pediu.
+  serviceName  String  @map("service_name")
+  professional String?
+
+  requestedDate   DateTime @map("requested_date") @db.Date
+  /// manha | tarde | noite | qualquer
+  requestedPeriod String   @map("requested_period")
+
+  customerName  String    @map("customer_name")
+  customerPhone String    @map("customer_phone")
+  customerEmail String?   @map("customer_email")
+  notes         String?
+  consentAt     DateTime? @map("consent_at")
+
+  /// pending | proposed | confirmed | declined | cancelled | completed | no_show
+  status          String    @default("pending")
+  scheduledDate   DateTime? @map("scheduled_date") @db.Date
+  /// "HH:MM", hora local da empresa.
+  scheduledTime   String?   @map("scheduled_time")
+  /// Mensagem da empresa ao cliente (visivel na pagina de acompanhamento).
+  responseMessage String?   @map("response_message")
+
+  createdAt DateTime @default(now()) @map("created_at")
+  updatedAt DateTime @updatedAt @map("updated_at")
+
+  company Company            @relation(fields: [companyId], references: [id], onDelete: Cascade)
+  service ServiceOffering?   @relation(fields: [serviceId], references: [id], onDelete: SetNull)
+  events  AppointmentEvent[]
+
+  @@index([companyId, status])
+  @@index([companyId, scheduledDate])
+  @@index([companyId, createdAt])
+  @@map("appointments")
+}
+
+/// Historico auditavel de um pedido de agendamento.
+model AppointmentEvent {
+  id            String   @id @default(uuid())
+  appointmentId String   @map("appointment_id")
+  /// Nulo quando a acao foi do cliente ou do sistema.
+  actorId       String?  @map("actor_id")
+  eventType     String   @map("event_type")
+  fromValue     String?  @map("from_value")
+  toValue       String?  @map("to_value")
+  note          String?
+  createdAt     DateTime @default(now()) @map("created_at")
+
+  appointment Appointment  @relation(fields: [appointmentId], references: [id], onDelete: Cascade)
+  actor       CompanyUser? @relation(fields: [actorId], references: [id], onDelete: SetNull)
+
+  @@index([appointmentId, createdAt])
+  @@map("appointment_events")
 }

@@ -73,6 +73,7 @@ const PAGINAS_PUBLICAS = [
   ['política de privacidade', '/privacidade'],
   ['login do painel', '/painel/login'],
   ['recuperação de senha', '/painel/esqueci-senha'],
+  ['agendamento', '/agendar'],
 ];
 
 for (const [nome, caminho] of PAGINAS_PUBLICAS) {
@@ -106,6 +107,8 @@ test.describe('painel autenticado', () => {
     ['equipe', '/painel/equipe'],
     ['categorias', '/painel/categorias'],
     ['configurações', '/painel/configuracoes'],
+    ['agenda', '/painel/agenda'],
+    ['serviços e preços', '/painel/servicos'],
   ]) {
     test(`${nome} sem violação de acessibilidade`, async ({ page }) => {
       await prepararPagina(page, caminho);

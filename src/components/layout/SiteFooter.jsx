@@ -37,7 +37,7 @@ export default function SiteFooter() {
           </ul>
         </nav>
 
-        <div className={styles.column}>
+        <div className={`${styles.column} ${styles.contactColumn}`}>
           <p className={styles.columnTitle}>Contato</p>
           <ul className={styles.list}>
             {contact.phone && (

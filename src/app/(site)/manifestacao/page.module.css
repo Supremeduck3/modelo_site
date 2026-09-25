@@ -1,3 +1,8 @@
+/*
+ * Respiro em cima também: sem ele o formulário encostava na faixa de
+ * apresentação e a legenda "Tipo de manifestação" ficava montada na borda
+ * entre as duas.
+ */
 .formWrapper {
   max-width: 760px;
   margin: 0 auto var(--section-y);

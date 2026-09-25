@@ -286,4 +286,28 @@
   .centeredRule {
     margin-top: 40px;
   }
+
+  /* Sombra média numa imagem de largura total pesa demais na tela estreita. */
+  .splitMedia {
+    box-shadow: var(--shadow-soft);
+  }
+}
+
+/*
+ * Em tela de celular os dois caminhos do hero ocupam a largura toda e têm o
+ * mesmo tamanho. Com largura natural, empilhados e alinhados à esquerda, os
+ * dois botões ficavam com larguras diferentes e pareciam desalinhados — e o
+ * alvo de toque encolhia justo onde o dedo é o ponteiro.
+ */
+@media (max-width: 480px) {
+  .actions {
+    flex-direction: column;
+    align-items: stretch;
+    gap: 12px;
+  }
+
+  .actions > * {
+    width: 100%;
+    justify-content: center;
+  }
 }

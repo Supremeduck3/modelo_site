@@ -75,6 +75,9 @@ const PAGINAS_PUBLICAS = [
   ['canal de manifestações', '/manifestacao'],
   ['política de privacidade', '/privacidade'],
   ['login do painel', '/painel/login'],
+  // O trilho de dias do agendamento já esticou a página para 1400px num
+  // celular de 390px: rolagem horizontal dentro de grade é armadilha comum.
+  ['agendamento', '/agendar'],
 ];
 
 for (const [nome, caminho] of PAGINAS_PUBLICAS) {
@@ -104,6 +107,8 @@ test.describe('painel autenticado', () => {
     ['equipe', '/painel/equipe'],
     ['categorias', '/painel/categorias'],
     ['configurações', '/painel/configuracoes'],
+    ['agenda', '/painel/agenda'],
+    ['serviços e preços', '/painel/servicos'],
   ]) {
     test(`${nome} não rola para o lado no celular`, async ({ page }) => {
       const { largura, janela, culpados } = await medirVazamento(page, caminho);
@@ -114,4 +119,34 @@ test.describe('painel autenticado', () => {
       ).toBeLessThanOrEqual(janela + TOLERANCIA);
     });
   }
+});
+
+/*
+ * O menu do celular abria com 72px de altura e os links cortados: o cabeçalho
+ * fixo tem `backdrop-filter`, que prende todo `position: fixed` descendente na
+ * caixa dele. Nenhum outro teste pegava, porque o botão abria e o diálogo
+ * existia — só não dava para usar. Aqui se exige o que o visitante precisa:
+ * painel da altura da tela e os links à vista.
+ */
+test('menu do celular abre inteiro, com os links à vista', async ({ page }) => {
+  await page.setViewportSize(CELULAR);
+  await page.goto('/');
+
+  await page.getByRole('button', { name: /menu/i }).first().click();
+
+  const menu = page.getByRole('dialog', { name: 'Menu de navegação' });
+  await expect(menu).toBeVisible();
+
+  const altura = await menu.evaluate((el) => el.getBoundingClientRect().height);
+  expect(altura).toBeGreaterThanOrEqual(CELULAR.height - 1);
+
+  const links = menu.getByRole('navigation').getByRole('link');
+  expect(await links.count()).toBeGreaterThan(0);
+  for (const link of await links.all()) {
+    await expect(link).toBeInViewport();
+  }
+
+  // Esc fecha e devolve o foco ao botão que abriu.
+  await page.keyboard.press('Escape');
+  await expect(menu).toBeHidden();
 });

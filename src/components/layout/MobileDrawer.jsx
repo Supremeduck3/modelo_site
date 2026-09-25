@@ -1,6 +1,7 @@
 'use client';
 
 import { useEffect, useRef } from 'react';
+import { createPortal } from 'react-dom';
 import Button from '@/components/ui/Button';
 import BrandLogo from './BrandLogo';
 import styles from './mobile-drawer.module.css';
@@ -58,7 +59,19 @@ export default function MobileDrawer({ open, onClose, navigation, identity }) {
 
   if (!open) return null;
 
-  return (
+  /*
+   * O menu vai para o <body> por portal, não fica dentro do cabeçalho.
+   *
+   * O cabeçalho fixo tem `backdrop-filter`, e pela especificação isso o torna
+   * o bloco de contenção de todo descendente `position: fixed`: o "tela
+   * cheia" do menu virava "altura do cabeçalho". No celular o painel abria
+   * com 72px — logo e botão de fechar — e os links ficavam cortados fora da
+   * vista. Qualquer variante de navegação que ganhe `transform`, `filter` ou
+   * `contain` teria o mesmo efeito; o portal resolve para todas.
+   *
+   * Só monta depois de um clique, então `document` sempre existe aqui.
+   */
+  return createPortal(
     <div className={styles.overlay}>
       <button
         type="button"
@@ -106,6 +119,7 @@ export default function MobileDrawer({ open, onClose, navigation, identity }) {
           </Button>
         )}
       </aside>
-    </div>
+    </div>,
+    document.body,
   );
 }

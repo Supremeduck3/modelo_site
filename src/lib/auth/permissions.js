@@ -17,17 +17,28 @@ export const PERMISSIONS = {
   SUBMISSIONS_ARCHIVE: 'submissions:archive',
   /** Categorias, equipe e configurações da empresa (fase 6). */
   SETTINGS_MANAGE: 'settings:manage',
+  /** Ver os pedidos de agendamento. */
+  APPOINTMENTS_VIEW: 'appointments:view',
+  /** Confirmar, propor outro horário, recusar, marcar atendimento. */
+  APPOINTMENTS_MANAGE: 'appointments:manage',
+  /** Editar a tabela de serviços e preços. */
+  CATALOG_MANAGE: 'catalog:manage',
 };
 
 /**
- * Operador opera o canal; administração sensível fica com quem responde pela
- * empresa. Arquivar é destrutivo do ponto de vista da operação, então também
- * não é do operador.
+ * Operador opera o canal e a agenda; administração sensível fica com quem
+ * responde pela empresa. Arquivar é destrutivo do ponto de vista da operação,
+ * então também não é do operador — nem mexer em preço, que é decisão comercial.
  */
 const BY_ROLE = {
   owner: Object.values(PERMISSIONS),
   admin: Object.values(PERMISSIONS),
-  operator: [PERMISSIONS.SUBMISSIONS_VIEW, PERMISSIONS.SUBMISSIONS_MANAGE],
+  operator: [
+    PERMISSIONS.SUBMISSIONS_VIEW,
+    PERMISSIONS.SUBMISSIONS_MANAGE,
+    PERMISSIONS.APPOINTMENTS_VIEW,
+    PERMISSIONS.APPOINTMENTS_MANAGE,
+  ],
 };
 
 /** Papel desconhecido não recebe permissão nenhuma. */

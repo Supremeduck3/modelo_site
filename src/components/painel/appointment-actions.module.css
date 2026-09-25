@@ -1,0 +1,142 @@
+.root {
+  display: grid;
+  gap: 12px;
+  padding: 16px;
+  border: var(--border-width) solid var(--color-border);
+  border-radius: var(--radius-sm);
+  background: var(--color-background);
+}
+
+.title {
+  margin: 0;
+  font-size: 1rem;
+}
+
+.buttons {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(160px, 1fr));
+  gap: 8px;
+}
+
+.form {
+  display: grid;
+  gap: 14px;
+}
+
+.formTitle {
+  margin: 0;
+  font-weight: 600;
+}
+
+.row {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 12px;
+}
+
+.field {
+  display: grid;
+  gap: 4px;
+}
+
+.field > label {
+  font-weight: 600;
+}
+
+/* Campo nativo: no celular, dia e hora abrem o seletor do próprio aparelho. */
+.input {
+  width: 100%;
+  min-height: 44px;
+  padding: 10px 12px;
+  font: inherit;
+  font-size: 1rem;
+  color: var(--color-text);
+  background: var(--color-background);
+  border: var(--border-width) solid var(--color-border);
+  border-radius: var(--radius-sm);
+}
+
+.input:focus-visible {
+  outline: none;
+  border-color: var(--color-primary);
+  box-shadow: 0 0 0 3px
+    color-mix(in srgb, var(--color-primary) 25%, transparent);
+}
+
+.input[aria-invalid="true"] {
+  border-color: var(--color-danger);
+}
+
+.textarea {
+  resize: vertical;
+  min-height: 80px;
+}
+
+.hint {
+  margin: 0;
+  color: var(--color-text-muted);
+  font-size: 0.8125rem;
+}
+
+.error {
+  margin: 0;
+  color: var(--color-danger);
+  font-size: 0.8125rem;
+}
+
+.formActions {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 8px;
+}
+
+.notice {
+  display: grid;
+  gap: 10px;
+}
+
+.noticeText {
+  margin: 0;
+  color: var(--color-text-muted);
+  font-size: 0.875rem;
+}
+
+.preview {
+  margin: 0;
+  padding: 12px 14px;
+  border-radius: var(--radius-sm);
+  background: var(--color-surface);
+  font-family: inherit;
+  font-size: 0.875rem;
+  white-space: pre-wrap;
+  overflow-wrap: anywhere;
+}
+
+/* Mesmo verde medido do botão do site: 5,43:1 com branco. */
+.whatsapp {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  min-height: 48px;
+  padding: 0 20px;
+  border-radius: var(--radius-sm);
+  background: #0a7a3e;
+  color: #fff;
+  font-weight: 600;
+  text-decoration: none;
+}
+
+.whatsapp:hover {
+  color: #fff;
+  filter: brightness(0.95);
+}
+
+@media (max-width: 420px) {
+  .row {
+    grid-template-columns: 1fr;
+  }
+
+  .formActions > * {
+    flex: 1 1 auto;
+  }
+}

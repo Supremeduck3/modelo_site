@@ -146,6 +146,16 @@
   gap: 16px 20px;
 }
 
+/*
+ * A base de 200px só vale lado a lado, dentro de `.row`. Aplicada em todo
+ * campo, ela virava *altura* mínima sempre que o eixo era vertical — no
+ * formulário, e em `.row` no celular — e cada campo reservava ~200px: o
+ * "Assunto" e os contatos ficavam com um vão vazio de ~130px embaixo.
+ */
+.row > .field {
+  flex: 1 1 200px;
+}
+
 .label {
   font-weight: 600;
   color: var(--color-text);
@@ -269,6 +279,14 @@
     grid-template-columns: 1fr;
   }
 
+  .row > .field {
+    flex: 0 0 auto;
+  }
+
+  /*
+   * Os tipos em duas colunas: são rótulos curtos, e uma opção por linha fazia
+   * seis botões ocuparem uma tela de celular antes do primeiro campo.
+   */
   .radioGroup {
     grid-template-columns: repeat(2, minmax(0, 1fr));
   }

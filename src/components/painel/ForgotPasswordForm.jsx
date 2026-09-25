@@ -4,8 +4,16 @@ import Link from 'next/link';
 import { useId, useState } from 'react';
 import { Aviso, Botao, Campo } from '@/components/auth/AuthUI';
 import { LOGIN_PATH } from '@/lib/auth/next-path';
-import { validateForgotPasswordInput } from '@/lib/auth/schema';
 import styles from './forgot-password-form.module.css';
+
+/*
+ * A validação é baixada sob demanda: ela só roda no envio, e importada no topo
+ * ia para o carregamento da página — o zod/mini virou pedaço compartilhado
+ * entre os formulários públicos e custava ~24 KB antes da primeira pintura (a
+ * tela de convite chegava a levar o zod completo). O download começa quando a
+ * pessoa toca no primeiro campo, então no envio ele já chegou.
+ */
+const carregarValidacao = () => import('@/lib/auth/schema');
 
 const INITIAL_FORM = { email: '' };
 
@@ -40,6 +48,8 @@ export default function ForgotPasswordForm() {
     if (submitting) return;
 
     setFormError('');
+
+    const { validateForgotPasswordInput } = await carregarValidacao();
 
     const result = validateForgotPasswordInput(form);
     if (!result.success) {
@@ -92,7 +102,12 @@ export default function ForgotPasswordForm() {
   }
 
   return (
-    <form className={styles.form} onSubmit={handleSubmit} noValidate>
+    <form
+      onFocusCapture={carregarValidacao}
+      className={styles.form}
+      onSubmit={handleSubmit}
+      noValidate
+    >
       {formError && <Aviso>{formError}</Aviso>}
 
       <Campo

@@ -6,6 +6,7 @@
  * Nenhum dado específico de cliente deve morar aqui — apenas fallbacks seguros.
  */
 
+import { BOOKING_PERIOD_VALUES } from '../../lib/booking/constants.js';
 import { getThemePreset, THEME_PRESET_NAMES } from '../theme/presets.js';
 
 /** Variantes de navegação suportadas pelo motor visual. */
@@ -58,6 +59,7 @@ export const SECTION_VARIANTS = {
   faq: ['accordion', 'blocks', 'two-columns'],
   contact: ['cards', 'map', 'form-split'],
   submission: ['cta', 'embedded'],
+  pricing: ['list', 'cards'],
 };
 
 /** Configuração mínima viável, usada como fallback de cada campo ausente. */
@@ -84,6 +86,16 @@ export const DEFAULT_CONFIG = {
     mapEmbedUrl: '',
     businessHours: [],
     socials: [],
+    /**
+     * Botão fixo de WhatsApp no canto da tela.
+     *
+     * Usa `contact.whatsapp`; sem número, não aparece mesmo ligado. A mensagem
+     * já vem escrita na conversa — o cliente só aperta enviar.
+     */
+    whatsappButton: {
+      enabled: false,
+      message: 'Olá! Vim pelo site e gostaria de mais informações.',
+    },
   },
   navigation: {
     variant: 'header',
@@ -200,6 +212,18 @@ export const DEFAULT_CONFIG = {
         'Registre sua mensagem no canal de manifestações e acompanhe pelo número de protocolo.',
       calloutCta: null,
     },
+    pricing: {
+      title: 'Serviços e preços',
+      subtitle: '',
+      note: 'Valores de referência; podem variar conforme o serviço.',
+      ctaLabel: 'Agendar horário',
+    },
+    booking: {
+      title: 'Agende seu horário',
+      text: 'Escolha o serviço e o melhor dia. A gente confirma o horário com você.',
+      successText:
+        'Recebemos seu pedido. Vamos confirmar o horário pelo WhatsApp ou por e-mail.',
+    },
     submission: {
       title: 'Canal de manifestações',
       text: '',
@@ -232,6 +256,29 @@ export const DEFAULT_CONFIG = {
     testimonials: true,
     team: true,
     faq: true,
+    /** Tabela de serviços com preço, editada no painel. */
+    pricing: false,
+    /** Pedido de agendamento pelo site, confirmado pela empresa no painel. */
+    booking: false,
+  },
+  /**
+   * Regras do pedido de agendamento.
+   *
+   * É pedido, não reserva: o cliente sugere dia e período e a empresa confirma
+   * um horário. Por isso não há grade de horários aqui — só o que evita pedido
+   * que a empresa sabe de antemão que vai recusar.
+   */
+  booking: {
+    /** Fuso da empresa: decide o que é "hoje" para o formulário. */
+    timezone: 'America/Sao_Paulo',
+    /** Até quantos dias à frente o cliente pode pedir. */
+    daysAhead: 21,
+    /** Dias sem atendimento (0 = domingo … 6 = sábado). */
+    closedWeekdays: [0],
+    /** Períodos oferecidos (ver BOOKING_PERIODS em lib/booking/constants). */
+    periods: ['manha', 'tarde'],
+    /** Profissionais que o cliente pode preferir. Vazio esconde a pergunta. */
+    professionals: [],
   },
   seo: {
     title: null,
@@ -288,6 +335,78 @@ function mergeDeep(base, override) {
         : value;
   }
   return result;
+}
+
+/** Fuso inválido derruba `Intl`; conferimos antes de usar. */
+function isValidTimeZone(timeZone) {
+  try {
+    new Intl.DateTimeFormat('pt-BR', { timeZone });
+    return true;
+  } catch {
+    return false;
+  }
+}
+
+/**
+ * Corrige o bloco `booking` para valores utilizáveis, avisando o que mudou.
+ *
+ * Um erro de digitação aqui (período inexistente, dia 7) não pode tirar o
+ * formulário do ar: vira aviso e o valor cai no padrão.
+ */
+function validateBooking(config, warnings) {
+  const padrao = DEFAULT_CONFIG.booking;
+  const booking = { ...padrao, ...config.booking };
+
+  if (!isValidTimeZone(booking.timezone)) {
+    warnings.push(
+      `booking.timezone "${booking.timezone}" inválido; usando "${padrao.timezone}".`,
+    );
+    booking.timezone = padrao.timezone;
+  }
+
+  const dias = Number(booking.daysAhead);
+  if (!Number.isInteger(dias) || dias < 1 || dias > 90) {
+    warnings.push(
+      `booking.daysAhead precisa ser inteiro entre 1 e 90; usando ${padrao.daysAhead}.`,
+    );
+    booking.daysAhead = padrao.daysAhead;
+  }
+
+  const fechados = Array.isArray(booking.closedWeekdays)
+    ? booking.closedWeekdays
+    : [];
+  booking.closedWeekdays = [
+    ...new Set(
+      fechados.filter((dia) => Number.isInteger(dia) && dia >= 0 && dia <= 6),
+    ),
+  ];
+  if (booking.closedWeekdays.length === 7) {
+    warnings.push(
+      'booking.closedWeekdays fecha todos os dias; ninguém conseguiria pedir horário. Usando o padrão.',
+    );
+    booking.closedWeekdays = padrao.closedWeekdays;
+  }
+
+  const periodos = (
+    Array.isArray(booking.periods) ? booking.periods : []
+  ).filter((periodo) => BOOKING_PERIOD_VALUES.includes(periodo));
+  if (periodos.length === 0) {
+    warnings.push(
+      `booking.periods sem período válido; usando ${padrao.periods.join(', ')}. Disponíveis: ${BOOKING_PERIOD_VALUES.join(', ')}.`,
+    );
+  }
+  // Mantém a ordem do dia, não a ordem digitada.
+  booking.periods = BOOKING_PERIOD_VALUES.filter((periodo) =>
+    (periodos.length ? periodos : padrao.periods).includes(periodo),
+  );
+
+  booking.professionals = (
+    Array.isArray(booking.professionals) ? booking.professionals : []
+  )
+    .filter((nome) => typeof nome === 'string' && nome.trim())
+    .map((nome) => nome.trim());
+
+  config.booking = booking;
 }
 
 /**
@@ -361,6 +480,8 @@ export function validateSiteConfig(rawConfig) {
     errors.push('navigation.items precisa de ao menos um item.');
     nav.items = DEFAULT_CONFIG.navigation.items;
   }
+
+  validateBooking(config, warnings);
 
   const sections = config.pages?.home?.sections;
   if (!Array.isArray(sections) || sections.length === 0) {

@@ -6,7 +6,15 @@ import { Aviso, Botao, Campo, CampoSenha } from '@/components/auth/AuthUI';
 import styles from '@/components/auth/auth-ui.module.css';
 import { LOGIN_PATH } from '@/lib/auth/next-path';
 import { PASSWORD_MIN_LENGTH } from '@/lib/auth/password-rules';
-import { validateAcceptInvite } from '@/lib/team/schema';
+
+/*
+ * A validação é baixada sob demanda: ela só roda no envio, e importada no topo
+ * ia para o carregamento da página — o zod/mini virou pedaço compartilhado
+ * entre os formulários públicos e custava ~24 KB antes da primeira pintura (a
+ * tela de convite chegava a levar o zod completo). O download começa quando a
+ * pessoa toca no primeiro campo, então no envio ele já chegou.
+ */
+const carregarValidacao = () => import('@/lib/team/schema');
 
 const GENERIC_ERROR =
   'Não foi possível concluir agora. Tente novamente em instantes.';
@@ -40,6 +48,8 @@ export default function AcceptInviteForm({ token, invite }) {
     if (submitting) return;
 
     setFormError('');
+
+    const { validateAcceptInvite } = await carregarValidacao();
 
     const result = validateAcceptInvite({ token, ...passwords });
     if (!result.success) {
@@ -100,7 +110,12 @@ export default function AcceptInviteForm({ token, invite }) {
   }
 
   return (
-    <form className={styles.form} onSubmit={handleSubmit} noValidate>
+    <form
+      onFocusCapture={carregarValidacao}
+      className={styles.form}
+      onSubmit={handleSubmit}
+      noValidate
+    >
       <p className={styles.intro}>
         Olá, {invite.name}. Defina sua senha para ativar o acesso.
       </p>

@@ -26,6 +26,10 @@ const siteConfig = {
     city: 'Cidade',
     state: 'UF',
     mapEmbedUrl: '',
+    whatsappButton: {
+      enabled: true,
+      message: 'Olá! Vim pelo site e gostaria de mais informações.',
+    },
     businessHours: [
       { days: 'Segunda a sexta', hours: '08h às 18h' },
       { days: 'Sábado', hours: '08h às 12h' },
@@ -47,6 +51,8 @@ const siteConfig = {
       { label: 'Início', href: '#inicio' },
       { label: 'Sobre', href: '#sobre' },
       { label: 'Serviços', href: '#servicos' },
+      { label: 'Preços', href: '#precos' },
+      { label: 'Agendar', href: '/agendar' },
       { label: 'Diferenciais', href: '#diferenciais' },
       { label: 'Dúvidas', href: '#faq' },
       { label: 'Contato', href: '#contato' },
@@ -168,6 +174,7 @@ const siteConfig = {
         { type: 'hero', variant: 'split', id: 'inicio' },
         { type: 'about', variant: 'stats', id: 'sobre' },
         { type: 'services', variant: 'cards', id: 'servicos' },
+        { type: 'pricing', variant: 'list', id: 'precos' },
         { type: 'differentials', variant: 'icons', id: 'diferenciais' },
         { type: 'faq', variant: 'accordion', id: 'faq' },
         { type: 'gallery', variant: 'carousel', id: 'loja' },
@@ -182,6 +189,15 @@ const siteConfig = {
     gallery: true,
     testimonials: false,
     team: false,
+    // Tabela de preços (painel → Serviços e preços) e pedido de agendamento
+    // (painel → Agenda). Para um salão, veja src/config/site/exemplos/.
+    pricing: true,
+    booking: true,
+  },
+  booking: {
+    closedWeekdays: [0],
+    periods: ['manha', 'tarde'],
+    professionals: [],
   },
   seo: {
     title: 'Demo Serviços — serviços locais com prazo e garantia',

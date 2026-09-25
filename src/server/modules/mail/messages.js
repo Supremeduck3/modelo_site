@@ -320,3 +320,78 @@ export function memberInvited({
 
   return { subject, text, html };
 }
+
+/**
+ * Aviso à equipe de um pedido de agendamento novo.
+ *
+ * `when` e `phone` chegam formatados por quem chama (dia por extenso, período,
+ * telefone legível): esta função continua sem saber de datas nem de máscara.
+ * O telefone vai no corpo porque é por ele que a equipe confirma.
+ */
+export function appointmentRequestedForTeam({
+  appointment,
+  companyName,
+  when,
+  phone,
+  panelUrl,
+}) {
+  const subject = `Novo pedido de horário — ${appointment.serviceName} (${appointment.code})`;
+
+  const linhas = [
+    `Novo pedido de agendamento em ${companyName}.`,
+    '',
+    `Serviço: ${appointment.serviceName}`,
+    appointment.professional
+      ? `Profissional de preferência: ${appointment.professional}`
+      : null,
+    `Quando: ${when}`,
+    `Cliente: ${appointment.customerName}`,
+    `WhatsApp: ${phone}`,
+    appointment.customerEmail ? `E-mail: ${appointment.customerEmail}` : null,
+    appointment.notes ? `\nObservação:\n${appointment.notes}` : null,
+    '',
+    panelUrl
+      ? `Confirme ou proponha outro horário no painel: ${panelUrl}`
+      : 'Confirme ou proponha outro horário no painel da empresa.',
+  ].filter((linha) => linha !== null);
+
+  const text = linhas.join('\n');
+
+  const html = layout({
+    title: 'Novo pedido de horário',
+    body: `${paragraphs(linhas.slice(0, -1).join('\n'))}
+${
+  panelUrl
+    ? `<p><a href="${escapeHtml(panelUrl)}" style="display:inline-block;padding:10px 18px;background:#1f6feb;color:#ffffff;border-radius:8px;text-decoration:none;font-weight:600">Abrir no painel</a></p>`
+    : '<p>Confirme ou proponha outro horário no painel da empresa.</p>'
+}`,
+    footer: `Código do pedido: ${appointment.code}`,
+  });
+
+  return {
+    subject,
+    text,
+    html,
+    replyTo: appointment.customerEmail ?? undefined,
+  };
+}
+
+/**
+ * Aviso ao cliente de uma decisão sobre o pedido (confirmado, novo horário,
+ * recusado, cancelado).
+ *
+ * O texto é o mesmo que a equipe manda pelo WhatsApp — montado em
+ * lib/booking/messages.js — para o cliente não receber duas versões da mesma
+ * notícia.
+ */
+export function appointmentUpdateForCustomer({ subject, message, code }) {
+  return {
+    subject,
+    text: message,
+    html: layout({
+      title: subject,
+      body: paragraphs(message),
+      footer: `Código do pedido: ${code}`,
+    }),
+  };
+}

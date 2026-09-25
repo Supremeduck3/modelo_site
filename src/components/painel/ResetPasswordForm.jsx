@@ -5,8 +5,16 @@ import { useId, useState } from 'react';
 import { Aviso, Botao, CampoSenha } from '@/components/auth/AuthUI';
 import { LOGIN_PATH } from '@/lib/auth/next-path';
 import { PASSWORD_MIN_LENGTH } from '@/lib/auth/password-rules';
-import { validateResetPasswordInput } from '@/lib/auth/schema';
 import styles from './reset-password-form.module.css';
+
+/*
+ * A validação é baixada sob demanda: ela só roda no envio, e importada no topo
+ * ia para o carregamento da página — o zod/mini virou pedaço compartilhado
+ * entre os formulários públicos e custava ~24 KB antes da primeira pintura (a
+ * tela de convite chegava a levar o zod completo). O download começa quando a
+ * pessoa toca no primeiro campo, então no envio ele já chegou.
+ */
+const carregarValidacao = () => import('@/lib/auth/schema');
 
 const INITIAL_PASSWORDS = { password: '', passwordConfirmation: '' };
 
@@ -45,6 +53,8 @@ export default function ResetPasswordForm({ token }) {
     if (submitting) return;
 
     setFormError('');
+
+    const { validateResetPasswordInput } = await carregarValidacao();
 
     const result = validateResetPasswordInput({ token, ...passwords });
     if (!result.success) {
@@ -114,7 +124,12 @@ export default function ResetPasswordForm({ token }) {
   }
 
   return (
-    <form className={styles.form} onSubmit={handleSubmit} noValidate>
+    <form
+      onFocusCapture={carregarValidacao}
+      className={styles.form}
+      onSubmit={handleSubmit}
+      noValidate
+    >
       {formError && <Aviso>{formError}</Aviso>}
 
       <CampoSenha
