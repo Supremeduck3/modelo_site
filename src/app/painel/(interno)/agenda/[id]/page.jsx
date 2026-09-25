@@ -23,7 +23,8 @@ export const dynamic = 'force-dynamic';
 const dataHora = new Intl.DateTimeFormat('pt-BR', {
   dateStyle: 'short',
   timeStyle: 'short',
-  timeZone: 'America/Sao_Paulo',
+  // Fuso da empresa, o mesmo que decide o "hoje" da agenda.
+  timeZone: siteConfig.booking.timezone,
 });
 
 function descreverEvento(evento) {

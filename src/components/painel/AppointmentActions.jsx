@@ -78,7 +78,9 @@ export default function AppointmentActions({
     if (saving) return;
     setFormError('');
 
-    const corpo = { action: acao, ...dados };
+    // `from`: o status desta tela. Se outra pessoa mudou o pedido nesse meio
+    // tempo, o servidor recusa em vez de sobrescrever.
+    const corpo = { action: acao, from: appointment.status, ...dados };
     const result = validateAppointmentAction(corpo);
     if (!result.success) {
       setErrors(result.errors);
@@ -108,7 +110,7 @@ export default function AppointmentActions({
           status,
           scheduledDate: body.appointment.scheduledDate,
           scheduledTime: body.appointment.scheduledTime,
-          responseMessage: result.data.message ?? appointment.responseMessage,
+          responseMessage: result.data.message ?? null,
         },
         status,
         companyName,

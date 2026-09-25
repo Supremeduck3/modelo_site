@@ -1,5 +1,5 @@
 import { z } from 'zod';
-import { APPOINTMENT_ACTIONS } from './constants.js';
+import { APPOINTMENT_ACTIONS, APPOINTMENT_STATUSES } from './constants.js';
 import { isValidDate, isValidTime } from './dates.js';
 
 /**
@@ -14,6 +14,13 @@ export const appointmentActionSchema = z
     action: z.enum(Object.keys(APPOINTMENT_ACTIONS), {
       message: 'Ação inválida.',
     }),
+    /*
+     * Status que a pessoa estava vendo ao agir. Sem ele, quem age numa tela
+     * velha passa pelo filtro sempre que o status novo também é origem válida
+     * da ação (propor a partir de "confirmado", por exemplo) e sobrescreve a
+     * decisão de outra pessoa sem saber.
+     */
+    from: z.enum(APPOINTMENT_STATUSES.map((s) => s.value)).optional(),
     date: z.string().optional(),
     time: z.string().optional(),
     message: z.preprocess((value) => {

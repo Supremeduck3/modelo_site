@@ -27,7 +27,11 @@ domínio próprios. O código do molde é reaproveitado.
    molde, só para nenhuma implantação nascer com 404 no ícone — troque pelo
    símbolo da empresa e aponte `identity.favicon` para o arquivo novo.
 6. **Conteúdo** — preencher `content` com textos, serviços, diferenciais, FAQ.
-7. **Funcionalidades** — ligar/desligar blocos em `features`.
+7. **Funcionalidades** — ligar/desligar blocos em `features`. Negócio com hora
+   marcada (salão, barbearia, esmalteria, estética...) tem guia próprio: ver
+   [`docs/SALAO.md`](SALAO.md). A migração que traz tabela de preços e
+   agendamento (`add_catalog_and_appointments`) entra com `npm run db:deploy`,
+   igual a qualquer migração nova do molde.
 8. **SEO e legais** — preencher `seo` e `legal` (textos jurídicos fornecidos e
    revisados pelo responsável — o molde não inventa texto legal). `robots.txt` e
    o sitemap são gerados dessa configuração, sem nada para escrever à mão; ver

@@ -165,3 +165,56 @@ test('código inexistente não revela nada', async ({ page }) => {
   const resposta = await page.goto('/agendar/pedido/2026-AAAA-AAAA');
   expect(resposta.status()).toBe(404);
 });
+
+test('tela velha não sobrescreve a decisão de outra pessoa', async ({
+  browser,
+}) => {
+  test.skip(!codigo, 'depende do pedido confirmado nos testes anteriores');
+
+  const painel = await browser.newContext({
+    storageState: PAINEL_STORAGE_STATE,
+  });
+  const page = await painel.newPage();
+  await page.goto('/painel/agenda?ver=historico');
+  const href = await page
+    .getByRole('link', { name: /Cliente de Teste/ })
+    .filter({ hasText: SERVICO })
+    .first()
+    .getAttribute('href');
+  const id = href.split('/').pop();
+
+  /*
+   * O pedido já está confirmado. Uma tela aberta antes, ainda mostrando
+   * "aguardando", tenta propor outro horário. Propor a partir de confirmado é
+   * permitido — por isso a checagem pelo status da tela é o que impede a
+   * sobrescrita.
+   */
+  const velha = await painel.request.post(`/api/painel/agenda/${id}`, {
+    data: {
+      action: 'propose',
+      from: 'pending',
+      date: proximo(2),
+      time: '10:00',
+    },
+  });
+  expect(velha.status()).toBe(409);
+
+  // A mesma ação feita de uma tela atualizada passa — e sem recado novo, o
+  // recado da confirmação não pode reaparecer para o cliente.
+  const atual = await painel.request.post(`/api/painel/agenda/${id}`, {
+    data: {
+      action: 'propose',
+      from: 'confirmed',
+      date: proximo(2),
+      time: '10:00',
+    },
+  });
+  expect(atual.status()).toBe(200);
+  await painel.close();
+
+  const cliente = await browser.newPage();
+  await cliente.goto(`/agendar/pedido/${codigo}`);
+  await expect(cliente.getByText('Novo horário proposto')).toBeVisible();
+  await expect(cliente.getByText('Chegue 10 minutos antes.')).toHaveCount(0);
+  await cliente.close();
+});

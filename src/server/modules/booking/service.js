@@ -290,10 +290,13 @@ export async function getAppointmentDetail(companyId, id) {
  * Aplica uma ação da equipe (confirmar, propor, recusar, cancelar, atendido,
  * não compareceu).
  *
- * A troca de status é um `updateMany` filtrado pelos status de origem
- * permitidos: se duas pessoas da equipe agem no mesmo pedido ao mesmo tempo,
- * a segunda encontra o status já mudado, nada é alterado e ela recebe erro —
- * em vez de, por exemplo, uma confirmar e a outra recusar por cima.
+ * Duas proteções contra duas pessoas agindo no mesmo pedido:
+ * - a tela manda o status que estava mostrando (`from`); se o pedido já mudou,
+ *   a ação é recusada — senão, propor a partir de uma tela velha passaria por
+ *   cima de uma confirmação recém-feita, porque "confirmado" também é origem
+ *   válida de propor;
+ * - o `updateMany` filtra pelo status lido nesta mesma transação, então nem
+ *   duas requisições simultâneas vindas de telas atualizadas se sobrepõem.
  */
 export async function actOnAppointment({ companyId, actorId, id, input }) {
   if (!companyId) throw new Error('Ação exige companyId.');
@@ -319,6 +322,13 @@ export async function actOnAppointment({ companyId, actorId, id, input }) {
     });
     if (!atual) throw new BookingError('not_found', 'Pedido não encontrado.');
 
+    if (data.from && data.from !== atual.status) {
+      throw new BookingError(
+        'invalid_transition',
+        'Outra pessoa acabou de mudar este pedido. Recarregue a página.',
+      );
+    }
+
     if (!acao.from.includes(atual.status)) {
       throw new BookingError(
         'invalid_transition',
@@ -328,16 +338,17 @@ export async function actOnAppointment({ companyId, actorId, id, input }) {
 
     const mudanca = {
       status: acao.to,
-      // A mensagem da última decisão é a que o cliente vê; ação sem mensagem
-      // não apaga a anterior — só troca quando a equipe escreveu algo.
-      ...(data.message ? { responseMessage: sanitize(data.message) } : {}),
+      // A mensagem é sempre a da decisão atual: guardar a anterior fazia o
+      // recado de uma proposta ("à tarde só temos esse horário") reaparecer na
+      // confirmação ou no cancelamento feitos depois sem mensagem.
+      responseMessage: data.message ? sanitize(data.message) : null,
       ...(acao.needsSchedule
         ? { scheduledDate: paraDate(data.date), scheduledTime: data.time }
         : {}),
     };
 
     const { count } = await tx.appointment.updateMany({
-      where: { id: atual.id, companyId, status: { in: acao.from } },
+      where: { id: atual.id, companyId, status: atual.status },
       data: mudanca,
     });
     if (count === 0) {

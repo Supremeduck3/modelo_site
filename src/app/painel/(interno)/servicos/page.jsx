@@ -22,14 +22,14 @@ export default async function ServicosPage() {
   if (!features.pricing) notFound();
 
   const user = await requireSessionUser('/painel/servicos');
+  // Preço é decisão comercial: operador não chega nem à tela (as APIs também
+  // recusam, mas mostrar um editor em que todo botão dá erro é pior).
+  if (!can(user, PERMISSIONS.CATALOG_MANAGE)) notFound();
   const offerings = await listOfferingsForPanel(user.companyId);
 
   return (
     <Card title="Serviços e preços">
-      <CatalogManager
-        offerings={offerings}
-        canManage={can(user, PERMISSIONS.CATALOG_MANAGE)}
-      />
+      <CatalogManager offerings={offerings} canManage />
     </Card>
   );
 }
